@@ -1,0 +1,16 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Demo" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    </style>
+
+    <style name="Theme.Demo" parent="Base.Theme.Demo" />
+    <style name="SmallBottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="android:layout_height">48dp</item> <!-- Chiều cao cố định nhỏ hơn -->
+        <item name="itemIconSize">14dp</item> <!-- Kích thước icon nhỏ -->
+        <item name="itemPaddingTop">5dp</item> <!-- Giảm padding trên -->
+        <item name="itemPaddingBottom">0dp</item> <!-- Giảm padding dưới -->
+        <item name="android:layout_marginBottom">0dp</item> <!-- Giảm marginBottom -->
+    </style>
+</resources>

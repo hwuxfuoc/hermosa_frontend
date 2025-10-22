@@ -1,0 +1,5 @@
+<resources>
+    <style name="NavTextSmall" parent="@style/TextAppearance.AppCompat.Caption">
+        <item name="android:textSize">9sp</item>
+    </style>
+</resources>
