@@ -103,7 +103,7 @@
 
             <!-- Giá -->
             <TextView
-                android:id="@+id/cake_price"
+                android:id="@+id/food_price"
                 android:layout_width="283dp"
                 android:layout_height="wrap_content"
                 android:fontFamily="serif"
@@ -162,7 +162,7 @@
 
         <!-- Mô tả -->
         <TextView
-            android:id="@+id/cake_description"
+            android:id="@+id/food_description"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="This dessert features a buttery biscuit base topped with a silky smooth cream cheese layer. Fresh strawberry sauce adds a fruity sweetness, creating a perfect balance of tangy and creamy in every bite."

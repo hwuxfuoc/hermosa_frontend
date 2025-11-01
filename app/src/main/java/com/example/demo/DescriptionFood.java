@@ -23,12 +23,9 @@ public class DescriptionFood extends AppCompatActivity {
         TextView textName = findViewById(R.id.food_name);
         TextView textPrice = findViewById(R.id.food_price);
         TextView textDescription = findViewById(R.id.food_description);
-        ImageView arrowIcon = findViewById(R.id.arrow_icon);
-        ImageButton favoriteIcon = findViewById(R.id.favorite_icon);
-        EditText quantityInput = findViewById(R.id.quantity_input);
+        ImageView arrowIcon = findViewById(R.id.icon_return_arrow);
+        ImageButton favoriteIcon = findViewById(R.id.icon_favorite);
         Button addToCartButton = findViewById(R.id.button_add_to_cart);
-        Button plusButton = findViewById(R.id.button_plus);
-        Button minusButton = findViewById(R.id.button_minus);
 
         // Lấy dữ liệu từ Intent
         String name = getIntent().getStringExtra("name");
@@ -65,36 +62,5 @@ public class DescriptionFood extends AppCompatActivity {
             editor.apply();
             isFavorite[0] = !isFavorite[0];
         });
-
-        // Add to cart
-        addToCartButton.setOnClickListener(v -> {
-            int quantity = getQuantity(quantityInput);
-            addToCart(selectedProduct, quantity);
-        });
-    }
-
-    // Hàm tiện ích đọc số lượng
-    private int getQuantity(EditText et) {
-        int quantity = 1;
-        try {
-            String input = et.getText().toString().trim();
-            if (!input.isEmpty()) quantity = Integer.parseInt(input);
-        } catch (NumberFormatException e) {
-            quantity = 1;
-        }
-        return quantity;
-    }
-
-    private void addToCart(Product product, int quantity) {
-        for (Product p : ProductData.cartList) {
-            if (p.getName().equals(product.getName())) {
-                p.setQuantity(p.getQuantity() + quantity);
-                Toast.makeText(this, "Updated quantity in cart!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-        }
-        product.setQuantity(quantity);
-        ProductData.cartList.add(product);
-        Toast.makeText(this, "Added to cart!", Toast.LENGTH_SHORT).show();
     }
 }
