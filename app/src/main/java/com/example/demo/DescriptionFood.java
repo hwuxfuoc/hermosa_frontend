@@ -50,35 +50,20 @@ public class DescriptionFood extends AppCompatActivity {
         // Xử lý yêu thích
         SharedPreferences prefs = getSharedPreferences("favorites", MODE_PRIVATE);
         final boolean[] isFavorite = { prefs.getBoolean(name, false) };
-        favoriteIcon.setImageResource(isFavorite[0] ? R.drawable.favorite_icon_fill : R.drawable.favorite_icon_empty);
+        favoriteIcon.setImageResource(isFavorite[0] ? R.drawable.icon_favorite_fill : R.drawable.icon_favorite_empty);
         favoriteIcon.setOnClickListener(v -> {
             SharedPreferences.Editor editor = prefs.edit();
             if (isFavorite[0]) {
-                favoriteIcon.setImageResource(R.drawable.favorite_icon_empty);
+                favoriteIcon.setImageResource(R.drawable.icon_favorite_empty);
                 editor.remove(name);
                 Toast.makeText(this, name + " removed from favorites", Toast.LENGTH_SHORT).show();
             } else {
-                favoriteIcon.setImageResource(R.drawable.favorite_icon_fill);
+                favoriteIcon.setImageResource(R.drawable.icon_favorite_fill);
                 editor.putBoolean(name, true);
                 Toast.makeText(this, name + " added to favorites", Toast.LENGTH_SHORT).show();
             }
             editor.apply();
             isFavorite[0] = !isFavorite[0];
-        });
-
-        // Nút + / -
-        plusButton.setOnClickListener(v -> {
-            int quantity = getQuantity(quantityInput);
-            quantity++;
-            quantityInput.setText(String.valueOf(quantity));
-        });
-
-        minusButton.setOnClickListener(v -> {
-            int quantity = getQuantity(quantityInput);
-            if (quantity > 1) {
-                quantity--;
-                quantityInput.setText(String.valueOf(quantity));
-            }
         });
 
         // Add to cart
