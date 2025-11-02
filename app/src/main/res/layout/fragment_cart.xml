@@ -1,0 +1,91 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
+
+    <!-- 🔹 Header -->
+    <LinearLayout
+        android:id="@+id/header_cart"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:background="@color/white"
+        android:elevation="2dp">
+
+        <!-- Nút quay lại -->
+        <ImageView
+            android:id="@+id/btn_back_cart"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/icon_return_arrow"
+            android:contentDescription="Quay lại"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="#A71317" />
+
+        <!-- Tiêu đề Giỏ Hàng -->
+        <TextView
+            android:id="@+id/text_cart_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Giỏ Hàng"
+            android:textColor="#000000"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center" />
+
+        <!-- Nút Sửa -->
+        <TextView
+            android:id="@+id/text_edit_cart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sửa"
+            android:textColor="#A71317"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:padding="4dp"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+    </LinearLayout>
+
+    <!-- 🔹 RecyclerView hiển thị các item trong giỏ hàng -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewCart"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="8dp" />
+
+    <!-- 🔹 Footer (checkbox & nút mua hàng) -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:gravity="center_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <CheckBox
+            android:id="@+id/checkAll"
+            android:text="Tất cả"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/btnMuaHang"
+            android:text="Mua hàng"
+            android:backgroundTint="#A71317"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <!-- 🔹 Thanh điều hướng (tùy chọn) -->
+    <!-- <include layout="@layout/bottom_nav" /> -->
+
+</LinearLayout>
