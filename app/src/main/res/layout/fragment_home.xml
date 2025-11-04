@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#DFDFDF"
-    tools:context=".FragmentHome">
+    tools:context=".fragment.FragmentHome">
 
     <!-- Vùng chứa avatar + welcome + username -->
     <LinearLayout
@@ -146,6 +146,7 @@
             android:text="Cake"
             android:textSize="16sp"
             android:textColor="#EB4341"
+            android:clickable="true"
             android:padding="0dp"
             android:background="@drawable/tab_selected_bg" />
 
@@ -158,6 +159,7 @@
             android:text="Drink"
             android:textSize="16sp"
             android:textColor="#9E9E9E"
+            android:clickable="true"
             android:padding="0dp"
             android:background="@drawable/tab_unselected_bg" />
 
@@ -170,6 +172,7 @@
             android:text="Food"
             android:textSize="16sp"
             android:textColor="#9E9E9E"
+            android:clickable="true"
             android:padding="0dp"
             android:background="@drawable/tab_unselected_bg" />
     </LinearLayout>

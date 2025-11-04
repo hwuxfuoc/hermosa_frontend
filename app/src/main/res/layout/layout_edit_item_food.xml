@@ -20,7 +20,7 @@
 
     <!-- Thẻ sản phẩm (giống item_cart) -->
     <include
-        layout="@layout/cart_item" />
+        layout="@layout/item_cart_food" />
 
     <!-- Ví dụ: Size chọn -->
     <TextView
@@ -32,20 +32,11 @@
         android:textColor="#666"
         android:layout_marginTop="12dp"/>
 
-    <CheckBox
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_checkboxes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Size S" />
-
-    <CheckBox
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Size M" />
-
-    <CheckBox
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Size L" />
+        android:overScrollMode="never" />
 
     <!-- Nút thêm vào giỏ -->
     <Button
@@ -55,7 +46,7 @@
         android:text="Add to Cart"
         android:textColor="#FFFFFF"
         android:textStyle="bold"
-        android:background="@drawable/background_left_rounded_pink"
+        android:backgroundTint="#A71317"
         android:layout_marginTop="16dp"/>
 
 </LinearLayout>

@@ -1,8 +1,7 @@
-package com.example.demo;
+package com.example.demo.description;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -10,19 +9,22 @@ import android.widget.Button;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class DescriptionFood extends AppCompatActivity {
+import com.example.demo.Product;
+import com.example.demo.R;
+
+public class DescriptionCake extends AppCompatActivity {
 
     private Product selectedProduct;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.description_food);
+        setContentView(R.layout.description_cake);
 
-        ImageView imageView = findViewById(R.id.food_image);
-        TextView textName = findViewById(R.id.food_name);
-        TextView textPrice = findViewById(R.id.food_price);
-        TextView textDescription = findViewById(R.id.food_description);
+        ImageView imageView = findViewById(R.id.cake_image);
+        TextView textName = findViewById(R.id.cake_name);
+        TextView textPrice = findViewById(R.id.cake_price);
+        TextView textDescription = findViewById(R.id.cake_description);
         ImageView arrowIcon = findViewById(R.id.icon_return_arrow);
         ImageButton favoriteIcon = findViewById(R.id.icon_favorite);
         Button addToCartButton = findViewById(R.id.button_add_to_cart);
@@ -46,7 +48,7 @@ public class DescriptionFood extends AppCompatActivity {
 
         // Xử lý yêu thích
         SharedPreferences prefs = getSharedPreferences("favorites", MODE_PRIVATE);
-        final boolean[] isFavorite = { prefs.getBoolean(name, false) };
+        final boolean[] isFavorite = {prefs.getBoolean(name, false)};
         favoriteIcon.setImageResource(isFavorite[0] ? R.drawable.icon_favorite_fill : R.drawable.icon_favorite_empty);
         favoriteIcon.setOnClickListener(v -> {
             SharedPreferences.Editor editor = prefs.edit();
@@ -64,3 +66,4 @@ public class DescriptionFood extends AppCompatActivity {
         });
     }
 }
+

@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,7 +9,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-public class FragmentNotification extends Fragment {
+import com.example.demo.R;
+
+public class FragmentProfile extends Fragment {
 
     @Nullable
     @Override
@@ -17,6 +19,6 @@ public class FragmentNotification extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         // inflate layout fragment_cart.xml (nếu chưa có, tạo file này)
-        return inflater.inflate(R.layout.fragment_notification, container, false);
+        return inflater.inflate(R.layout.fragment_profile, container, false);
     }
 }

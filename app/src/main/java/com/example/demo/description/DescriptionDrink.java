@@ -1,8 +1,7 @@
-package com.example.demo;
+package com.example.demo.description;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -10,19 +9,22 @@ import android.widget.Button;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class DescriptionCake extends AppCompatActivity {
+import com.example.demo.Product;
+import com.example.demo.R;
+
+public class DescriptionDrink extends AppCompatActivity {
 
     private Product selectedProduct;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.description_cake);
+        setContentView(R.layout.description_drink);
 
-        ImageView imageView = findViewById(R.id.cake_image);
-        TextView textName = findViewById(R.id.cake_name);
-        TextView textPrice = findViewById(R.id.cake_price);
-        TextView textDescription = findViewById(R.id.cake_description);
+        ImageView imageView = findViewById(R.id.drink_image);
+        TextView textName = findViewById(R.id.drink_name);
+        TextView textPrice = findViewById(R.id.drink_price);
+        TextView textDescription = findViewById(R.id.drink_description);
         ImageView arrowIcon = findViewById(R.id.icon_return_arrow);
         ImageButton favoriteIcon = findViewById(R.id.icon_favorite);
         Button addToCartButton = findViewById(R.id.button_add_to_cart);
@@ -64,4 +66,3 @@ public class DescriptionCake extends AppCompatActivity {
         });
     }
 }
-

@@ -10,6 +10,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.demo.description.DescriptionCake;
+import com.example.demo.description.DescriptionDrink;
+import com.example.demo.description.DescriptionFood;
+
 import java.util.List;
 
 public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder> {

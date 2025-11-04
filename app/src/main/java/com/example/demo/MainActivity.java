@@ -3,10 +3,13 @@ package com.example.demo;
 import android.os.Bundle;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
+
+import com.example.demo.fragment.FragmentCart;
+import com.example.demo.fragment.FragmentHome;
+import com.example.demo.fragment.FragmentNotification;
+import com.example.demo.fragment.FragmentProfile;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.core.view.WindowInsetsCompat;
 

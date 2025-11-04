@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,6 +9,10 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.demo.CartAdapter;
+import com.example.demo.ProductData;
+import com.example.demo.R;
 
 public class FragmentCart extends Fragment {
 

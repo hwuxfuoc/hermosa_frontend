@@ -27,7 +27,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     @Override
     public CartViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // Sử dụng layout item mới của giỏ hàng
-        View view = LayoutInflater.from(context).inflate(R.layout.cart_item, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.item_cart_cake, parent, false);
         return new CartViewHolder(view);
     }
 
@@ -91,9 +91,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             textName = itemView.findViewById(R.id.text_name_cart);
             textPrice = itemView.findViewById(R.id.text_price_cart);
             buttonRemove = itemView.findViewById(R.id.button_remove_cart);
-            buttonPlus = itemView.findViewById(R.id.button_plus_cart);
-            buttonMinus = itemView.findViewById(R.id.button_minus_cart);
-            quantityInput = itemView.findViewById(R.id.quantity_input_cart);
         }
     }
 }
