@@ -2,4 +2,34 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <!-- Đồ uống -->
+    <color name="smoothie_strawberry">#A71317</color>
+    <color name="smoothie_caramel">#E68E09</color>
+    <color name="smoothie_oreo">#220203</color>
+    <color name="smoothie_blueberry">#865163</color>
+    <color name="matcha_green">#727C26</color>
+    <color name="choco_milk_tea">#D7A95E</color>
+    <color name="coffee_black_ice">#220203</color>
+    <color name="coffee_hot">#220203</color>
+    <color name="coffee_milk">#964E12</color>
+    <color name="tea_green">#4C4116</color>
+    <color name="tea_longan">#D7A95E</color>
+    <color name="tea_guava">#FBA79E</color>
+
+
+    <!-- Bánh -->
+    <color name="cake_lemon">#F1BCBC</color>
+    <color name="cake_blueberry">#1F2831</color>
+    <color name="cake_yellow_lemon_cheese">#A55102</color>
+    <color name="cake_tiramisu_chocolate">#562715</color>
+    <color name="cake_tiramisu_matcha">#727C26</color>
+    <color name="cake_eclair">#4F252D</color>
+    <color name="cake_truffle">#FAE4B0</color>
+    <color name="cake_opera">#4F252D</color>
+    <color name="cake_strawberry_donut">#E95B7C</color>
+    <color name="cake_matcha_donut">#8DA813</color>
+    <color name="cake_egg_tart">#F4BD35</color>
+    <color name="cake_macarons">#935427</color>
+    <color name="cake_croissant">#964E12</color>
+    <color name="cake_chocolate_croissant">#562715</color>
 </resources>

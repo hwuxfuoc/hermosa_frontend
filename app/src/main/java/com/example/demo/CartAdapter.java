@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -85,15 +86,16 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         Button buttonMinus;
         EditText quantityInput;
 
+        @SuppressLint("WrongViewCast")
         public CartViewHolder(@NonNull View itemView) {
             super(itemView);
-            imageProduct = itemView.findViewById(R.id.image_product_cart);
-            textName = itemView.findViewById(R.id.text_name_cart);
-            textPrice = itemView.findViewById(R.id.text_price_cart);
-            buttonRemove = itemView.findViewById(R.id.button_remove_cart);
-            buttonPlus = itemView.findViewById(R.id.button_plus_cart);
-            buttonMinus = itemView.findViewById(R.id.button_minus_cart);
-            quantityInput = itemView.findViewById(R.id.quantity_input_cart);
+            imageProduct = itemView.findViewById(R.id.image_product);
+            textName = itemView.findViewById(R.id.tvName);
+            textPrice = itemView.findViewById(R.id.tvPrice);
+            buttonRemove = itemView.findViewById(R.id.btnDelete);
+            buttonPlus = itemView.findViewById(R.id.btnPlus);
+            buttonMinus = itemView.findViewById(R.id.btnMinus);
+            quantityInput = itemView.findViewById(R.id.tvQuantity);
         }
     }
 }

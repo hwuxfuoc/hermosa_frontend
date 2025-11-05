@@ -42,6 +42,9 @@ dependencies {
     implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.cardview)
+    implementation(libs.glide)
+    // 2. Bộ xử lý chú thích (Annotation Processor) - Rất quan trọng
+    annotationProcessor(libs.glide.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

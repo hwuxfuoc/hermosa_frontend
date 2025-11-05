@@ -13,6 +13,7 @@
         android:layout_height="wrap_content" />
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/itemBackground"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/card_border"
