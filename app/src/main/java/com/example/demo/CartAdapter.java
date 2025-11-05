@@ -11,22 +11,30 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide; // ✅ THÊM: Import thư viện Glide
+import com.example.demo.model.Product;
+
 import java.util.List;
+import java.util.Locale;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder> {
 
     private Context context;
     private List<Product> cartList;
+    // ✅ KHUYẾN KHÍCH: Thêm interface để giao tiếp với Activity
+    private OnCartActionListener listener;
 
-    public CartAdapter(Context context, List<Product> cartList) {
+    // ✅ KHUYẾN KHÍCH: Sửa constructor để nhận interface
+    public CartAdapter(Context context, List<Product> cartList, OnCartActionListener listener) {
         this.context = context;
         this.cartList = cartList;
+        this.listener = listener;
     }
 
     @NonNull
     @Override
     public CartViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Sử dụng layout item mới của giỏ hàng
         View view = LayoutInflater.from(context).inflate(R.layout.item_cart_cake, parent, false);
         return new CartViewHolder(view);
     }
@@ -34,11 +42,20 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     @Override
     public void onBindViewHolder(@NonNull CartViewHolder holder, int position) {
         Product product = cartList.get(position);
-        holder.textName.setText(product.name);
-        holder.textPrice.setText(product.getPrice()); // nếu price là String
-        holder.imageProduct.setImageResource(product.imageResId);
 
-        // Hiển thị số lượng hiện tại
+        // ✅ SỬA 1: Sử dụng getter để lấy dữ liệu
+        holder.textName.setText(product.getName());
+
+        // ✅ SỬA 3: Chuyển giá trị số thành chuỗi và định dạng tiền tệ
+        // Giả sử getPrice() trả về một số (int, double, float)
+        holder.textPrice.setText(String.format(Locale.getDefault(), "%,.0f đ", product.getPrice()));
+
+        // ✅ KHUYẾN KHÍCH: Dùng Glide để tải ảnh từ URL thay vì resource ID
+        // Glide.with(context).load(product.getImageUrl()).into(holder.imageProduct);
+        // Nếu vẫn dùng resourceId:
+        holder.imageProduct.setImageResource(product.getImageResId());
+
+
         holder.quantityInput.setText(String.valueOf(product.getQuantity()));
 
         // Nút + tăng số lượng
@@ -46,28 +63,26 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             int qty = product.getQuantity() + 1;
             product.setQuantity(qty);
             holder.quantityInput.setText(String.valueOf(qty));
-            // TODO: cập nhật tổng tiền nếu cần
+            if (listener != null) listener.onItemQuantityChanged(product); // ✅ Thông báo cho Activity
         });
 
         // Nút - giảm số lượng
         holder.buttonMinus.setOnClickListener(v -> {
             int qty = product.getQuantity();
-            if (qty > 1) { // không cho giảm <1
+            if (qty > 1) {
                 qty--;
                 product.setQuantity(qty);
                 holder.quantityInput.setText(String.valueOf(qty));
+                if (listener != null) listener.onItemQuantityChanged(product); // ✅ Thông báo cho Activity
             }
-            // TODO: cập nhật tổng tiền nếu cần
         });
 
         // Xử lý sự kiện xóa item
         holder.buttonRemove.setOnClickListener(v -> {
-            // Xóa item khỏi danh sách
-            cartList.remove(position);
-            // Thông báo cho adapter về sự thay đổi
-            notifyItemRemoved(position);
-            notifyItemRangeChanged(position, cartList.size());
-            // TODO: Cập nhật lại tổng tiền nếu có
+            // ✅ KHUYẾN KHÍCH: Không tự xóa trong Adapter, hãy báo cho Activity/Fragment
+            if (listener != null) {
+                listener.onItemRemoved(product, position);
+            }
         });
     }
 
@@ -91,6 +106,17 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             textName = itemView.findViewById(R.id.text_name_cart);
             textPrice = itemView.findViewById(R.id.text_price_cart);
             buttonRemove = itemView.findViewById(R.id.button_remove_cart);
+
+            // ✅ SỬA 2: Ánh xạ các view còn thiếu
+            buttonPlus = itemView.findViewById(R.id.button_plus);
+            buttonMinus = itemView.findViewById(R.id.button_minus);
+            quantityInput = itemView.findViewById(R.id.quantity_input);
         }
+    }
+
+    // ✅ KHUYẾN KHÍCH: Định nghĩa interface để giao tiếp ngược lại
+    public interface OnCartActionListener {
+        void onItemRemoved(Product product, int position);
+        void onItemQuantityChanged(Product product);
     }
 }

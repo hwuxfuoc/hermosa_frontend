@@ -1,9 +1,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF">
+    android:background="#FFFFFF"
+    tools:context=".cart.CartActivity">
 
     <!-- 🔹 Header -->
     <LinearLayout
@@ -75,12 +77,24 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"/>
 
+        <TextView
+            android:id="@+id/tvTotal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:text="Tổng: 0đ"
+            android:textStyle="bold"
+            android:textColor="#000"
+            android:textSize="16sp" />
+
         <Button
             android:id="@+id/btnMuaHang"
             android:text="Mua hàng"
             android:backgroundTint="#A71317"
             android:textColor="@android:color/white"
             android:textStyle="bold"
+            android:layout_marginStart="5dp"
             android:layout_width="120dp"
             android:layout_height="wrap_content"/>
     </LinearLayout>

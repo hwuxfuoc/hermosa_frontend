@@ -36,12 +36,8 @@ public class MainActivity extends AppCompatActivity {
             int itemId = item.getItemId();
             if (itemId == R.id.menu_home) {
                 selectedFragment = new FragmentHome();
-            } else if (itemId == R.id.menu_favorite) {
-                selectedFragment = new FragmentFavorite();
             } else if (itemId == R.id.menu_cart) {
                 selectedFragment = new FragmentCart();
-            } else if (itemId == R.id.menu_voucher) {
-                selectedFragment = new FragmentVoucher();
             } else if (itemId == R.id.menu_notification) {
                 selectedFragment = new FragmentNotification();
             } else if (itemId == R.id.menu_profile) {

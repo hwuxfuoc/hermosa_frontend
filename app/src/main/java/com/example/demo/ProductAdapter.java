@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.demo.description.DescriptionCake;
 import com.example.demo.description.DescriptionDrink;
 import com.example.demo.description.DescriptionFood;
+import com.example.demo.model.Product;
 
 import java.util.List;
 

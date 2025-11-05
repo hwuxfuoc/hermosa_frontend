@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.demo.Product;
+import com.example.demo.model.Product;
 import com.example.demo.ProductAdapter;
 import com.example.demo.ProductData;
 import com.example.demo.R;

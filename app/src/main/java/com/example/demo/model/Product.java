@@ -1,14 +1,22 @@
-package com.example.demo;
+package com.example.demo.model;
+
+import com.google.gson.annotations.SerializedName;
 
 public class Product {
+    @SerializedName("_id")
+    String id;
+    String productID;
     String name; // tên
     String price; // giá
     int imageResId; // id ảnh
     int color; // màu nền
     String description; // mô tả
     String category; // danh mục
-    private boolean isFavorite; // trạng thái yêu thích
-    private int quantity = 0;
+    boolean isFavorite; // trạng thái yêu thích
+    int quantity = 0;
+    int subtotal;
+    String size;
+    String[] topping;
 
     public Product(String name, String price, int imageResId, int color) {
         this(name, price, imageResId, color, "", ""); // mặc định không có mô tả

@@ -9,7 +9,7 @@ import android.widget.Button;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.demo.Product;
+import com.example.demo.model.Product;
 import com.example.demo.R;
 
 public class DescriptionCake extends AppCompatActivity {
