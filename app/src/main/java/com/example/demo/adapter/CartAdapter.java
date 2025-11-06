@@ -5,12 +5,10 @@ import android.view.*;
 import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.demo.R;
 import com.example.demo.model.CartItem;
-
 import java.util.List;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
@@ -35,108 +33,46 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
     @NonNull
     @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(ctx).inflate(R.layout.item_cart_cake, parent, false);
+        // layout bạn dùng: item_cart_cake (theo bạn gửi)
+        View v = LayoutInflater.from(ctx).inflate(R.layout.fragment_cart, parent, false);
         return new VH(v);
     }
 
     @Override
     public void onBindViewHolder(@NonNull VH holder, int position) {
         CartItem item = list.get(position);
+
         holder.tvName.setText(item.getName());
         holder.tvSubtotal.setText(String.format("%,d VND/pc", item.getPrice()));
         holder.tvQuantity.setText(String.valueOf(item.getQuantity()));
 
-        // ✅ Load ảnh (có thể dùng link từ BE nếu có)
-        /*if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
+        // 1) Load ảnh: ưu tiên imageUrl nếu có, ngược lại dùng drawable từ imageName
+        if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
             Glide.with(ctx).load(item.getImageUrl()).into(holder.img);
         } else {
-            Glide.with(ctx).load(R.drawable.logo_app).into(holder.img);
-        }*/
+            int resId = item.getDrawableResId(ctx);
+            holder.img.setImageResource(resId);
+        }
 
-        // ✅ Set màu nền cho CardView (không dùng setBackgroundColor)
-        int colorRes = getBackgroundColor(item);
-        holder.itemBackground.setCardBackgroundColor(ContextCompat.getColor(ctx, colorRes));
+        // 2) Dùng màu từ item.resolveColor(ctx)
+        int bgColor = item.resolveColor(ctx);
+        holder.itemBackground.setCardBackgroundColor(bgColor);
 
-        // Các nút hành động
+        // 3) Các nút hành động
         holder.btnPlus.setOnClickListener(v -> action.onIncrease(item));
         holder.btnMinus.setOnClickListener(v -> action.onDecrease(item));
         holder.btnDelete.setOnClickListener(v -> action.onDelete(item));
 
-        // Checkbox chọn sản phẩm
+        // 4) Checkbox: set listener an toàn tránh recycled listener
         holder.cbSelect.setOnCheckedChangeListener(null);
+        // mặc định chọn (nếu bạn muốn mặc định true). Nếu muốn dựa vào dữ liệu, thêm trường boolean trong CartItem
         holder.cbSelect.setChecked(true);
-        holder.cbSelect.setOnCheckedChangeListener((b, checked) -> action.onToggleSelect(item, checked));
+        holder.cbSelect.setOnCheckedChangeListener((buttonView, isChecked) -> action.onToggleSelect(item, isChecked));
     }
 
     @Override
     public int getItemCount() {
         return list.size();
-    }
-
-    /**
-     * Xác định màu nền theo tên sản phẩm (so khớp với colors.xml bạn gửi)
-     */
-    private int getBackgroundColor(CartItem item) {
-        String name = item.getName().toLowerCase();
-
-        // === Đồ uống ===
-        if (name.contains("strawberry") && name.contains("smoothie"))
-            return R.color.smoothie_strawberry;
-        if (name.contains("caramel"))
-            return R.color.smoothie_caramel;
-        if (name.contains("oreo"))
-            return R.color.smoothie_oreo;
-        if (name.contains("blueberry"))
-            return R.color.smoothie_blueberry;
-        if (name.contains("matcha") || name.contains("latte"))
-            return R.color.matcha_green;
-        if (name.contains("milk tea") || name.contains("chocolate milk tea"))
-            return R.color.choco_milk_tea;
-        if (name.contains("black ice coffee"))
-            return R.color.coffee_black_ice;
-        if (name.contains("milk coffee"))
-            return R.color.coffee_milk;
-        if (name.contains("hot coffee"))
-            return R.color.coffee_hot;
-        if (name.contains("green tea"))
-            return R.color.tea_green;
-        if (name.contains("guava"))
-            return R.color.tea_guava;
-        if (name.contains("longan"))
-            return R.color.tea_longan;
-
-        // === Bánh ===
-        if (name.contains("strawberry cheese"))
-            return R.color.cake_strawberry_donut;
-        if (name.contains("yellow lemon"))
-            return R.color.cake_lemon;
-        if (name.contains("blueberry cheese"))
-            return R.color.cake_blueberry;
-        if (name.contains("tiramisu"))
-            return R.color.cake_tiramisu_chocolate;
-        if (name.contains("classic matcha"))
-            return R.color.cake_tiramisu_matcha;
-        if (name.contains("eclair"))
-            return R.color.cake_eclair;
-        if (name.contains("truffle"))
-            return R.color.cake_truffle;
-        if (name.contains("opera"))
-            return R.color.cake_opera;
-        if (name.contains("donut") && name.contains("strawberry"))
-            return R.color.cake_strawberry_donut;
-        if (name.contains("donut") && name.contains("matcha"))
-            return R.color.cake_matcha_donut;
-        if (name.contains("egg tart"))
-            return R.color.cake_egg_tart;
-        if (name.contains("macarons"))
-            return R.color.cake_macarons;
-        if (name.contains("croissant") && name.contains("chocolate"))
-            return R.color.cake_chocolate_croissant;
-        if (name.contains("croissant"))
-            return R.color.cake_croissant;
-
-        // Mặc định
-        return R.color.white;
     }
 
     // ================== ViewHolder ==================
@@ -145,19 +81,38 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
         TextView tvName, tvSubtotal, tvQuantity;
         ImageButton btnPlus, btnMinus, btnDelete;
         CheckBox cbSelect;
-        CardView itemBackground; // CardView bọc ngoài
+        CardView itemBackground;
 
         public VH(@NonNull View itemView) {
             super(itemView);
-            img = itemView.findViewById(R.id.imgProduct);
-            tvName = itemView.findViewById(R.id.tvName);
-            tvSubtotal = itemView.findViewById(R.id.tvPrice);
-            tvQuantity = itemView.findViewById(R.id.tvQuantity);
-            btnPlus = itemView.findViewById(R.id.btnPlus);
-            btnMinus = itemView.findViewById(R.id.btnMinus);
-            btnDelete = itemView.findViewById(R.id.btnDelete);
-            cbSelect = itemView.findViewById(R.id.cbSelect);
-            itemBackground = itemView.findViewById(R.id.itemBackground);
+            // IDs theo xml bạn gửi (cart_item_select_cake / item_cart_cake)
+            // nếu bạn có id khác trong layout, hãy đổi tương ứng
+            img = itemView.findViewById(R.id.image_product);      // xml: image_product
+            if (img == null) img = itemView.findViewById(R.id.image_product); // fallback nếu id khác
+
+            tvName = itemView.findViewById(R.id.text_name);       // xml: text_name
+            if (tvName == null) tvName = itemView.findViewById(R.id.text_name);
+
+            tvSubtotal = itemView.findViewById(R.id.text_price);  // xml: text_price
+            if (tvSubtotal == null) tvSubtotal = itemView.findViewById(R.id.text_price);
+
+            tvQuantity = itemView.findViewById(R.id.text_quantity); // xml: text_quantity
+            if (tvQuantity == null) tvQuantity = itemView.findViewById(R.id.text_quantity);
+
+            btnPlus = itemView.findViewById(R.id.button_plus);    // xml
+            if (btnPlus == null) btnPlus = itemView.findViewById(R.id.button_plus);
+
+            btnMinus = itemView.findViewById(R.id.button_minus);  // xml
+            if (btnMinus == null) btnMinus = itemView.findViewById(R.id.button_minus);
+
+            btnDelete = itemView.findViewById(R.id.button_delete); // xml
+            if (btnDelete == null) btnDelete = itemView.findViewById(R.id.button_delete);
+
+            cbSelect = itemView.findViewById(R.id.check_box_select); // xml
+            if (cbSelect == null) cbSelect = itemView.findViewById(R.id.check_box_select);
+
+            itemBackground = itemView.findViewById(R.id.item_background); // xml: item_background (card)
+            if (itemBackground == null) itemBackground = itemView.findViewById(R.id.item_background);
         }
     }
 }
