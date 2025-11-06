@@ -20,7 +20,7 @@
 
     <!-- Thẻ sản phẩm (giống item_cart) -->
     <include
-        layout="@layout/item_cart_drink" />
+        layout="@layout/cart_item_edit_drink" />
 
     <!-- Ví dụ: Size chọn -->
     <TextView

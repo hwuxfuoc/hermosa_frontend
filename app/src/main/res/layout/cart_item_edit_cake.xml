@@ -7,13 +7,8 @@
     android:orientation="horizontal"
     android:padding="8dp">
 
-    <CheckBox
-        android:id="@+id/cbSelect"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
     <androidx.cardview.widget.CardView
-        android:id="@+id/itemBackground"
+        android:id="@+id/item_background"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/card_border"
@@ -28,7 +23,7 @@
             android:orientation="horizontal">
 
             <ImageView
-                android:id="@+id/imgProduct"
+                android:id="@+id/image_product"
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:background="@android:color/transparent"
@@ -55,7 +50,7 @@
                     >
 
                     <TextView
-                        android:id="@+id/tvName"
+                        android:id="@+id/text_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Strawberry Cheese"
@@ -64,7 +59,7 @@
                         android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/tvPrice"
+                        android:id="@+id/text_price"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="85.000 VND/pc"
@@ -81,7 +76,7 @@
                     android:orientation="vertical">
 
                     <ImageButton
-                        android:id="@+id/btnDelete"
+                        android:id="@+id/button_delete"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
@@ -99,14 +94,14 @@
                         android:orientation="horizontal">
 
                         <ImageButton
-                            android:id="@+id/btnMinus"
+                            android:id="@+id/button_minus"
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:background="@android:color/transparent"
                             android:src="@drawable/button_minus" />
 
                         <TextView
-                            android:id="@+id/tvQuantity"
+                            android:id="@+id/text_quantity"
                             android:layout_width="32dp"
                             android:layout_height="wrap_content"
                             android:gravity="center"
@@ -116,7 +111,7 @@
                             android:textStyle="bold" />
 
                         <ImageButton
-                            android:id="@+id/btnPlus"
+                            android:id="@+id/button_plus"
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:background="@android:color/transparent"

@@ -22,7 +22,7 @@
 
     <!-- Thẻ sản phẩm (giống item_cart) -->
     <include
-        layout="@layout/item_cart_cake" />
+        layout="@layout/cart_item_edit_cake" />
 
     <!-- Ví dụ: Size chọn -->
     <TextView
