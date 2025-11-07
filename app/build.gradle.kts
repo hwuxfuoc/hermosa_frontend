@@ -33,7 +33,7 @@ android {
 
 dependencies {
     implementation(libs.appcompat)
-    implementation(libs.material)
+    implementation(libs.material)  // BẮT BUỘC CHO BottomSheetDialogFragment
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.volley)
@@ -43,9 +43,10 @@ dependencies {
     implementation(libs.cardview)
     implementation(libs.glide)
     annotationProcessor(libs.glide.compiler)
-
-    // You now have only one declaration for circleimageview
     implementation(libs.circleimageview)
+
+    implementation(libs.fragment)  // Cho Fragment cơ bản
+    implementation(libs.fragment.ktx)  // Cho Kotlin extension (tùy chọn)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

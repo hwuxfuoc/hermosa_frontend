@@ -65,11 +65,19 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
         // Bấm itemView → mở Description
         holder.itemView.setOnClickListener(v -> {
-            Class<?> cls = switch (product.getCategory()) {
-                case "drink" -> DescriptionDrink.class;
-                case "food" -> DescriptionFood.class;
-                default -> DescriptionCake.class;
-            };
+            Class<?> cls;
+            switch (product.getCategory()) {
+                case "drink":
+                    cls = DescriptionDrink.class;
+                    break;
+                case "food":
+                    cls = DescriptionFood.class;
+                    break;
+                default:
+                    cls = DescriptionCake.class;
+                    break;
+            }
+
             Intent i = new Intent(context, cls);
             i.putExtra("name", product.getName());
             i.putExtra("price", product.getPrice());

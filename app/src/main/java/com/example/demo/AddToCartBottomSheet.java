@@ -1,7 +1,5 @@
 package com.example.demo;
 
-import static androidx.fragment.app.DialogFragment.STYLE_NORMAL;
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +11,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.BottomSheetDialogFragment;
+
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;  // ĐÚNG RỒI!
 
 import com.example.demo.model.Product;
 
@@ -38,7 +37,6 @@ public class AddToCartBottomSheet extends BottomSheetDialogFragment {
         }
         setCancelable(true);
 
-        // DÒNG QUAN TRỌNG NHẤT - THIẾU DÒNG NÀY = KHÔNG RA BOTTOMSHEET!!!
         setStyle(STYLE_NORMAL, R.style.BottomSheetDialogTheme);
     }
 

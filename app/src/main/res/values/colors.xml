@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- Màu chính cho app Hermosa -->
+    <color name="colorPrimary">#EB4341</color>          <!-- Đỏ chính -->
+    <color name="colorPrimaryDark">#A71317</color>      <!-- Đỏ đậm -->
+    <color name="colorAccent">#EB4341</color>           <!-- Đỏ highlight -->
+
+    <!-- Màu phụ -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="gray_light">#DFDFDF</color>
+    <color name="gray_medium">#9E9E9E</color>
+    <color name="gray_dark">#555555</color>
 </resources>
