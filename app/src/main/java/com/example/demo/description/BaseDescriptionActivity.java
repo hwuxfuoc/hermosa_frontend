@@ -48,12 +48,12 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
 
         // Favorite - dùng tên sản phẩm làm key
         SharedPreferences prefs = getSharedPreferences("favorites", MODE_PRIVATE);
-        boolean isFav = prefs.getBoolean(name, false);
-        btnFav.setImageResource(isFav ? R.drawable.icon_favorite_fill : R.drawable.icon_favorite_empty);
+        boolean[] isFav = {prefs.getBoolean(name, false)}; // Dùng mảng để biến thành effectively final
+        btnFav.setImageResource(isFav[0] ? R.drawable.icon_favorite_fill : R.drawable.icon_favorite_empty);
 
         btnFav.setOnClickListener(v -> {
             SharedPreferences.Editor editor = prefs.edit();
-            if (isFav) {
+            if (isFav[0]) {
                 btnFav.setImageResource(R.drawable.icon_favorite_empty);
                 editor.remove(name);
                 Toast.makeText(this, name + " đã bỏ yêu thích", Toast.LENGTH_SHORT).show();
@@ -63,7 +63,7 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
                 Toast.makeText(this, name + " đã thêm vào yêu thích", Toast.LENGTH_SHORT).show();
             }
             editor.apply();
-            isFav = !isFav;
+            isFav[0] = !isFav[0]; // Cập nhật giá trị trong mảng
         });
 
         // Setup nút Add to Cart (mở BottomSheet)

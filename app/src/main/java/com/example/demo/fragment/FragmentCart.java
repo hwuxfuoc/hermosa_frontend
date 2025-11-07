@@ -1,197 +1,133 @@
 package com.example.demo.fragment;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.*;
-import android.widget.*;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.example.demo.EditItemBottomSheet;
+import com.example.demo.ProductData;
 import com.example.demo.R;
 import com.example.demo.adapter.CartAdapter;
-import com.example.demo.api.ApiClient;
-import com.example.demo.api.ApiService;
-import com.example.demo.model.CartItem;
-import com.example.demo.model.CartResponse;
-import com.example.demo.model.CommonResponse;
-import java.util.*;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import com.example.demo.model.Product;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FragmentCart extends Fragment implements CartAdapter.OnAction {
 
-    private RecyclerView rv;
+    private RecyclerView recyclerViewCart;
+    private CheckBox checkAll;
     private TextView tvTotal;
+    private Button btnMuaHang;
     private CartAdapter adapter;
-    private List<CartItem> items = new ArrayList<>();
-    private ApiService api;
-    private String userID;
-
-    // Lưu trạng thái các item được chọn
-    private Map<String, Boolean> selectedItems = new HashMap<>();
+    private List<Product> cartList = new ArrayList<>();
+    private boolean isEditMode = false;
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_cart, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_cart, container, false);
+
+        recyclerViewCart = view.findViewById(R.id.recyclerViewCart);
+        checkAll = view.findViewById(R.id.checkAll);
+        tvTotal = view.findViewById(R.id.tvTotal);
+        btnMuaHang = view.findViewById(R.id.btnMuaHang);
+
+        return view;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        rv = view.findViewById(R.id.recyclerViewCart);
-        tvTotal = view.findViewById(R.id.tvTotal);
+        cartList = ProductData.cartList;
 
-        api = ApiClient.getClient().create(ApiService.class);
+        adapter = new CartAdapter(requireContext(), cartList, this);
+        recyclerViewCart.setLayoutManager(new LinearLayoutManager(requireContext()));
+        recyclerViewCart.setAdapter(adapter);
 
-        SharedPreferences prefs = requireActivity().getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
-        userID = prefs.getString("USER_ID", null);
-
-        if (userID == null) {
-            Toast.makeText(requireContext(), "Bạn chưa đăng nhập", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        adapter = new CartAdapter(requireContext(), items, this);
-        rv.setLayoutManager(new LinearLayoutManager(requireContext()));
-        rv.setAdapter(adapter);
-
-        loadCart();
-    }
-
-    private void loadCart() {
-        api.viewCart(userID).enqueue(new Callback<CartResponse>() {
-            @Override
-            public void onResponse(Call<CartResponse> call, Response<CartResponse> response) {
-                if (response.isSuccessful() && response.body() != null && "Success".equals(response.body().getStatus())) {
-                    CartResponse.CartData data = response.body().getData();
-                    items.clear();
-                    if (data.getItems() != null) items.addAll(data.getItems());
-                    adapter.notifyDataSetChanged();
-
-                    tvTotal.setText(String.format("Tổng: %,d đ", data.getTotalMoney()));
-
-                    // Đặt mặc định tất cả là chọn
-                    selectedItems.clear();
-                    for (CartItem item : items) {
-                        selectedItems.put(item.getId(), true);
-                    }
-                } else {
-                    Toast.makeText(requireContext(), "Không có dữ liệu giỏ hàng", Toast.LENGTH_SHORT).show();
-                }
+        // Check tất cả
+        checkAll.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            for (Product item : cartList) {
+                item.setSelected(isChecked);
             }
-
-            @Override
-            public void onFailure(Call<CartResponse> call, Throwable t) {
-                Log.e("API", "loadCart", t);
-                Toast.makeText(requireContext(), "Lỗi kết nối", Toast.LENGTH_SHORT).show();
-            }
+            adapter.notifyDataSetChanged();
+            updateTotal();
         });
-    }
 
-    // ================== CartAdapter.OnAction ==================
-
-    @Override
-    public void onIncrease(CartItem item) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("userID", userID);
-        body.put("itemID", item.getId());
-
-        api.increaseItem(body).enqueue(new Callback<CommonResponse>() {
-            @Override
-            public void onResponse(Call<CommonResponse> call, Response<CommonResponse> response) {
-                if (response.isSuccessful() && response.body() != null && "Success".equals(response.body().getStatus())) {
-                    item.setQuantity(item.getQuantity() + 1);
-                    adapter.notifyDataSetChanged();
-                    loadCart(); // tải lại tổng tiền
-                } else {
-                    Toast.makeText(requireContext(), "Không tăng được số lượng", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<CommonResponse> call, Throwable t) {
-                Toast.makeText(requireContext(), "Lỗi kết nối", Toast.LENGTH_SHORT).show();
-            }
+        // Nút Mua hàng
+        btnMuaHang.setOnClickListener(v -> {
+            Toast.makeText(requireContext(), "Đặt hàng thành công!", Toast.LENGTH_SHORT).show();
         });
-    }
 
-    @Override
-    public void onDecrease(CartItem item) {
-        if (item.getQuantity() <= 1) {
-            Toast.makeText(requireContext(), "Số lượng tối thiểu là 1", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        Map<String, Object> body = new HashMap<>();
-        body.put("userID", userID);
-        body.put("itemID", item.getId());
-
-        api.decreaseItem(body).enqueue(new Callback<CommonResponse>() {
-            @Override
-            public void onResponse(Call<CommonResponse> call, Response<CommonResponse> response) {
-                if (response.isSuccessful() && response.body() != null && "Success".equals(response.body().getStatus())) {
-                    item.setQuantity(item.getQuantity() - 1);
-                    adapter.notifyDataSetChanged();
-                    loadCart();
-                } else {
-                    Toast.makeText(requireContext(), "Không giảm được số lượng", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<CommonResponse> call, Throwable t) {
-                Toast.makeText(requireContext(), "Lỗi kết nối", Toast.LENGTH_SHORT).show();
-            }
+        // Nút Sửa / Hoàn tất
+        TextView textEdit = view.findViewById(R.id.text_edit_cart);
+        textEdit.setOnClickListener(v -> {
+            isEditMode = !isEditMode;
+            adapter.setEditMode(isEditMode);
+            adapter.notifyDataSetChanged();
+            textEdit.setText(isEditMode ? "Hoàn tất" : "Sửa");
         });
-    }
 
-    @Override
-    public void onDelete(CartItem item) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("userID", userID);
-        body.put("itemID", item.getId());
-
-        api.deleteItem(body).enqueue(new Callback<CommonResponse>() {
-            @Override
-            public void onResponse(Call<CommonResponse> call, Response<CommonResponse> response) {
-                if (response.isSuccessful() && response.body() != null && "Success".equals(response.body().getStatus())) {
-                    items.remove(item);
-                    adapter.notifyDataSetChanged();
-                    loadCart();
-                } else {
-                    Toast.makeText(requireContext(), "Xóa sản phẩm thất bại", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<CommonResponse> call, Throwable t) {
-                Toast.makeText(requireContext(), "Lỗi kết nối", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    @Override
-    public void onToggleSelect(CartItem item, boolean selected) {
-        selectedItems.put(item.getId(), selected);
         updateTotal();
     }
 
     private void updateTotal() {
         int total = 0;
-        for (CartItem item : items) {
-            if (selectedItems.getOrDefault(item.getId(), false)) {
-                total += item.getPrice() * item.getQuantity();
+        for (Product item : cartList) {
+            if (item.isSelected()) {
+                // ĐÃ SỬA: getPrice() trả String → parse thành int
+                try {
+                    int price = Integer.parseInt(item.getPrice().replaceAll("[^0-9]", ""));
+                    total += price * item.getQuantity();
+                } catch (Exception e) {
+                    // Nếu lỗi parse → bỏ qua hoặc dùng giá mặc định
+                }
             }
         }
-        tvTotal.setText(String.format("Tổng: %,d đ", total));
+        tvTotal.setText(String.format("Tổng: %,d VND", total));
+    }
+
+    @Override
+    public void onIncrease(Product item) {
+        item.setQuantity(item.getQuantity() + 1);
+        adapter.notifyDataSetChanged();
+        updateTotal();
+    }
+
+    @Override
+    public void onDecrease(Product item) {
+        if (item.getQuantity() > 1) {
+            item.setQuantity(item.getQuantity() - 1);
+            adapter.notifyDataSetChanged();
+            updateTotal();
+        }
+    }
+
+    @Override
+    public void onDelete(Product item) {
+        cartList.remove(item);
+        adapter.notifyDataSetChanged();
+        updateTotal();
+    }
+
+    @Override
+    public void onToggleSelect(Product item, boolean selected) {
+        item.setSelected(selected);
+        updateTotal();
+    }
+
+    @Override
+    public void onEdit(Product item) {
+        EditItemBottomSheet bottomSheet = EditItemBottomSheet.newInstance(item);
+        bottomSheet.show(getChildFragmentManager(), "EditItem");
     }
 }

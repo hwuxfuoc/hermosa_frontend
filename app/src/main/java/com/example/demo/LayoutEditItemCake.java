@@ -7,6 +7,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.demo.adapter.CheckboxAdapter;
+import com.example.demo.model.CheckboxItem;
+
 import java.util.ArrayList;
 import java.util.List;
 

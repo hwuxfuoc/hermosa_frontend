@@ -45,4 +45,14 @@ public class Product implements Serializable {
     public int getQuantity() { return quantity; }
     public void setQuantity(int quantity) { this.quantity = quantity; }
     private static final long serialVersionUID = 1L;
+    // Thêm vào class Product.java
+    private boolean selected = false; // mặc định không chọn
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
 }
