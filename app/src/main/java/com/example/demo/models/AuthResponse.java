@@ -22,7 +22,8 @@ public class AuthResponse {
         private String password;
         private boolean is_verified;
         private String signupMethod;
-
+        private String phone;
+        private String address;
         // getter
         public String getId() { return _id; }
         public String getUserID() { return userID; }
@@ -31,5 +32,7 @@ public class AuthResponse {
         public String getPassword() { return password; }
         public boolean isVerified() { return is_verified; }
         public String getSignupMethod() { return signupMethod; }
+        public String getPhone() { return phone; }
+        public String getAddress() { return address; }
     }
 }

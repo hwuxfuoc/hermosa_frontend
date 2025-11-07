@@ -1,86 +1,133 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="300dp"
-    android:layout_height="100dp"
-    android:layout_marginEnd="12dp"
-    app:cardBackgroundColor="#FFFFFF"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp">
+    android:layout_width="400dp"
+    android:layout_height="120dp"
+    android:layout_marginEnd="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:background="@drawable/background_cart_item"
+        android:padding="2dp">
 
-        <FrameLayout
-            android:layout_width="100dp"
-            android:layout_height="match_parent"
-            android:background="#FCE4EC">
+        <!-- Hình sản phẩm -->
 
-            <ImageView
-                android:id="@+id/imgProduct"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@drawable/cake_strawberry_cheese" />
-        </FrameLayout>
-
+        <!-- Nội dung bên phải -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:id="@+id/left_color_layout"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_weight="2.5"
             android:orientation="vertical"
-            android:paddingStart="8dp"
-            android:paddingTop="8dp"
+            android:paddingStart="12dp"
             android:paddingEnd="8dp">
 
-            <TextView
-                android:id="@+id/tvName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Strawberry Cheese"
-                android:textColor="#000"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvPrice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="85.000 VND/pc"
-                android:textColor="#A10000"
-                android:textSize="12sp" />
-
-            <RelativeLayout
+            <ImageView
+                android:id="@+id/image_product_cart"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp">
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/background_image_round"
+                android:scaleType="centerCrop"
+                android:src="@drawable/cake_strawberry_cheese" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="6"
+            android:background="@drawable/background_left_rounded_white"
+            android:orientation="vertical"
+            android:paddingStart="12dp"
+            android:paddingEnd="8dp">
+
+            <!-- Hàng 1: Tên + nút xóa -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp">
+
+                <TextView
+                    android:id="@+id/text_name_cart"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Strawberry Cheese"
+                    android:textColor="#000"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+            </RelativeLayout>
+
+            <!-- 🟣 Hàng 2: Giá bên trái - Số lượng bên phải -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="4dp"
+                android:gravity="center_vertical">
+
+                <!-- Giá -->
+                <TextView
+                    android:id="@+id/text_price_cart"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="85.000 VND/pc"
+                    android:textColor="#EB4341"
+                    android:textSize="14sp"
+                    android:layout_gravity="top"
+                    android:textStyle="bold"/>
+
+                <!-- Ô số lượng -->
+                <LinearLayout
+                    android:id="@+id/quantity_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:orientation="horizontal"
+                    android:gravity="end">
+
+
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="0dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginBottom="10dp"
+                    android:text="Đã bán 18K+"
+                    android:textSize="12sp"
+                    android:textColor="#C0C0C0"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:text="5.0 ⭐"
+                    android:layout_marginStart="10dp"
+                    android:textSize="12sp"
                     android:textColor="#FFC107" />
 
-                <ImageButton
-                    android:id="@+id/btnAdd"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginEnd="3dp"
-                    android:layout_marginBottom="4dp"
-                    android:background="@drawable/bg_rounded_product_item"
-                    android:contentDescription="Thêm sản phẩm"
-                    android:elevation="4dp"
-                    android:scaleType="centerInside"
-                    app:srcCompat="@drawable/ic_add_button"
-                    app:tint="@color/white" />
-            </RelativeLayout>
+                <Button
+                    android:id="@+id/button_plus"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:text="+"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:backgroundTint="#A71317"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
+                    android:padding="0dp"
+                    android:gravity="center"
+                    android:layout_marginStart="50dp"
+                    android:stateListAnimator="@null"/>
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -35,9 +35,9 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     @Override
     public void onBindViewHolder(@NonNull CartViewHolder holder, int position) {
         Product product = cartList.get(position);
-        holder.textName.setText(product.name);
+        holder.textName.setText(product.getName());
         holder.textPrice.setText(product.getPrice()); // nếu price là String
-        holder.imageProduct.setImageResource(product.imageResId);
+        holder.imageProduct.setImageResource(product.getImageResId());
 
         // Hiển thị số lượng hiện tại
         holder.quantityInput.setText(String.valueOf(product.getQuantity()));

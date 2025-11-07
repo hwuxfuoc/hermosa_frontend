@@ -3,6 +3,14 @@ package com.example.demo.api;
 import com.example.demo.models.AuthResponse;
 import com.example.demo.models.CartResponse;
 import com.example.demo.models.CommonResponse;
+import com.example.demo.models.ConfirmPaymentResponse;
+import com.example.demo.models.CreateMomoRequest;
+import com.example.demo.models.CreateMomoResponse;
+import com.example.demo.models.CreateVnpayRequest;
+import com.example.demo.models.CreateVnpayResponse;
+import com.example.demo.models.OrderListResponse;
+import com.example.demo.models.OrderResponse;
+
 import retrofit2.Call;
 import retrofit2.http.*;
 
@@ -32,7 +40,7 @@ public interface ApiService {
     Call<CommonResponse> resendOtp(@Body Map<String, String> body);
 
     @PUT("user/set-password-username")
-    Call<CommonResponse> setPasswordUsername(@Body Map<String, String> body);
+    Call<CommonResponse> setPasswordUsername(@Body Map<String, Object> body);
 
     @PUT("user/change-password")
     Call<CommonResponse> changePassword(@Body Map<String, String> body);
@@ -63,7 +71,7 @@ public interface ApiService {
 
     // ---- ORDER ----
     @POST("order/create")
-    Call<CommonResponse> createOrder(@Body Map<String, Object> body);
+    Call<OrderResponse> createOrder(@Body Map<String, Object> body);
 
     @PUT("order/change-order-status")
     Call<CommonResponse> changeOrderStatus(@Query("orderID") String orderID, @Query("status") String status);
@@ -75,13 +83,12 @@ public interface ApiService {
     Call<CommonResponse> viewOrder(@Query("orderID") String orderID);
 
     @GET("order/view-all")
-    Call<CommonResponse> viewAllOrders();
-
+    Call<OrderListResponse> viewAllOrders();
+    @GET("order/order-history")
+    Call<OrderListResponse> getOrderHistory(@Query("userID") String userID);
     @GET("order/list")
     Call<CommonResponse> getOrdersByDate(@Query("startDate") String startDate, @Query("endDate") String endDate);
 
-    @GET("order/order-history")
-    Call<CommonResponse> getOrderHistory(@Query("userID") String userID);
 
     @POST("order/review-order-and-products")
     Call<CommonResponse> reviewOrderAndProducts(
@@ -94,5 +101,17 @@ public interface ApiService {
             @Query("orderID") String orderID,
             @Body Map<String, Object> body
     );
+    @POST("payment/create-payment-momo")
+    Call<CreateMomoResponse> createPaymentMomo(@Body CreateMomoRequest body);
+
+
+    @GET("payment/confirm")
+    Call<ConfirmPaymentResponse> confirmPaymentStatus(@Query("orderID") String orderID);
+
+
+    @POST("payment/create-payment-vnpay")
+    Call<CreateVnpayResponse> createPaymentVnpay(@Body CreateVnpayRequest body);
+
+
 
 }

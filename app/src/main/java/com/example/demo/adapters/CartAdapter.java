@@ -15,11 +15,16 @@ import java.util.List;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
 
+    /**
+     * Interface để giao tiếp với Activity.
+     * Đã bổ sung onDataChanged để báo Activity tính lại tổng tiền.
+     */
     public interface OnAction {
         void onIncrease(CartItem item);
         void onDecrease(CartItem item);
         void onDelete(CartItem item);
         void onToggleSelect(CartItem item, boolean selected);
+        void onDataChanged(); // Báo cho Activity/Fragment tính lại tổng tiền
     }
 
     private final Context ctx;
@@ -42,102 +47,92 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
     @Override
     public void onBindViewHolder(@NonNull VH holder, int position) {
         CartItem item = list.get(position);
+        if (item == null) return;
+
         holder.tvName.setText(item.getName());
-        holder.tvSubtotal.setText(String.format("%,d VND/pc", item.getPrice()));
+
+        // Đã sửa (dùng "%,.0f" cho double)
+        holder.tvSubtotal.setText(String.format("%,.0f VND/pc", item.getPrice()));
         holder.tvQuantity.setText(String.valueOf(item.getQuantity()));
 
-        // ✅ Load ảnh (có thể dùng link từ BE nếu có)
-        /*if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
-            Glide.with(ctx).load(item.getImageUrl()).into(holder.img);
+        // ✅ Load ảnh (Giữ nguyên logic Glide của bạn)
+        int resId = item.getDrawableResId(ctx); // Dùng hàm getDrawableResId
+        if (resId != R.drawable.logo_app) {
+            Glide.with(ctx).load(resId).into(holder.img);
         } else {
             Glide.with(ctx).load(R.drawable.logo_app).into(holder.img);
-        }*/
+        }
 
-        // ✅ Set màu nền cho CardView (không dùng setBackgroundColor)
-        int colorRes = getBackgroundColor(item);
-        holder.itemBackground.setCardBackgroundColor(ContextCompat.getColor(ctx, colorRes));
+        // =========================================================
+        // SỬA LOGIC MÀU TẠI ĐÂY
+        // =========================================================
 
-        // Các nút hành động
-        holder.btnPlus.setOnClickListener(v -> action.onIncrease(item));
-        holder.btnMinus.setOnClickListener(v -> action.onDecrease(item));
-        holder.btnDelete.setOnClickListener(v -> action.onDelete(item));
+        // 1. Lấy màu (dạng int) trực tiếp từ CartItem
+        int colorValue = item.getColor();
 
-        // Checkbox chọn sản phẩm
+        if (colorValue != 0) {
+            // 2. Dùng trực tiếp con số int màu này
+            holder.itemBackground.setCardBackgroundColor(colorValue);
+        } else {
+            // 3. (Dự phòng) Dùng màu trắng nếu không có màu
+            holder.itemBackground.setCardBackgroundColor(ContextCompat.getColor(ctx, R.color.white));
+        }
+
+        // =========================================================
+
+        // Các nút hành động (Đã bổ sung onDataChanged)
+        holder.btnPlus.setOnClickListener(v -> {
+            if (action != null) {
+                action.onIncrease(item);
+                action.onDataChanged(); // Báo Activity tính lại tiền
+            }
+        });
+        holder.btnMinus.setOnClickListener(v -> {
+            if (action != null) {
+                action.onDecrease(item);
+                action.onDataChanged(); // Báo Activity tính lại tiền
+            }
+        });
+        holder.btnDelete.setOnClickListener(v -> {
+            if (action != null) {
+                action.onDelete(item);
+                action.onDataChanged(); // Báo Activity tính lại tiền
+            }
+        });
+
+        // Checkbox chọn sản phẩm (Đã sửa logic)
         holder.cbSelect.setOnCheckedChangeListener(null);
-        holder.cbSelect.setChecked(true);
-        holder.cbSelect.setOnCheckedChangeListener((b, checked) -> action.onToggleSelect(item, checked));
+        holder.cbSelect.setChecked(item.isSelected()); // Lấy trạng thái từ model
+
+        holder.cbSelect.setOnCheckedChangeListener((b, checked) -> {
+            if (action != null) {
+                action.onToggleSelect(item, checked);
+                action.onDataChanged(); // Báo Activity tính lại tiền
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
-        return list.size();
+        return (list != null) ? list.size() : 0;
     }
 
     /**
-     * Xác định màu nền theo tên sản phẩm (so khớp với colors.xml bạn gửi)
+     * BỔ SUNG: Phương thức clearItems() mà ConfirmOrderActivity cần.
      */
-    private int getBackgroundColor(CartItem item) {
-        String name = item.getName().toLowerCase();
-
-        // === Đồ uống ===
-        if (name.contains("strawberry") && name.contains("smoothie"))
-            return R.color.smoothie_strawberry;
-        if (name.contains("caramel"))
-            return R.color.smoothie_caramel;
-        if (name.contains("oreo"))
-            return R.color.smoothie_oreo;
-        if (name.contains("blueberry"))
-            return R.color.smoothie_blueberry;
-        if (name.contains("matcha") || name.contains("latte"))
-            return R.color.matcha_green;
-        if (name.contains("milk tea") || name.contains("chocolate milk tea"))
-            return R.color.choco_milk_tea;
-        if (name.contains("black ice coffee"))
-            return R.color.coffee_black_ice;
-        if (name.contains("milk coffee"))
-            return R.color.coffee_milk;
-        if (name.contains("hot coffee"))
-            return R.color.coffee_hot;
-        if (name.contains("green tea"))
-            return R.color.tea_green;
-        if (name.contains("guava"))
-            return R.color.tea_guava;
-        if (name.contains("longan"))
-            return R.color.tea_longan;
-
-        // === Bánh ===
-        if (name.contains("strawberry cheese"))
-            return R.color.cake_strawberry_donut;
-        if (name.contains("yellow lemon"))
-            return R.color.cake_lemon;
-        if (name.contains("blueberry cheese"))
-            return R.color.cake_blueberry;
-        if (name.contains("tiramisu"))
-            return R.color.cake_tiramisu_chocolate;
-        if (name.contains("classic matcha"))
-            return R.color.cake_tiramisu_matcha;
-        if (name.contains("eclair"))
-            return R.color.cake_eclair;
-        if (name.contains("truffle"))
-            return R.color.cake_truffle;
-        if (name.contains("opera"))
-            return R.color.cake_opera;
-        if (name.contains("donut") && name.contains("strawberry"))
-            return R.color.cake_strawberry_donut;
-        if (name.contains("donut") && name.contains("matcha"))
-            return R.color.cake_matcha_donut;
-        if (name.contains("egg tart"))
-            return R.color.cake_egg_tart;
-        if (name.contains("macarons"))
-            return R.color.cake_macarons;
-        if (name.contains("croissant") && name.contains("chocolate"))
-            return R.color.cake_chocolate_croissant;
-        if (name.contains("croissant"))
-            return R.color.cake_croissant;
-
-        // Mặc định
-        return R.color.white;
+    public void clearItems() {
+        if (list != null) {
+            int itemCount = list.size();
+            list.clear();
+            notifyItemRangeRemoved(0, itemCount);
+        }
     }
+
+    // =========================================================
+    // XÓA HÀM getBackgroundColor(CartItem item)
+    // (Toàn bộ khối if-else dài 70 dòng đã bị xóa)
+    // =========================================================
+
 
     // ================== ViewHolder ==================
     public static class VH extends RecyclerView.ViewHolder {

@@ -43,6 +43,8 @@ dependencies {
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.cardview)
     implementation(libs.glide)
+    implementation(libs.recyclerview)
+    implementation(libs.palette)
     // 2. Bộ xử lý chú thích (Annotation Processor) - Rất quan trọng
     annotationProcessor(libs.glide.compiler)
     testImplementation(libs.junit)

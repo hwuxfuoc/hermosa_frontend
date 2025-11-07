@@ -29,7 +29,7 @@
                 android:layout_height="36dp"
                 android:background="@null"
                 android:contentDescription="Quay lại"
-                android:src="@drawable/turn_back"
+                android:src="@drawable/ic_arrow_back"
                 app:tint="#A10000" />
 
             <TextView
@@ -69,6 +69,7 @@
                 android:paddingBottom="16dp">
 
                 <LinearLayout
+                    android:id="@+id/layoutAddressBlock"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
@@ -87,7 +88,7 @@
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:background="@null"
-                            app:srcCompat="@drawable/diachi" />
+                            app:srcCompat="@drawable/icon_address" />
 
                         <TextView
                             android:layout_width="0dp"
@@ -148,7 +149,7 @@
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:background="@null"
-                            app:srcCompat="@drawable/cart2" />
+                            app:srcCompat="@drawable/icon_cart_2" />
 
                         <TextView
                             android:layout_width="0dp"
@@ -187,7 +188,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:drawableLeft="@drawable/foodp"
+                        android:drawableLeft="@drawable/icon_food"
                         android:drawablePadding="8dp"
                         android:text="Khách hàng khác cũng đặt thêm"
                         android:textColor="#000"
@@ -417,7 +418,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="5dp"
-                        android:text="Cảm ơn bạn đã làm cho tài xế của bạn vui vẻ với khoản tiền boa này <3 Xin lưu ý: 100% tiền boa sẽ được chuyển cho tài xế của bạn và tiền boa sẽ không được hoàn lại."
+                        android:text="Cảm ơn bạn đã làm cho tài xế của bạn vui vẻ với khoản tiền boa này &lt;3 Xin lưu ý: 100% tiền boa sẽ được chuyển cho tài xế của bạn và tiền boa sẽ không được hoàn lại."
                         android:textSize="11sp" />
                     <View
                         android:layout_width="match_parent"
@@ -481,7 +482,7 @@
                 <TextView
                     android:id="@+id/btnMomo"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:background="@drawable/bg_button_normal"
                     android:gravity="center"
@@ -501,7 +502,7 @@
             </LinearLayout>
 
             <TextView
-                android:id="@+id/tvOtherPayment"
+                android:id="@+id/btnOtherPayment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"

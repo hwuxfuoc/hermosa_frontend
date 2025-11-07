@@ -1,0 +1,91 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_register_form"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/back_ground_splash"
+    android:padding="24dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:src="@drawable/logo_main"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="Đăng ký"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="20dp"/>
+
+        <EditText
+            android:id="@+id/edtUsername"
+            android:hint="Tên đăng nhập"
+            android:drawableStart="@drawable/icon_user"
+            android:drawablePadding="8dp"
+            android:background="@drawable/edittext_border"
+            android:padding="12dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"/>
+
+        <EditText
+            android:id="@+id/edtEmail"
+            android:hint="Email"
+            android:drawableStart="@drawable/icon_email"
+            android:drawablePadding="8dp"
+            android:background="@drawable/edittext_border"
+            android:padding="12dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"/>
+
+        <EditText
+            android:id="@+id/edtPassword"
+            android:hint="Mật khẩu"
+            android:drawableStart="@drawable/icon_password"
+            android:drawablePadding="8dp"
+            android:inputType="textPassword"
+            android:background="@drawable/edittext_border"
+            android:padding="12dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"/>
+
+        <EditText
+            android:id="@+id/edtPhone"
+            android:hint="Số điện thoại"
+            android:drawableStart="@drawable/icon_password"
+            android:drawablePadding="8dp"
+            android:inputType="phone"
+            android:background="@drawable/edittext_border"
+            android:padding="12dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:id="@+id/tvPasswordError"
+            android:text="Mật khẩu không trùng khớp"
+            android:textColor="#EB4341"
+            android:visibility="gone"/>
+
+        <Button
+            android:id="@+id/btnRegister"
+            android:text="Đăng ký"
+            android:textColor="@android:color/white"
+            android:backgroundTint="#A71317"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"/>
+    </LinearLayout>
+</ScrollView>

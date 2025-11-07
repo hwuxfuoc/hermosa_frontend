@@ -1,182 +1,23 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_register"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/back_ground_splash"
-    android:padding="0dp"
-    tools:context=".ActivityRegister">
+    tools:context="com.example.demo.ActivityRegister">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal">
+    <include
+        android:id="@+id/layoutEmail"
+        layout="@layout/layout_register_email"
+        android:visibility="visible" />
 
-        <!-- Header giống trang Login -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="HERMOSA"
-            android:textSize="38sp"
-            android:textStyle="bold"
-            android:fontFamily="serif"
-            android:textColor="@color/black"
-            android:layout_marginTop="30dp"/>
+    <include
+        android:id="@+id/layoutOtp"
+        layout="@layout/layout_register_otp"
+        android:visibility="gone" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Your slices of Happiness"
-            android:textColor="#888"
-            android:textSize="14sp"
-            android:layout_marginTop="4dp"/>
-
-        <ImageView
-            android:layout_width="300dp"
-            android:layout_height="120dp"
-            android:src="@drawable/logo_app"
-            android:layout_marginTop="10dp"
-            android:scaleType="centerCrop"
-            android:contentDescription="App logo" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Register Information"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/black"
-            android:layout_marginTop="0dp" />
-
-        <!-- Họ và Tên (ngang hàng) -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="16dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:weightSum="2">
-
-            <EditText
-                android:id="@+id/edit_text_firstname"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:hint="Họ"
-                android:inputType="text"
-                android:textSize="14sp"
-                android:padding="12dp"
-                android:background="@drawable/background_edit_text"
-                android:layout_marginEnd="8dp"/>
-
-            <EditText
-                android:id="@+id/edit_text_lastname"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:hint="Tên"
-                android:inputType="text"
-                android:textSize="14sp"
-                android:padding="12dp"
-                android:background="@drawable/background_edit_text"/>
-        </LinearLayout>
-
-        <EditText
-            android:id="@+id/edit_text_phone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Số điện thoại"
-            android:inputType="number"
-            android:textSize="14sp"
-            android:layout_marginTop="12dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:padding="12dp"
-            android:background="@drawable/background_edit_text"/>
-
-        <EditText
-            android:id="@+id/edit_text_username"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Username"
-            android:inputType="text"
-            android:textSize="14sp"
-            android:layout_marginTop="12dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:padding="12dp"
-            android:background="@drawable/background_edit_text"/>
-
-        <EditText
-            android:id="@+id/edit_text_password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Mật khẩu"
-            android:inputType="textPassword"
-            android:textSize="14sp"
-            android:layout_marginTop="12dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:padding="12dp"
-            android:background="@drawable/background_edit_text"/>
-
-        <EditText
-            android:id="@+id/edit_text_confirm_password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Nhập lại mật khẩu"
-            android:inputType="textPassword"
-            android:textSize="14sp"
-            android:layout_marginTop="12dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:padding="12dp"
-            android:background="@drawable/background_edit_text"/>
-
-        <!-- Nút đăng ký -->
-        <Button
-            android:id="@+id/button_register"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Đăng ký"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:backgroundTint="#000000"
-            android:textColor="@android:color/white"
-            android:textAllCaps="false"/>
-
-        <!-- Dòng quay lại đăng nhập -->
-        <TextView
-            android:id="@+id/text_view_back_to_login"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Đã có tài khoản? Đăng nhập"
-            android:textSize="15sp"
-            android:layout_marginTop="12dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:textColor="#007BFF"/>
-
-        <!-- Đăng ký bằng Google -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Hoặc đăng ký bằng"
-            android:textColor="#888"
-            android:textSize="13sp"
-            android:layout_marginTop="20dp"/>
-
-        <Button
-            android:id="@+id/button_google_register"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Đăng ký bằng Google"
-            android:layout_marginTop="10dp"
-            android:backgroundTint="#DB4437"
-            android:textColor="@android:color/white"
-            android:textAllCaps="false"/>
-    </LinearLayout>
-</ScrollView>
+    <include
+        android:id="@+id/layoutForm"
+        layout="@layout/layout_register_form"
+        android:visibility="gone" />
+</LinearLayout>

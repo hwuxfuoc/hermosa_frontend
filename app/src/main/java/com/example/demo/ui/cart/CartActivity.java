@@ -22,7 +22,7 @@ import java.util.*;
 public class CartActivity extends AppCompatActivity implements CartAdapter.OnAction {
 
     private RecyclerView rv;
-    private TextView tvTotal;
+    private TextView tvTotal; // TextView này sẽ hiển thị tổng tiền của item ĐÃ CHỌN
     private CartAdapter adapter;
     private List<CartItem> items = new ArrayList<>();
     private ApiService api;
@@ -31,7 +31,7 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnAct
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_cart);
+        setContentView(R.layout.fragment_cart);
 
         rv = findViewById(R.id.recyclerViewCart);
         tvTotal = findViewById(R.id.tvTotal);
@@ -62,7 +62,12 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnAct
                     items.clear();
                     if (data.getItems() != null) items.addAll(data.getItems());
                     adapter.notifyDataSetChanged();
-                    tvTotal.setText(String.format("Tổng: %,d đ", data.getTotalMoney()));
+
+                    // SỬA: Không set tổng tiền ở đây
+                    // tvTotal.setText(String.format("Tổng: %,d đ", data.getTotalMoney()));
+
+                    // BỔ SUNG: Gọi onDataChanged để tính tổng tiền (ban đầu sẽ là 0)
+                    onDataChanged();
                 } else {
                     Toast.makeText(CartActivity.this, "Không có dữ liệu giỏ hàng", Toast.LENGTH_SHORT).show();
                 }
@@ -100,8 +105,36 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnAct
         api.deleteItem(body).enqueue(commonCallback("Xóa thành công"));
     }
 
+    /**
+     * SỬA: Bổ sung logic cho hàm này.
+     * Khi người dùng tick checkbox, hàm này cập nhật trạng thái trong model.
+     */
     @Override
-    public void onToggleSelect(CartItem item, boolean selected) {}
+    public void onToggleSelect(CartItem item, boolean selected) {
+        item.setSelected(selected); // Cập nhật trạng thái (true/false)
+    }
+
+    /**
+     * BỔ SUNG: Đây là hàm bị thiếu gây ra lỗi.
+     * Hàm này được Adapter gọi mỗi khi có thay đổi (tăng, giảm, xóa, tick)
+     * để tính toán lại tổng tiền của các item ĐÃ ĐƯỢC CHỌN.
+     */
+    @Override
+    public void onDataChanged() {
+        double selectedTotal = 0;
+        if (items != null) {
+            for (CartItem item : items) {
+                if (item.isSelected()) { // Chỉ cộng tiền item nào được tick
+                    selectedTotal += item.getPrice() * item.getQuantity();
+                }
+            }
+        }
+        // Cập nhật TextView tổng tiền (và nút Mua hàng)
+        tvTotal.setText(String.format("Tổng: %,.0f đ", selectedTotal));
+        // TODO: Cập nhật nút Mua hàng
+        // btnPurchase.setText(String.format("Mua hàng (%,.0f đ)", selectedTotal));
+    }
+
 
     private Callback<CommonResponse> commonCallback(String successMsg) {
         return new Callback<CommonResponse>() {
@@ -110,7 +143,15 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnAct
                 if (response.isSuccessful() && response.body() != null) {
                     Toast.makeText(CartActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
                 }
-                loadCart();
+                // SỬA: Không gọi loadCart() ngay lập tức nếu không cần thiết
+                // (Trừ khi bạn muốn làm mới toàn bộ)
+                // loadCart();
+
+                // Thay vào đó, nếu thành công, chỉ cần gọi onDataChanged()
+                onDataChanged();
+
+                // Nếu bạn vẫn muốn loadCart(), hãy đảm bảo onDataChanged() được gọi SAU KHI load xong
+                loadCart(); // Giữ lại nếu bạn muốn cập nhật toàn bộ giỏ hàng từ BE
             }
 
             @Override
