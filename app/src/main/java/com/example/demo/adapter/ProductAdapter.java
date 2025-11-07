@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.adapter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,8 +9,11 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.demo.AddToCartBottomSheet;
+import com.example.demo.R;
 import com.example.demo.description.DescriptionCake;
 import com.example.demo.description.DescriptionDrink;
 import com.example.demo.description.DescriptionFood;
@@ -53,32 +56,33 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     @Override
     public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
-        Product product = productList.get(position); // Lấy sản phẩm tại vị trí hiện tại
-        holder.textName.setText(product.getName()); // Đặt tên sản phẩm vào TextView
-        holder.textPrice.setText(product.getPrice()); // Đặt giá sản phẩm vào TextView
-        holder.imageProduct.setImageResource(product.getImageResId()); // Đặt ảnh sản phẩm vào ImageView
-        holder.viewTopBar.setBackgroundColor(product.getColor()); // Đặt màu nền cho viewTopBar
-        holder.buttonPlus.setBackgroundColor(product.getColor()); // Đặt màu nền cho buttonPlus
+        Product product = productList.get(position);
+        holder.textName.setText(product.getName());
+        holder.textPrice.setText(product.getPrice());
+        holder.imageProduct.setImageResource(product.getImageResId());
+        holder.viewTopBar.setBackgroundColor(product.getColor());
+        holder.buttonPlus.setBackgroundTintList(android.content.res.ColorStateList.valueOf(product.getColor()));
+
+        // Bấm itemView → mở Description
+        holder.itemView.setOnClickListener(v -> {
+            Class<?> cls = switch (product.getCategory()) {
+                case "drink" -> DescriptionDrink.class;
+                case "food" -> DescriptionFood.class;
+                default -> DescriptionCake.class;
+            };
+            Intent i = new Intent(context, cls);
+            i.putExtra("name", product.getName());
+            i.putExtra("price", product.getPrice());
+            i.putExtra("imageResId", product.getImageResId());
+            i.putExtra("description", product.getDescription());
+            i.putExtra("category", product.getCategory());
+            context.startActivity(i);
+        });
+
+        // Bấm button + → mở BottomSheet trực tiếp
         holder.buttonPlus.setOnClickListener(v -> {
-            Intent intent;
-
-            switch (product.getCategory()) {
-                case "drink":
-                    intent = new Intent(context, DescriptionDrink.class);
-                    break;
-                case "food":
-                    intent = new Intent(context, DescriptionFood.class);
-                    break;
-                default:
-                    intent = new Intent(context, DescriptionCake.class);
-                    break;
-            }
-
-            intent.putExtra("name", product.getName());
-            intent.putExtra("price", product.getPrice());
-            intent.putExtra("imageResId", product.getImageResId());
-            intent.putExtra("description", product.getDescription());
-            context.startActivity(intent);
+            AddToCartBottomSheet bottomSheet = AddToCartBottomSheet.newInstance(product);
+            bottomSheet.show(((AppCompatActivity) context).getSupportFragmentManager(), "AddToCart");
         });
     }
 

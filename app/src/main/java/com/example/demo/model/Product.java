@@ -2,7 +2,10 @@ package com.example.demo.model;
 
 import com.google.gson.annotations.SerializedName;
 
-public class Product {
+import java.io.Serializable;
+
+
+public class Product implements Serializable {
     @SerializedName("_id")
     String id;
     String productID;
@@ -41,4 +44,5 @@ public class Product {
     public void setFavorite(boolean favorite) { this.isFavorite = favorite; }
     public int getQuantity() { return quantity; }
     public void setQuantity(int quantity) { this.quantity = quantity; }
+    private static final long serialVersionUID = 1L;
 }

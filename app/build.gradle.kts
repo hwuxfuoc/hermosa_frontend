@@ -32,20 +32,21 @@ android {
 }
 
 dependencies {
-
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
-    implementation("de.hdodenhof:circleimageview:3.1.0")
     implementation(libs.volley)
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.cardview)
     implementation(libs.glide)
-    // 2. Bộ xử lý chú thích (Annotation Processor) - Rất quan trọng
     annotationProcessor(libs.glide.compiler)
+
+    // You now have only one declaration for circleimageview
+    implementation(libs.circleimageview)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

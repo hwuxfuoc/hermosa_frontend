@@ -1,5 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="NavTextSmall" parent="@style/TextAppearance.AppCompat.Caption">
+
+    <!-- NavTextSmall -->
+    <style name="NavTextSmall" parent="TextAppearance.AppCompat.Caption">
         <item name="android:textSize">9sp</item>
     </style>
+
+    <!-- BOTTOMSHEET - CHỈ CÓ 1 LẦN DUY NHẤT -->
+    <style name="BottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/BottomSheetStyle</item>
+    </style>
+
+    <style name="BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
 </resources>
