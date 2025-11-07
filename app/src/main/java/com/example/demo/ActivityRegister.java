@@ -1,10 +1,12 @@
-// ActivityRegister.java - ĐÃ SỬA HOÀN CHỈNH - KHỚP 100% VỚI XML CỦA BẠN
 package com.example.demo;
 
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.text.InputType;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -29,14 +31,15 @@ public class ActivityRegister extends AppCompatActivity {
     private EditText edtEmail;
     private Button btnSendOTP;
 
-    // --- Step 2: OTP (6 ô) ---
+    // --- Step 2: OTP ---
     private EditText otp1, otp2, otp3, otp4, otp5, otp6;
-    private TextView tvOtpError, tvTimer;
-    private TextView tvResendOtp; // Đây là cái bạn quên đặt ID trong XML
-    private Button btnVerifyOtp;  // Bạn chưa có nút này → mình sẽ thêm vào XML
+    private TextView tvOtpError, tvTimer, tvResendOtp;
+    private Button btnVerifyOtp;
 
     // --- Step 3: Form ---
-    private EditText edtUsername, edtPassword, edtPhone;
+    private EditText edtUsername, edtPassword, edtConfirmPassword;
+    private ImageView imgTogglePass, imgToggleConfirmPass;
+    private TextView tvPasswordError;
     private Button btnRegister;
 
     private ApiService apiService;
@@ -52,41 +55,51 @@ public class ActivityRegister extends AppCompatActivity {
 
         initViews();
         setupOtpInput();
+        setupPasswordToggle();
         setupClickListeners();
     }
 
     private void initViews() {
-        layoutEmail = findViewById(R.id.layoutEmail);
-        layoutOtp = findViewById(R.id.layoutOtp);
-        layoutForm = findViewById(R.id.layoutForm);
+        View emailInclude = findViewById(R.id.layoutEmail);
+        View otpInclude   = findViewById(R.id.layoutOtp);
+        View formInclude  = findViewById(R.id.layoutForm);
 
-        // Step 1
-        edtEmail = findViewById(R.id.edtEmail);
-        btnSendOTP = findViewById(R.id.btnSendOTP);
+        // Email
+        edtEmail   = emailInclude.findViewById(R.id.edtEmail);
+        btnSendOTP = emailInclude.findViewById(R.id.btnSendOTP);
 
-        // Step 2 - OTP
-        otp1 = findViewById(R.id.otp1);
-        otp2 = findViewById(R.id.otp2);
-        otp3 = findViewById(R.id.otp3);
-        otp4 = findViewById(R.id.otp4);
-        otp5 = findViewById(R.id.otp5);
-        otp6 = findViewById(R.id.otp6);
-        tvOtpError = findViewById(R.id.tvOtpError);
-        tvTimer = findViewById(R.id.tvTimer);
-        tvResendOtp = findViewById(R.id.tvResendOtp); // ĐÃ THÊM TRONG XML DƯỚI
-        btnVerifyOtp = findViewById(R.id.btnVerifyOtp); // ĐÃ THÊM TRONG XML
+        // OTP
+        otp1 = otpInclude.findViewById(R.id.otp1);
+        otp2 = otpInclude.findViewById(R.id.otp2);
+        otp3 = otpInclude.findViewById(R.id.otp3);
+        otp4 = otpInclude.findViewById(R.id.otp4);
+        otp5 = otpInclude.findViewById(R.id.otp5);
+        otp6 = otpInclude.findViewById(R.id.otp6);
+        tvOtpError  = otpInclude.findViewById(R.id.tvOtpError);
+        tvTimer     = otpInclude.findViewById(R.id.tvTimer);
+        tvResendOtp = otpInclude.findViewById(R.id.tvResendOtp);
+        btnVerifyOtp= otpInclude.findViewById(R.id.btnVerifyOtp);
 
-        // Step 3
-        edtUsername = findViewById(R.id.edtUsername);
-        edtPassword = findViewById(R.id.edtPassword);
-        edtPhone = findViewById(R.id.edtPhone);
-        btnRegister = findViewById(R.id.btnRegister);
+        // Form
+        edtUsername        = formInclude.findViewById(R.id.edtUsername);
+        edtPassword        = formInclude.findViewById(R.id.edtPassword);
+        edtConfirmPassword = formInclude.findViewById(R.id.edtConfirmPassword);
+        imgTogglePass      = formInclude.findViewById(R.id.imgTogglePass);
+        imgToggleConfirmPass = formInclude.findViewById(R.id.imgToggleConfirmPass);
+        tvPasswordError    = formInclude.findViewById(R.id.tvPasswordError);
+        btnRegister        = formInclude.findViewById(R.id.btnRegister);
+
+        // Layout cha
+        layoutEmail = (LinearLayout) emailInclude;
+        layoutOtp   = (LinearLayout) otpInclude;
+        layoutForm  = (ScrollView) formInclude;
 
         // Ẩn ban đầu
         layoutOtp.setVisibility(View.GONE);
         layoutForm.setVisibility(View.GONE);
         tvOtpError.setVisibility(View.GONE);
-        if (tvResendOtp != null) tvResendOtp.setVisibility(View.GONE);
+        tvResendOtp.setVisibility(View.GONE);
+        tvPasswordError.setVisibility(View.GONE);
     }
 
     private void setupClickListeners() {
@@ -113,6 +126,32 @@ public class ActivityRegister extends AppCompatActivity {
         }
     }
 
+    // HIỆN/ẨN MẬT KHẨU
+    private void setupPasswordToggle() {
+        imgTogglePass.setOnClickListener(v -> {
+            if (edtPassword.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
+                edtPassword.setInputType(InputType.TYPE_CLASS_TEXT);
+                imgTogglePass.setImageResource(R.drawable.ic_eye_open);
+            } else {
+                edtPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                imgTogglePass.setImageResource(R.drawable.ic_eye_closed);
+            }
+            edtPassword.setSelection(edtPassword.getText().length());
+        });
+
+        imgToggleConfirmPass.setOnClickListener(v -> {
+            if (edtConfirmPassword.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
+                edtConfirmPassword.setInputType(InputType.TYPE_CLASS_TEXT);
+                imgToggleConfirmPass.setImageResource(R.drawable.ic_eye_open);
+            } else {
+                edtConfirmPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                imgToggleConfirmPass.setImageResource(R.drawable.ic_eye_closed);
+            }
+            edtConfirmPassword.setSelection(edtConfirmPassword.getText().length());
+        });
+    }
+
+    // GỬI OTP
     private void sendOtp() {
         String email = edtEmail.getText().toString().trim();
         if (TextUtils.isEmpty(email) || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
@@ -132,14 +171,19 @@ public class ActivityRegister extends AppCompatActivity {
                 btnSendOTP.setEnabled(true);
                 btnSendOTP.setText("Nhận mã OTP");
 
-                if (response.isSuccessful() && response.body() != null &&
-                        "success".equalsIgnoreCase(response.body().getStatus())) {
-                    Toast.makeText(ActivityRegister.this, "OTP đã gửi đến email!", Toast.LENGTH_LONG).show();
+                String status = response.body() != null ? response.body().getStatus() : null;
+
+                if (response.isSuccessful() && status != null && status.toLowerCase().contains("success")) {
                     verifiedEmail = email;
-                    switchToOtpLayout();
+                    Toast.makeText(ActivityRegister.this, "Đã gửi mã OTP!", Toast.LENGTH_SHORT).show();
+
+                    layoutEmail.setVisibility(View.GONE);
+                    layoutOtp.setVisibility(View.VISIBLE);
                     startOtpTimer();
+                    clearOtpFields();
+                    otp1.requestFocus();
                 } else {
-                    Toast.makeText(ActivityRegister.this, "Lỗi: " + (response.body() != null ? response.body().getMessage() : "Unknown"), Toast.LENGTH_LONG).show();
+                    Toast.makeText(ActivityRegister.this, "Gửi OTP thất bại!", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -147,19 +191,9 @@ public class ActivityRegister extends AppCompatActivity {
             public void onFailure(Call<CommonResponse> call, Throwable t) {
                 btnSendOTP.setEnabled(true);
                 btnSendOTP.setText("Nhận mã OTP");
-                Toast.makeText(ActivityRegister.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(ActivityRegister.this, "Lỗi mạng!", Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    private void switchToOtpLayout() {
-        layoutEmail.setVisibility(View.GONE);
-        layoutOtp.setVisibility(View.VISIBLE);
-        layoutForm.setVisibility(View.GONE);
-        clearOtpFields();
-        tvOtpError.setVisibility(View.GONE);
-        tvResendOtp.setVisibility(View.GONE);
-        otp1.requestFocus();
     }
 
     private void startOtpTimer() {
@@ -167,7 +201,7 @@ public class ActivityRegister extends AppCompatActivity {
         tvResendOtp.setVisibility(View.GONE);
         if (countDownTimer != null) countDownTimer.cancel();
 
-        countDownTimer = new CountDownTimer(300000, 1000) { // 5 phút
+        countDownTimer = new CountDownTimer(300000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 long minutes = millisUntilFinished / 60000;
@@ -208,8 +242,7 @@ public class ActivityRegister extends AppCompatActivity {
                 btnVerifyOtp.setEnabled(true);
                 btnVerifyOtp.setText("Xác nhận OTP");
 
-                if (response.isSuccessful() && response.body() != null &&
-                        "success".equalsIgnoreCase(response.body().getStatus())) {
+                if (response.isSuccessful() && response.body() != null) {
                     Toast.makeText(ActivityRegister.this, "Xác thực thành công!", Toast.LENGTH_SHORT).show();
                     layoutOtp.setVisibility(View.GONE);
                     layoutForm.setVisibility(View.VISIBLE);
@@ -224,7 +257,7 @@ public class ActivityRegister extends AppCompatActivity {
             public void onFailure(Call<CommonResponse> call, Throwable t) {
                 btnVerifyOtp.setEnabled(true);
                 btnVerifyOtp.setText("Xác nhận OTP");
-                Toast.makeText(ActivityRegister.this, "Lỗi mạng", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ActivityRegister.this, "Lỗi mạng!", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -237,7 +270,7 @@ public class ActivityRegister extends AppCompatActivity {
         apiService.resendOtp(body).enqueue(new Callback<CommonResponse>() {
             @Override
             public void onResponse(Call<CommonResponse> call, Response<CommonResponse> response) {
-                if (response.isSuccessful()) {
+                if (response.isSuccessful() && response.body() != null) {
                     Toast.makeText(ActivityRegister.this, "Đã gửi lại OTP!", Toast.LENGTH_SHORT).show();
                     startOtpTimer();
                     clearOtpFields();
@@ -255,29 +288,38 @@ public class ActivityRegister extends AppCompatActivity {
     }
 
     private void completeRegistration() {
-        // Code đăng ký như cũ...
-        // (giữ nguyên phần bạn đã có)
-        // Mình để ngắn cho dễ đọc
         String username = edtUsername.getText().toString().trim();
         String password = edtPassword.getText().toString().trim();
-        String phone = edtPhone.getText().toString().trim();
+        String confirmPass = edtConfirmPassword.getText().toString().trim();
 
-        if (TextUtils.isEmpty(username) || password.length() < 6 || !phone.matches("\\d{10,11}")) {
-            Toast.makeText(this, "Vui lòng điền đầy đủ và đúng định dạng", Toast.LENGTH_SHORT).show();
+        if (TextUtils.isEmpty(username)) {
+            Toast.makeText(this, "Vui lòng nhập tên đăng nhập", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        if (password.length() < 6) {
+            tvPasswordError.setText("Mật khẩu phải từ 6 ký tự");
+            tvPasswordError.setVisibility(View.VISIBLE);
+            return;
+        }
+
+        if (!password.equals(confirmPass)) {
+            tvPasswordError.setText("Mật khẩu không trùng khớp");
+            tvPasswordError.setVisibility(View.VISIBLE);
+            return;
+        }
+
+        tvPasswordError.setVisibility(View.GONE);
 
         Map<String, String> body = new HashMap<>();
         body.put("email", verifiedEmail);
         body.put("username", username);
         body.put("password", password);
-        body.put("phone", phone);
 
         apiService.setPasswordUsername(body).enqueue(new Callback<CommonResponse>() {
             @Override
             public void onResponse(Call<CommonResponse> call, Response<CommonResponse> response) {
-                if (response.isSuccessful() && response.body() != null &&
-                        "success".equalsIgnoreCase(response.body().getStatus())) {
+                if (response.isSuccessful() && response.body() != null) {
                     Toast.makeText(ActivityRegister.this, "Đăng ký thành công!", Toast.LENGTH_LONG).show();
                     finish();
                 } else {
@@ -293,7 +335,8 @@ public class ActivityRegister extends AppCompatActivity {
     }
 
     private void clearOtpFields() {
-        otp1.setText(""); otp2.setText(""); otp3.setText(""); otp4.setText(""); otp5.setText(""); otp6.setText("");
+        otp1.setText(""); otp2.setText(""); otp3.setText("");
+        otp4.setText(""); otp5.setText(""); otp6.setText("");
     }
 
     @Override

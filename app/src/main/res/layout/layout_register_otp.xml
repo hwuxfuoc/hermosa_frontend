@@ -1,6 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/lauout_register_otp"
+    android:id="@+id/layout_register_otp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -22,66 +23,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-        <EditText
-            android:id="@+id/otp1"
-            android:layout_width="40dp"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:inputType="number"
-            android:textSize="22sp"
-            android:maxLength="1"
-            android:background="@drawable/edittext_border"
-            android:layout_margin="4dp"/>
-        <EditText
-            android:id="@+id/otp2"
-            android:layout_width="40dp"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:inputType="number"
-            android:textSize="22sp"
-            android:maxLength="1"
-            android:background="@drawable/edittext_border"
-            android:layout_margin="4dp"/>
-        <EditText
-            android:id="@+id/otp3"
-            android:layout_width="40dp"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:inputType="number"
-            android:textSize="22sp"
-            android:maxLength="1"
-            android:background="@drawable/edittext_border"
-            android:layout_margin="4dp"/>
-        <EditText
-            android:id="@+id/otp4"
-            android:layout_width="40dp"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:inputType="number"
-            android:textSize="22sp"
-            android:maxLength="1"
-            android:background="@drawable/edittext_border"
-            android:layout_margin="4dp"/>
-        <EditText
-            android:id="@+id/otp5"
-            android:layout_width="40dp"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:inputType="number"
-            android:textSize="22sp"
-            android:maxLength="1"
-            android:background="@drawable/edittext_border"
-            android:layout_margin="4dp"/>
-        <EditText
-            android:id="@+id/otp6"
-            android:layout_width="40dp"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:inputType="number"
-            android:textSize="22sp"
-            android:maxLength="1"
-            android:background="@drawable/edittext_border"
-            android:layout_margin="4dp"/>
+        <EditText android:id="@+id/otp1" android:layout_width="40dp" android:layout_height="wrap_content" android:gravity="center" android:inputType="number" android:textSize="22sp" android:maxLength="1" android:background="@drawable/edittext_border" android:layout_margin="4dp"/>
+        <EditText android:id="@+id/otp2" android:layout_width="40dp" android:layout_height="wrap_content" android:gravity="center" android:inputType="number" android:textSize="22sp" android:maxLength="1" android:background="@drawable/edittext_border" android:layout_margin="4dp"/>
+        <EditText android:id="@+id/otp3" android:layout_width="40dp" android:layout_height="wrap_content" android:gravity="center" android:inputType="number" android:textSize="22sp" android:maxLength="1" android:background="@drawable/edittext_border" android:layout_margin="4dp"/>
+        <EditText android:id="@+id/otp4" android:layout_width="40dp" android:layout_height="wrap_content" android:gravity="center" android:inputType="number" android:textSize="22sp" android:maxLength="1" android:background="@drawable/edittext_border" android:layout_margin="4dp"/>
+        <EditText android:id="@+id/otp5" android:layout_width="40dp" android:layout_height="wrap_content" android:gravity="center" android:inputType="number" android:textSize="22sp" android:maxLength="1" android:background="@drawable/edittext_border" android:layout_margin="4dp"/>
+        <EditText android:id="@+id/otp6" android:layout_width="40dp" android:layout_height="wrap_content" android:gravity="center" android:inputType="number" android:textSize="22sp" android:maxLength="1" android:background="@drawable/edittext_border" android:layout_margin="4dp"/>
     </LinearLayout>
 
     <TextView
@@ -97,7 +44,7 @@
         android:id="@+id/tvTimer"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:text="4:58"
+        android:text="5:00"
         android:textSize="20sp"
         android:textColor="#EB4341"
         android:layout_marginTop="8dp"/>
@@ -116,7 +63,11 @@
         android:text="Gửi lại OTP"
         android:textColor="#A71317"
         android:textStyle="bold"
+        android:textSize="16sp"
         android:layout_marginTop="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?android:attr/selectableItemBackground"
         android:visibility="gone"/>
 
     <Button
@@ -126,5 +77,6 @@
         android:text="Xác nhận OTP"
         android:textColor="@android:color/white"
         android:backgroundTint="#A71317"
-        android:layout_marginTop="24dp"/>
+        android:layout_marginTop="30dp"
+        android:layout_marginHorizontal="40dp"/>
 </LinearLayout>

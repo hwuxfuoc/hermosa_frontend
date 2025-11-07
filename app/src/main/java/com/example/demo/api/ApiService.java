@@ -20,8 +20,8 @@ import retrofit2.http.HTTP;
 public interface ApiService {
 
     // ---- AUTH ----
-    @POST("user/login")
-    Call<AuthResponse> login(@Body Map<String, String> body);
+    @POST("user/signin")
+    Call<AuthResponse> signin(@Body Map<String, String> body);
     @POST("user/signup")
     Call<CommonResponse> signup(@Body Map<String, Object> body);
 

@@ -1,23 +1,32 @@
 package com.example.demo.model;
 
+import com.google.gson.annotations.SerializedName;
+import java.util.List;
+
 public class AuthResponse {
+    @SerializedName("status")
     private String status;
+    @SerializedName("message")
     private String message;
     private int statuscode;     // có thể có trong 1 số API
     private String token;       // nếu backend có JWT token
-    private User data;          // đối tượng user chính
+    @SerializedName("data")
+    private List<User> data;        // đối tượng user chính
 
     public String getStatus() { return status; }
     public String getMessage() { return message; }
     public int getStatuscode() { return statuscode; }
     public String getToken() { return token; }
-    public User getData() { return data; }
+    public List<User> getData() { return data; }
 
     // lớp con User ánh xạ với "foundUser" hoặc "newUser" trong backend
     public static class User {
+        @SerializedName("_id")
         private String _id;
         private String userID;
+        @SerializedName("name")
         private String name;
+        @SerializedName("email")
         private String email;
         private String password;
         private boolean is_verified;

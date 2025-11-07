@@ -3,24 +3,29 @@ package com.example.demo;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.demo.api.ApiClient;
 import com.example.demo.api.ApiService;
 import com.example.demo.model.AuthResponse;
-import com.example.demo.model.User;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class ActivityLogin extends AppCompatActivity {
 
-    private EditText editTextUsername, editTextPassword;
-    private Button buttonLogin, buttonGoogleLogin, buttonFacebookLogin;
-    private TextView textViewForgotPassword, textViewRegister;
+    private EditText editTextEmail, editTextPassword;
+    private ImageView imgTogglePassword;
+    private Button buttonLogin;
+    private TextView textViewRegister;
     private CheckBox checkBoxRemember;
     private ApiService apiService;
     private SharedPreferences prefs;
@@ -30,109 +35,101 @@ public class ActivityLogin extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // Ánh xạ view
-        editTextUsername = findViewById(R.id.edit_text_username);
+        editTextEmail = findViewById(R.id.edit_text_username);
         editTextPassword = findViewById(R.id.edit_text_password);
+        imgTogglePassword = findViewById(R.id.imgTogglePassword);
         buttonLogin = findViewById(R.id.button_login);
-        buttonGoogleLogin = findViewById(R.id.button_google_login);
-        buttonFacebookLogin = findViewById(R.id.button_facebook_login);
-        textViewForgotPassword = findViewById(R.id.text_view_forgot_password);
         textViewRegister = findViewById(R.id.text_view_register);
-
-        // Thêm checkbox Remember me (nếu bạn có trong layout, nếu chưa có thì thêm vào XML)
-        checkBoxRemember = new CheckBox(this);
-        checkBoxRemember.setText("Ghi nhớ đăng nhập");
-
-        // Thêm vào layout login (nếu muốn động, hoặc thêm trong XML cho gọn)
-        LinearLayout layout = (LinearLayout) ((ScrollView) findViewById(R.id.activity_login)).getChildAt(0);
-        layout.addView(checkBoxRemember, layout.getChildCount() - 4);
+        checkBoxRemember = findViewById(R.id.checkBoxRemember);
 
         apiService = ApiClient.getClient().create(ApiService.class);
         prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
 
-        // Nếu đã nhớ đăng nhập
+        // Load nhớ đăng nhập
         if (prefs.getBoolean("REMEMBER_ME", false)) {
-            String savedUser = prefs.getString("USERNAME", null);
-            String savedPass = prefs.getString("PASSWORD", null);
-            if (savedUser != null && savedPass != null) {
-                editTextUsername.setText(savedUser);
-                editTextPassword.setText(savedPass);
-                checkBoxRemember.setChecked(true);
-            }
+            editTextEmail.setText(prefs.getString("EMAIL", ""));
+            editTextPassword.setText(prefs.getString("PASSWORD", ""));
+            checkBoxRemember.setChecked(true);
         }
 
-        // Nút đăng nhập
+        // Hiện/ẩn mật khẩu
+        imgTogglePassword.setOnClickListener(v -> {
+            if (editTextPassword.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
+                editTextPassword.setInputType(InputType.TYPE_CLASS_TEXT);
+                imgTogglePassword.setImageResource(R.drawable.ic_eye_open);
+            } else {
+                editTextPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                imgTogglePassword.setImageResource(R.drawable.ic_eye_closed);
+            }
+            editTextPassword.setSelection(editTextPassword.getText().length());
+        });
+
         buttonLogin.setOnClickListener(v -> login());
-
-        // Nút Google login (placeholder)
-        buttonGoogleLogin.setOnClickListener(v ->
-                Toast.makeText(this, "Google login chưa được cài đặt", Toast.LENGTH_SHORT).show()
-        );
-
-        // Nút Facebook login (placeholder)
-        buttonFacebookLogin.setOnClickListener(v ->
-                Toast.makeText(this, "Facebook login chưa được cài đặt", Toast.LENGTH_SHORT).show()
-        );
-
-        // Quên mật khẩu
-        textViewForgotPassword.setOnClickListener(v -> {
-            startActivity(new Intent(ActivityLogin.this, ActivityForgotPassword.class));
-        });
-
-        // Đăng ký
-        textViewRegister.setOnClickListener(v -> {
-            startActivity(new Intent(ActivityLogin.this, ActivityRegister.class));
-        });
+        textViewRegister.setOnClickListener(v -> startActivity(new Intent(this, ActivityRegister.class)));
     }
 
     private void login() {
-        String username = editTextUsername.getText().toString().trim();
+        String email = editTextEmail.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
 
-        if (TextUtils.isEmpty(username)) {
-            editTextUsername.setError("Vui lòng nhập username");
+        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
+            Toast.makeText(this, "Vui lòng nhập email và mật khẩu", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (TextUtils.isEmpty(password)) {
-            editTextPassword.setError("Vui lòng nhập mật khẩu");
-            return;
-        }
+        buttonLogin.setEnabled(false);
+        buttonLogin.setText("Đang đăng nhập...");
 
-        // Gọi API login
         Map<String, String> body = new HashMap<>();
-        body.put("username", username);
+        body.put("email", email);
         body.put("password", password);
 
-        apiService.login(body).enqueue(new Callback<AuthResponse>() {
+        Log.d("LOGIN", "Gửi đến: /signin | email: " + email);
+
+        apiService.signin(body).enqueue(new Callback<AuthResponse>() {
             @Override
             public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
-                if (response.isSuccessful() && response.body() != null && "Success".equals(response.body().getStatus())) {
-                    AuthResponse.User user = response.body().getData();
-                    if (user != null) {
-                        // Lưu vào SharedPreferences
+                buttonLogin.setEnabled(true);
+                buttonLogin.setText("Đăng nhập");
+
+                Log.d("LOGIN", "HTTP Code: " + response.code());
+                if (response.body() != null) {
+                    Log.d("LOGIN", "Status: " + response.body().getStatus());
+                    Log.d("LOGIN", "Message: " + response.body().getMessage());
+                } else {
+                    Log.d("LOGIN", "Body = null");
+                }
+
+                // CHỈ CẦN HTTP 200 + status = Success
+                if (response.isSuccessful() && response.body() != null) {
+                    String status = response.body().getStatus();
+                    if ("Success".equalsIgnoreCase(status)) {
+                        // Lưu thông tin
                         SharedPreferences.Editor editor = prefs.edit();
-                        editor.putString("USER_ID", user.getUserID());
-                        editor.putString("USERNAME", username);
-                        editor.putString("PASSWORD", password);
-                        editor.putBoolean("REMEMBER_ME", checkBoxRemember.isChecked());
+                        editor.putString("EMAIL", email);
+                        editor.putBoolean("IS_LOGGED_IN", true);
+                        if (checkBoxRemember.isChecked()) {
+                            editor.putString("PASSWORD", password);
+                            editor.putBoolean("REMEMBER_ME", true);
+                        }
                         editor.apply();
 
-                        Toast.makeText(ActivityLogin.this, "Đăng nhập thành công", Toast.LENGTH_SHORT).show();
-
-                        // Chuyển sang MainActivity
-                        Intent intent = new Intent(ActivityLogin.this, MainActivity.class);
-                        startActivity(intent);
+                        Toast.makeText(ActivityLogin.this, "Đăng nhập thành công!", Toast.LENGTH_LONG).show();
+                        startActivity(new Intent(ActivityLogin.this, MainActivity.class));
                         finish();
+                        return;
                     }
-                } else {
-                    Toast.makeText(ActivityLogin.this, "Sai tên đăng nhập hoặc mật khẩu", Toast.LENGTH_SHORT).show();
                 }
+
+                Toast.makeText(ActivityLogin.this, "Sai email hoặc mật khẩu", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onFailure(Call<AuthResponse> call, Throwable t) {
-                Toast.makeText(ActivityLogin.this, "Lỗi kết nối server: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                buttonLogin.setEnabled(true);
+                buttonLogin.setText("Đăng nhập");
+                Log.e("LOGIN", "Lỗi: " + t.getMessage());
+                Toast.makeText(ActivityLogin.this, "Lỗi kết nối server!", Toast.LENGTH_SHORT).show();
             }
         });
     }
