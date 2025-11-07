@@ -72,8 +72,12 @@ public class ActivityLogin extends AppCompatActivity {
         String email = editTextEmail.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
 
-        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
-            Toast.makeText(this, "Vui lòng nhập email và mật khẩu", Toast.LENGTH_SHORT).show();
+        if (TextUtils.isEmpty(email)) {
+            editTextEmail.setError("Nhập email");
+            return;
+        }
+        if (TextUtils.isEmpty(password)) {
+            editTextPassword.setError("Nhập mật khẩu");
             return;
         }
 
@@ -84,29 +88,29 @@ public class ActivityLogin extends AppCompatActivity {
         body.put("email", email);
         body.put("password", password);
 
-        Log.d("LOGIN", "Gửi đến: /signin | email: " + email);
+        Log.d("LOGIN", "Gửi: email=" + email);
 
-        apiService.signin(body).enqueue(new Callback<AuthResponse>() {
+        // DÙNG .login() – endpoint mới
+        apiService.login(body).enqueue(new Callback<AuthResponse>() {
             @Override
             public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
                 buttonLogin.setEnabled(true);
                 buttonLogin.setText("Đăng nhập");
 
-                Log.d("LOGIN", "HTTP Code: " + response.code());
+                Log.d("LOGIN", "Code: " + response.code());
                 if (response.body() != null) {
                     Log.d("LOGIN", "Status: " + response.body().getStatus());
-                    Log.d("LOGIN", "Message: " + response.body().getMessage());
-                } else {
-                    Log.d("LOGIN", "Body = null");
+                    Log.d("LOGIN", "UserID: " + (response.body().getData() != null ? response.body().getData().getUserID() : "null"));
                 }
 
-                // CHỈ CẦN HTTP 200 + status = Success
                 if (response.isSuccessful() && response.body() != null) {
-                    String status = response.body().getStatus();
-                    if ("Success".equalsIgnoreCase(status)) {
-                        // Lưu thông tin
+                    if ("Success".equals(response.body().getStatus())) {
+                        AuthResponse.User user = response.body().getData();
+                        String userId = user != null ? user.getUserID() : "unknown";
+
                         SharedPreferences.Editor editor = prefs.edit();
                         editor.putString("EMAIL", email);
+                        editor.putString("USER_ID", userId);
                         editor.putBoolean("IS_LOGGED_IN", true);
                         if (checkBoxRemember.isChecked()) {
                             editor.putString("PASSWORD", password);
