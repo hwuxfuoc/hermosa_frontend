@@ -1,127 +1,89 @@
 package com.example.demo;
+
 import android.content.Intent;
 import android.net.Uri;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.text.TextUtils;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.app.Activity;
-
 import com.example.demo.adapters.CartAdapter;
 import com.example.demo.adapters.RecommendedAdapter;
 import com.example.demo.api.ApiClient;
 import com.example.demo.api.ApiService;
 import com.example.demo.fragment.PaymentMethodBottomSheetFragment;
-import com.example.demo.models.CartItem;
-import com.example.demo.models.CartResponse;
-import com.example.demo.models.CommonResponse;
-import com.example.demo.models.CreateMomoRequest;
-import com.example.demo.models.CreateMomoResponse;
-import com.example.demo.models.CreateVnpayRequest;
-import com.example.demo.models.CreateVnpayResponse;
-import com.example.demo.models.OrderResponse;
+import com.example.demo.models.*;
 import com.example.demo.utils.SessionManager;
-import com.example.demo.SelectAddressActivity;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import java.util.*;
 
-public class ConfirmOrderActivity extends AppCompatActivity implements PaymentMethodBottomSheetFragment.PaymentMethodListener{
-    public static final String PAYMENT_METHOD_CASH = "PAYMENT_CASH";
-    public static final String PAYMENT_METHOD_MOMO = "PAYMENT_MOMO";
-    public static final String PAYMENT_METHOD_VNPAY = "PAYMENT_VNPAY";
+public class ConfirmOrderActivity extends AppCompatActivity
+        implements PaymentMethodBottomSheetFragment.PaymentMethodListener,
+        CartAdapter.OnCartUpdateListener,
+        RecommendedAdapter.OnAddToCartListener {
+
+    public static final String PAYMENT_METHOD_CASH = "cash";
+    public static final String PAYMENT_METHOD_MOMO = "momo";
+    public static final String PAYMENT_METHOD_VNPAY = "vnpay";
+
     private RecyclerView recyclerOrderItems, recyclerRecommended;
     private Button btnPlaceOrder;
     private ImageButton btnBack;
-    private TextView tvAddress, tvCustomer;
-    private TextView tvSubtotal, tvShipping, tvFee, tvTotalPayment;
-    private TextView btnMomo, btnCash;
-    private TextView btnOtherPaymentMethods;
+    private TextView tvAddress, tvCustomer, tvSubtotal, tvShipping, tvFee, tvTotalPayment;
+    private TextView btnMomo, btnCash, btnOtherPayment;
+    private View layoutAddressBlock;
+    private TextView tvEditAddress;
 
-    private View layoutAddressBlock; // View chứa địa chỉ
-    private TextView tvEditAddress;  // Nút "Chỉnh sửa"
     private CartAdapter cartAdapter;
     private RecommendedAdapter recommendedAdapter;
     private ApiService apiService;
-    private String userID;
-
-    /*private String currentPaymentMethod = "Tiền mặt";*/
-    private String currentAddress = "";
-    private String currentDeliveryMethod = "delivery";
-    private String apiCustomer = "";
-    // ✅ THAY ĐỔI: Đặt giá trị mặc định bằng hằng số
+    private String userID, currentAddress = "", apiCustomer = "";
     private String currentPaymentMethod = PAYMENT_METHOD_CASH;
-    private double currentShippingFee = 50000.0;
-    private double currentServiceFee = 10000.0;
-
-    // ✅ BỔ SUNG BIẾN: giữ danh sách sản phẩm hiện có trong giỏ
-    private final List<CartItem> cartItemsLocal = new ArrayList<>();
+    private String currentDeliveryMethod = "pickup"; // mặc định nhận tại quán
+    private String lastOrderID;
+    private final List<CartResponse.CartItem> cartItemsLocal = new ArrayList<>();
     private ActivityResultLauncher<Intent> selectAddressLauncher;
+
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order_confirm);
+
+        apiService = ApiClient.getClient().create(ApiService.class);
+        userID = SessionManager.getUserID(this);
+        if (userID == null) { finish(); return; }
+
         registerAddressLauncher();
         initViews();
-        setupRecyclerViews();
-
-        if (!initApiAndSession()) return;
-
         loadData();
         setupClickListeners();
-
-        selectPaymentMethod(currentPaymentMethod);
     }
-    // ✅ BỔ SUNG HÀM MỚI NÀY VÀO TRONG CLASS
+
     private void registerAddressLauncher() {
         selectAddressLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        Intent data = result.getData();
-                        if (data != null) {
-                            String newMethod = data.getStringExtra("newMethod");
-
-                            if ("pickup".equals(newMethod)) {
-                                // ✅ GỌI HÀM CẬP NHẬT UI
-                                updateDeliveryMethodUI("pickup");
-
-                            } else if ("delivery".equals(newMethod)) {
-                                // (Code cập nhật địa chỉ... giữ nguyên)
-                                String newAddress = data.getStringExtra("newAddress");
-                                String newCustomerInfo = data.getStringExtra("newCustomerInfo");
-                                currentAddress = newAddress;
-                                tvAddress.setText(newAddress);
-                                tvCustomer.setText(newCustomerInfo);
-
-                                // ✅ GỌI HÀM CẬP NHẬT UI
-                                updateDeliveryMethodUI("delivery");
-                            }
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        String method = result.getData().getStringExtra("deliveryMethod");
+                        if ("pickup".equals(method)) {
+                            currentDeliveryMethod = "pickup";
+                            updateDeliveryUI();
+                        } else {
+                            currentDeliveryMethod = "delivery";
+                            currentAddress = result.getData().getStringExtra("address");
+                            apiCustomer = result.getData().getStringExtra("customer");
+                            updateDeliveryUI();
                         }
                     }
-                }
-        );
+                });
     }
 
     private void initViews() {
@@ -137,378 +99,215 @@ public class ConfirmOrderActivity extends AppCompatActivity implements PaymentMe
         tvTotalPayment = findViewById(R.id.tvTotalPayment);
         btnMomo = findViewById(R.id.btnMomo);
         btnCash = findViewById(R.id.btnCash);
-        btnOtherPaymentMethods=findViewById(R.id.btnOtherPayment);
+        btnOtherPayment = findViewById(R.id.btnOtherPayment);
         layoutAddressBlock = findViewById(R.id.layoutAddressBlock);
         tvEditAddress = findViewById(R.id.tvEditAddress);
-    }
-    // TRONG FILE ConfirmOrderActivity.java
 
-    private void updateDeliveryMethodUI(String method) {
-        currentDeliveryMethod = method; // Lưu lại lựa chọn
-
-        if (layoutAddressBlock == null) {
-            return;
-        }
-
-        if (method.equals("delivery")) {
-            // ✅ HIỆN KHỐI ĐỊA CHỈ
-            layoutAddressBlock.setVisibility(View.VISIBLE);
-
-            // (Bạn cũng nên cập nhật lại địa chỉ cũ ở đây
-            // phòng trường hợp người dùng chọn lại "Giao hàng")
-            tvAddress.setText(currentAddress); // currentAddress là địa chỉ thật
-            tvCustomer.setText(apiCustomer); // apiCustomer là tên thật
-
-        } else { // (Nếu là "pickup" - Tại quán)
-
-            // ✅ ẨN KHỐI ĐỊA CHỈ (Bạn đã làm)
-            /*layoutAddressBlock.setVisibility(View.GONE);*/
-
-            // ✅ BƯỚC QUAN TRỌNG:
-            // Mặc dù khối địa chỉ bị ẨN, một số phần (như tvAddress)
-            // có thể vẫn nằm ngoài khối đó (tùy vào XML của bạn).
-            // Để chắc chắn, hãy cập nhật TextViews.
-
-            // GIẢ SỬ XML CỦA BẠN GIỐNG HÌNH 2 (image_74d3f6.png)
-            // (Hình 2 cho thấy tvAddress và tvCustomer vẫn hiển thị)
-
-            tvAddress.setText("Đơn đặt và nhận tại cửa hàng"); // <-- SỬA CHỮ Ở ĐÂY
-            tvCustomer.setText(apiCustomer); // (Giữ nguyên tên khách hàng)
-        }
-    }
-    private void setupRecyclerViews() {
         recyclerOrderItems.setLayoutManager(new LinearLayoutManager(this));
-        recyclerOrderItems.setNestedScrollingEnabled(false);
-
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        recyclerRecommended.setLayoutManager(layoutManager);
-        recyclerRecommended.setNestedScrollingEnabled(false);
+        recyclerRecommended.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
     }
 
-    private boolean initApiAndSession() {
-        userID = SessionManager.getUserID(this);
-        if (userID == null) {
-            Toast.makeText(this, "Chưa đăng nhập, vui lòng đăng nhập lại!", Toast.LENGTH_SHORT).show();
-            finish();
-            return false;
-        }
-        apiService = ApiClient.getClient().create(ApiService.class);
-        return true;
-    }
-
-    private void setupClickListeners() {
-        btnBack.setOnClickListener(v -> onBackPressed());
-        btnPlaceOrder.setOnClickListener(v -> handlePlaceOrder());
-        // ✅ THAY ĐỔI:
-        // 1. Gán hành động CHỌN TRỰC TIẾP cho 2 nút chính
-        btnCash.setOnClickListener(v -> selectPaymentMethod(PAYMENT_METHOD_CASH));
-        btnMomo.setOnClickListener(v -> selectPaymentMethod(PAYMENT_METHOD_MOMO));
-
-        // 2. Tạo listener MỞ SHEET
-        View.OnClickListener openPaymentSheetListener = v -> {
-            PaymentMethodBottomSheetFragment bottomSheet = new PaymentMethodBottomSheetFragment();
-            bottomSheet.show(getSupportFragmentManager(), "PaymentMethodBottomSheet");
-        };
-        /*TextView tvEditAddress = findViewById(R.id.tvEditAddress);*/
-
-        tvEditAddress.setOnClickListener(v -> {
-            // 1. Tạo Intent để đi tới Màn hình 2
-            Intent intent = new Intent(ConfirmOrderActivity.this, SelectAddressActivity.class);
-
-            // 2. Mở màn hình 2 và chờ kết quả
-            selectAddressLauncher.launch(intent);
-        });
-        // 3. Chỉ gán listener MỞ SHEET cho nút "Khác"
-        btnOtherPaymentMethods.setOnClickListener(openPaymentSheetListener);
-        updateDeliveryMethodUI(currentDeliveryMethod);
-    }
-    @Override
-    public void onPaymentMethodSelected(String paymentMethod) {
-        // Khi người dùng chọn xong, gọi hàm `selectPaymentMethod` bạn đã viết
-        selectPaymentMethod(paymentMethod);
-    }
     private void loadData() {
         fetchCartProducts();
-        setupRecommended();
+        loadRecommended();
         fetchUserInfo();
+    }
+
+    private void updateDeliveryUI() {
+        if ("pickup".equals(currentDeliveryMethod)) {
+            layoutAddressBlock.setVisibility(View.VISIBLE);
+            tvAddress.setText("Đơn đặt và nhận tại cửa hàng");
+            tvCustomer.setText(apiCustomer);
+        } else {
+            layoutAddressBlock.setVisibility(View.VISIBLE);
+            tvAddress.setText(currentAddress);
+            tvCustomer.setText(apiCustomer);
+        }
+    }
+
+    private void fetchUserInfo() {
+        String name = SessionManager.getUserName(this);
+        String phone = SessionManager.getUserPhone(this);
+        apiCustomer = (name != null && phone != null) ? name + " | " + phone : "Khách hàng";
+        updateDeliveryUI();
     }
 
     private void fetchCartProducts() {
         apiService.viewCart(userID).enqueue(new Callback<CartResponse>() {
             @Override
-            public void onResponse(Call<CartResponse> call, Response<CartResponse> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
-                    List<CartItem> items = response.body().getData().getItems();
+            public void onResponse(Call<CartResponse> call, Response<CartResponse> r) {
+                if (r.isSuccessful() && r.body() != null) {
                     cartItemsLocal.clear();
-                    cartItemsLocal.addAll(items);
-
-                    cartAdapter = new CartAdapter(ConfirmOrderActivity.this, cartItemsLocal, null);
+                    cartItemsLocal.addAll(r.body().getData().getItems());
+                    cartAdapter = new CartAdapter(cartItemsLocal, userID, ConfirmOrderActivity.this);
                     recyclerOrderItems.setAdapter(cartAdapter);
-
-                    updatePaymentSummary(calculateSubtotal());
-                } else {
-                    Toast.makeText(ConfirmOrderActivity.this, "Không thể tải giỏ hàng", Toast.LENGTH_SHORT).show();
+                    updateTotals(r.body().getData().getTotalMoney());
                 }
             }
+            @Override public void onFailure(Call<CartResponse> call, Throwable t) {}
+        });
+    }
 
+    private void loadRecommended() {
+        apiService.getAllProducts().enqueue(new Callback<MenuResponse>() {
             @Override
-            public void onFailure(Call<CartResponse> call, Throwable t) {
-                Toast.makeText(ConfirmOrderActivity.this, "Lỗi tải giỏ hàng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    // ✅ HÀM TÍNH TỔNG TIỀN GIỎ HÀNG
-    private double calculateSubtotal() {
-        double subtotal = 0;
-        for (CartItem item : cartItemsLocal) {
-            subtotal += item.getPrice() * item.getQuantity();
-        }
-        return subtotal;
-    }
-
-    private void updatePaymentSummary(double subtotal) {
-        double total = subtotal + currentShippingFee + currentServiceFee;
-        tvSubtotal.setText(String.format("%,.0f VND", subtotal));
-        tvShipping.setText(String.format("%,.0f VND", currentShippingFee));
-        tvFee.setText(String.format("%,.0f VND", currentServiceFee));
-        tvTotalPayment.setText(String.format("%,.0f VND", total));
-        btnPlaceOrder.setText(String.format("Đặt hàng - %,.0f VND", total));
-    }
-
-    // TRONG FILE ConfirmOrderActivity.java
-
-    private void fetchUserInfo() {
-        // 1. ĐỌC DỮ LIỆU ĐÃ LƯU TỪ SESSIONMANAGER
-        String name = SessionManager.getUserName(this);
-        String phone = SessionManager.getUserPhone(this);
-        String address = SessionManager.getUserAddress(this);
-
-        // 2. Cập nhật biến toàn cục
-        currentAddress = (address != null) ? address : "Vui lòng cập nhật địa chỉ";
-        apiCustomer = (name != null && phone != null) ? (name + " | " + phone) : "Khách hàng";
-
-        // 3. Cập nhật giao diện (UI)
-        tvAddress.setText(currentAddress);
-        tvCustomer.setText(apiCustomer);
-
-        // 4. Cập nhật lại trạng thái hiển thị (quan trọng)
-        updateDeliveryMethodUI(currentDeliveryMethod);
-    }
-
-    // ✅ SETUP LIST RECOMMENDED + LOGIC “THÊM NGAY VÀO GIỎ”
-    private void setupRecommended() {
-        List<Product> recommendedList = new ArrayList<>();
-        recommendedList.add(new Product("Trà sữa Socola", "45000", R.drawable.drink_blueberry_smooth, 0));
-        recommendedList.add(new Product("Bánh Dâu Kem", "55000", R.drawable.cake_strawberry_cheese, 0));
-
-        recommendedAdapter = new RecommendedAdapter(recommendedList, product -> {
-            CartItem newItem = CartItem.fromProduct(product);
-
-            // Kiểm tra trùng
-            int foundIndex = -1;
-            for (int i = 0; i < cartItemsLocal.size(); i++) {
-                CartItem existing = cartItemsLocal.get(i);
-                if (existing.getName().equalsIgnoreCase(newItem.getName())) {
-                    foundIndex = i;
-                    break;
+            public void onResponse(Call<MenuResponse> call, Response<MenuResponse> r) {
+                if (r.isSuccessful() && r.body() != null) {
+                    List<Product> list = new ArrayList<>();
+                    for (MenuResponse.MenuItem item : r.body().getData()) {
+                        list.add(Product.fromMenuItem(item)); // HOÀN HẢO!
+                    }
+                    recommendedAdapter = new RecommendedAdapter(list, ConfirmOrderActivity.this);
+                    recyclerRecommended.setAdapter(recommendedAdapter);
                 }
             }
-
-            if (foundIndex >= 0) {
-                CartItem existing = cartItemsLocal.get(foundIndex);
-                existing.setQuantity(existing.getQuantity() + 1);
-                existing.setSubtotal((int) (existing.getPrice() * existing.getQuantity()));
-                cartAdapter.notifyItemChanged(foundIndex);
-            } else {
-                cartItemsLocal.add(newItem);
-                cartAdapter.notifyItemInserted(cartItemsLocal.size() - 1);
-                recyclerOrderItems.scrollToPosition(cartItemsLocal.size() - 1);
-            }
-
-            updatePaymentSummary(calculateSubtotal());
+            @Override public void onFailure(Call<MenuResponse> call, Throwable t) {}
         });
-
-        recyclerRecommended.setAdapter(recommendedAdapter);
     }
 
-    private void handlePlaceOrder() {
-        String address = currentAddress;
-        String note = "";
-        String payment = currentPaymentMethod;
-        String delivery = currentDeliveryMethod; // Lấy phương thức giao hàng
-
-        // Chỉ kiểm tra địa chỉ nếu là "delivery"
-        if (delivery.equals("delivery") && TextUtils.isEmpty(address)) {
-            Toast.makeText(this, "Vui lòng chọn địa chỉ giao hàng", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        // Truyền "delivery" vào hàm createOrder
-        createOrder(address, note, payment, delivery);
+    private void updateTotals(long subtotal) {
+        long shipping = "delivery".equals(currentDeliveryMethod) ? 50000 : 0;
+        long fee = 10000;
+        long total = subtotal + shipping + fee;
+        tvSubtotal.setText(String.format("%,d VND", subtotal));
+        tvShipping.setText(String.format("%,d VND", shipping));
+        tvFee.setText(String.format("%,d VND", fee));
+        tvTotalPayment.setText(String.format("%,d VND", total));
+        btnPlaceOrder.setText("Đặt hàng - " + String.format("%,d VND", total));
     }
 
-    private void selectPaymentMethod(String method) {
+    private void setupClickListeners() {
+        btnBack.setOnClickListener(v -> finish());
+        btnCash.setOnClickListener(v -> onPaymentMethodSelected(PAYMENT_METHOD_CASH));
+        btnMomo.setOnClickListener(v -> onPaymentMethodSelected(PAYMENT_METHOD_MOMO));
+        btnOtherPayment.setOnClickListener(v -> {
+            PaymentMethodBottomSheetFragment f = new PaymentMethodBottomSheetFragment();
+            f.setPaymentMethodListener(ConfirmOrderActivity.this); // ĐÃ FIX
+            f.show(getSupportFragmentManager(), "payment_sheet");
+        });
+        tvEditAddress.setOnClickListener(v -> selectAddressLauncher.launch(new Intent(this, SelectAddressActivity.class)));
+        btnPlaceOrder.setOnClickListener(v -> placeOrder());
+    }
+
+    /*private void selectPaymentMethod(String method) {
         currentPaymentMethod = method;
-        int redColor = Color.parseColor("#A71317");
-        int greyColor = Color.parseColor("#ADABAB");
+        int red = 0xFFA71317;
+        int gray = 0xFFADABAB;
+        btnCash.setBackgroundResource(method.equals(PAYMENT_METHOD_CASH) ? R.drawable.payment_option_selected : R.drawable.payment_option_default);
+        btnCash.setTextColor(method.equals(PAYMENT_METHOD_CASH) ? red : gray);
+        btnMomo.setBackgroundResource(method.equals(PAYMENT_METHOD_MOMO) || method.equals(PAYMENT_METHOD_VNPAY) ? R.drawable.payment_option_selected : R.drawable.payment_option_default);
+        btnMomo.setTextColor(method.equals(PAYMENT_METHOD_MOMO) || method.equals(PAYMENT_METHOD_VNPAY) ? red : gray);
+        btnMomo.setText(method.equals(PAYMENT_METHOD_VNPAY) ? "VNPay" : "Momo");
+    }*/
 
-        //trang thai dau tien
-        btnCash.setBackgroundResource(R.drawable.payment_option_default);
-        btnCash.setTextColor(greyColor);
-        btnMomo.setBackgroundResource(R.drawable.payment_option_default);
-        btnMomo.setTextColor(greyColor);
-        if(method.equals(PAYMENT_METHOD_CASH)){
-            btnCash.setTextColor(redColor);
-            btnCash.setBackgroundResource(R.drawable.payment_option_selected);
-        }
-        else if(method.equals(PAYMENT_METHOD_MOMO)){
-            btnMomo.setTextColor(redColor);
-            btnMomo.setBackgroundResource(R.drawable.payment_option_selected);
-        }
-        //dang su dung momo la btn dai dien
-        else if (method.equals(PAYMENT_METHOD_VNPAY)) {
-            // CHỌN VNPAY (từ BottomSheet)
-            btnMomo.setBackgroundResource(R.drawable.payment_option_selected);
-            btnMomo.setTextColor(redColor);
-            btnMomo.setText("VNPay");
-        }
-    }
-    private void requestMomoPayment(String orderID, String userID) {
-        CreateMomoRequest requestBody = new CreateMomoRequest(orderID, userID);
-
-        apiService.createPaymentMomo(requestBody).enqueue(new Callback<CreateMomoResponse>() {
-            @Override
-            public void onResponse(Call<CreateMomoResponse> call, Response<CreateMomoResponse> response) {
-                // progressBar.setVisibility(View.GONE);
-
-                if (response.isSuccessful() && response.body() != null && response.body().getPayUrl() != null) {
-
-                    String payUrl = response.body().getPayUrl();
-
-                    // ✅ MỞ TRANG WEB THANH TOÁN MOMO
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(payUrl));
-                    startActivity(intent);
-
-                    // Lưu lại orderID này để kiểm tra sau khi người dùng quay lại app
-                    // SessionManager.saveProcessingOrder(orderID);
-
-
-                } else {
-                    Toast.makeText(ConfirmOrderActivity.this, "Không thể tạo link thanh toán MoMo", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<CreateMomoResponse> call, Throwable t) {
-                Toast.makeText(ConfirmOrderActivity.this, "Lỗi khi gọi MoMo: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-    private void createOrder(String address, String note, String paymentMethod, String deliveryMethod) {
-        /*Map<String, Object> body = new HashMap<>();
-        body.put("userID", userID);
-        body.put("paymentMethod", paymentMethod.equals("Tiền mặt") ? "cash" : "momo");
-        body.put("paymentStatus", "unpaid");
-        body.put("deliver", "delivery");
-        body.put("deliverAddress", address);
-        body.put("note", note);*/
-
-        String paymentApiString;
-        if (paymentMethod.equals(PAYMENT_METHOD_MOMO)) {
-            paymentApiString = "momo";
-        } else if (paymentMethod.equals(PAYMENT_METHOD_VNPAY)) {
-            paymentApiString = "vnpay";
-        } else {
-            paymentApiString = "cash";
-        }
+    private void placeOrder() {
         Map<String, Object> body = new HashMap<>();
         body.put("userID", userID);
-        body.put("paymentMethod", paymentApiString);
-        body.put("paymentStatus", "unpaid");
-        body.put("note", note);
-        body.put("deliver", deliveryMethod);
-
-        /*String paymentApiString;
-        if (paymentMethod.equals(PAYMENT_METHOD_MOMO)) {
-            paymentApiString = "momo";
-        } else if (paymentMethod.equals(PAYMENT_METHOD_VNPAY)) {
-            paymentApiString = "vnpay";
-        } else {
-            paymentApiString = "cash"; // Gán giá trị mặc định
-        }*/
-
-        if (deliveryMethod.equals("delivery")) {
-            body.put("deliverAddress", address);
-        } else {
-            body.put("deliverAddress", "Nhận tại quán");
-        }
-
-        // Hiển thị loading (ví dụ: ProgressBar)
-        // progressBar.setVisibility(View.VISIBLE);
+        body.put("paymentMethod", currentPaymentMethod);
+        body.put("paymentStatus", PAYMENT_METHOD_CASH.equals(currentPaymentMethod) ? "done" : "not_done");
+        body.put("deliver", "delivery".equals(currentDeliveryMethod));
+        body.put("deliverAddress", "delivery".equals(currentDeliveryMethod) ? currentAddress : "Nhận tại quán");
+        body.put("note", "");
 
         apiService.createOrder(body).enqueue(new Callback<OrderResponse>() {
             @Override
-            public void onResponse(Call<OrderResponse> call, Response<OrderResponse> response) {
-                if (response.isSuccessful() && response.body() != null &&
-                        response.body().getStatus().trim().equalsIgnoreCase("Successful")) {
-
-                    String newOrderID = response.body().getData().getOrderID();
-
-                    if (paymentApiString.equals("cash")) {
-                        Toast.makeText(ConfirmOrderActivity.this, "✅ Đặt hàng thành công!", Toast.LENGTH_SHORT).show();
+            public void onResponse(Call<OrderResponse> call, Response<OrderResponse> r) {
+                if (r.isSuccessful() && r.body() != null) {
+                    lastOrderID = r.body().getData().getOrderID();
+                    if (PAYMENT_METHOD_CASH.equals(currentPaymentMethod)) {
+                        Toast.makeText(ConfirmOrderActivity.this, "Đặt hàng thành công!", Toast.LENGTH_SHORT).show();
                         finish();
-                    } else if (paymentApiString.equals("momo")) {
-                        Toast.makeText(ConfirmOrderActivity.this, "Đang tạo link thanh toán MoMo...", Toast.LENGTH_SHORT).show();
-                        requestMomoPayment(newOrderID, userID);
+                    } else {
+                        if (PAYMENT_METHOD_MOMO.equals(currentPaymentMethod)) requestMomoPayment(lastOrderID, userID);
+                        else requestVnpayPayment(lastOrderID, userID);
                     }
-                    else if (paymentApiString.equals("vnpay")) {
-                        Toast.makeText(ConfirmOrderActivity.this, "Đang tạo link thanh toán VNPAY...", Toast.LENGTH_SHORT).show();
-                        requestVnpayPayment(newOrderID, userID); // Gọi hàm VNPAY mới
-                    }
-
-                } else {
-                    Toast.makeText(ConfirmOrderActivity.this, "Không thể tạo đơn hàng!", Toast.LENGTH_SHORT).show();
                 }
             }
-            @Override
-            public void onFailure(Call<OrderResponse> call, Throwable t) {
-                // progressBar.setVisibility(View.GONE);
-                Toast.makeText(ConfirmOrderActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
+            @Override public void onFailure(Call<OrderResponse> call, Throwable t) {}
         });
     }
-    // ✅ BỔ SUNG HÀM MỚI NÀY
+
+    private void requestMomoPayment(String orderID, String userID) {
+        apiService.createPaymentMomo(new CreateMomoRequest(orderID, userID))
+                .enqueue(new Callback<CreateMomoResponse>() {
+                    @Override public void onResponse(Call<CreateMomoResponse> call, Response<CreateMomoResponse> r) {
+                        if (r.isSuccessful() && r.body() != null && r.body().getPayUrl() != null) {
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(r.body().getPayUrl())));
+                        }
+                    }
+                    @Override public void onFailure(Call<CreateMomoResponse> call, Throwable t) {}
+                });
+    }
 
     private void requestVnpayPayment(String orderID, String userID) {
-        // 1. Dùng Request của VNPAY
-        CreateVnpayRequest requestBody = new CreateVnpayRequest(orderID, userID);
-
-        // 2. Gọi API createPaymentVnpay
-        apiService.createPaymentVnpay(requestBody).enqueue(new Callback<CreateVnpayResponse>() {
+        apiService.createPaymentVnpay(new CreateVnpayRequest(orderID, userID))
+                .enqueue(new Callback<CreateVnpayResponse>() {
+                    @Override public void onResponse(Call<CreateVnpayResponse> call, Response<CreateVnpayResponse> r) {
+                        if (r.isSuccessful() && r.body() != null && r.body().getUrl() != null) {
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(r.body().getUrl())));
+                        }
+                    }
+                    @Override public void onFailure(Call<CreateVnpayResponse> call, Throwable t) {}
+                });
+    }
+    private void loadCart() {
+        apiService.viewCart(userID).enqueue(new Callback<CartResponse>() {
             @Override
-            public void onResponse(Call<CreateVnpayResponse> call, Response<CreateVnpayResponse> response) {
-
-                // 3. Dùng getUrl() (Vì VNPAY trả về "url")
-                if (response.isSuccessful() && response.body() != null && response.body().getUrl() != null) {
-
-                    String payUrl = response.body().getUrl();
-
-                    // 4. Mở trang web thanh toán VNPAY
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(payUrl));
-                    startActivity(intent);
-
-                    // (Chuyển sang màn hình "Đang xử lý"...)
-
-                } else {
-                    Toast.makeText(ConfirmOrderActivity.this, "Không thể tạo link thanh toán VNPAY", Toast.LENGTH_SHORT).show();
+            public void onResponse(Call<CartResponse> call, Response<CartResponse> response) {
+                if (response.isSuccessful()) {
+                    cartAdapter = new CartAdapter(response.body().getData().getItems(), userID, ConfirmOrderActivity.this);
+                    recyclerOrderItems.setAdapter(cartAdapter);
+                    updateTotals(response.body().getData().getTotalMoney());
                 }
             }
-
-            @Override
-            public void onFailure(Call<CreateVnpayResponse> call, Throwable t) {
-                Toast.makeText(ConfirmOrderActivity.this, "Lỗi khi gọi VNPAY: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            @Override public void onFailure(Call<CartResponse> call, Throwable t) {
+                Toast.makeText(ConfirmOrderActivity.this, "Lỗi tải giỏ", Toast.LENGTH_SHORT).show();
             }
         });
     }
+    @Override
+    public void onPaymentMethodSelected(String method) {
+        currentPaymentMethod = method;
+        int red = 0xFFA71317;
+        int gray = 0xFFADABAB;
+        btnCash.setBackgroundResource(method.equals("cash") ? R.drawable.payment_option_selected : R.drawable.payment_option_default);
+        btnCash.setTextColor(method.equals("cash") ? red : gray);
 
+        btnMomo.setBackgroundResource(method.equals("momo") || method.equals("vnpay") ? R.drawable.payment_option_selected : R.drawable.payment_option_default);
+        btnMomo.setTextColor(method.equals("momo") || method.equals("vnpay") ? red : gray);
+        btnMomo.setText(method.equals("vnpay") ? "VNPay" : "Momo");
+    }
+    @Override public void onCartUpdated() { fetchCartProducts(); }
+    @Override public void onAddToCart(Product product) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("userID", userID);
+        body.put("productID", product.getProductID());
+        body.put("quantity", 1);
+        body.put("size", "medium");
+        body.put("topping", new ArrayList<>());
+        body.put("note", "");
+
+        apiService.addToCart(body).enqueue(new Callback<CommonResponse>() {
+            @Override
+            public void onResponse(Call<CommonResponse> call, Response<CommonResponse> response) {
+                if (response.isSuccessful()) loadCart();
+            }
+            @Override public void onFailure(Call<CommonResponse> call, Throwable t) {}
+        });
+    }
+
+    @Override protected void onResume() {
+        super.onResume();
+        if (lastOrderID != null) {
+            apiService.confirmPaymentStatus(lastOrderID).enqueue(new Callback<ConfirmPaymentResponse>() {
+                @Override public void onResponse(Call<ConfirmPaymentResponse> call, Response<ConfirmPaymentResponse> r) {
+                    if (r.isSuccessful() && "done".equals(r.body().getStatus())) {
+                        Toast.makeText(ConfirmOrderActivity.this, "Thanh toán thành công!", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                }
+                @Override public void onFailure(Call<ConfirmPaymentResponse> call, Throwable t) {}
+            });
+        }
+    }
 }

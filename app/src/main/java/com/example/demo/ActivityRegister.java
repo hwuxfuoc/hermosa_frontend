@@ -2,8 +2,11 @@ package com.example.demo;
 
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.text.InputType;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -24,20 +27,24 @@ public class ActivityRegister extends AppCompatActivity {
     private LinearLayout layoutEmail, layoutOtp;
     private ScrollView layoutForm;
 
-    // --- Views ---
-    private EditText edtEmail, edtUsername, edtPassword, edtPhone;
-    private Button btnSendOTP, btnRegister;
+    // --- Step 1: Email ---
+    private EditText edtEmail;
+    private Button btnSendOTP;
+
+    // --- Step 2: OTP ---
     private EditText otp1, otp2, otp3, otp4, otp5, otp6;
-    private TextView tvOtpError, tvTimer;
+    private TextView tvOtpError, tvTimer, tvResendOtp;
+    private Button btnVerifyOtp;
 
-    // (ProgressBar đã bị xóa)
-    // private ProgressBar progressBar;
+    // --- Step 3: Form ---
+    private EditText edtUsername, edtPassword, edtConfirmPassword;
+    private ImageView imgTogglePass, imgToggleConfirmPass;
+    private TextView tvPasswordError;
+    private Button btnRegister;
 
-    private Button btnVerifyOtp; // Nút Xác nhận OTP
-
-    private CountDownTimer countDownTimer;
     private ApiService apiService;
     private String verifiedEmail = "";
+    private CountDownTimer countDownTimer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,50 +53,114 @@ public class ActivityRegister extends AppCompatActivity {
 
         apiService = ApiClient.getClient().create(ApiService.class);
 
-        // --- Tham chiếu layout ---
-        layoutEmail = findViewById(R.id.layoutEmail);
-        layoutOtp = findViewById(R.id.layoutOtp);
-        layoutForm = findViewById(R.id.layoutForm);
-        // (ProgressBar đã bị xóa)
-
-        // --- Layout 1: Email ---
-        edtEmail = layoutEmail.findViewById(R.id.edtEmail);
-        btnSendOTP = layoutEmail.findViewById(R.id.btnSendOTP);
-
-        // --- Layout 2: OTP ---
-        otp1 = layoutOtp.findViewById(R.id.otp1);
-        otp2 = layoutOtp.findViewById(R.id.otp2);
-        otp3 = layoutOtp.findViewById(R.id.otp3);
-        otp4 = layoutOtp.findViewById(R.id.otp4);
-        otp5 = layoutOtp.findViewById(R.id.otp5);
-        otp6 = layoutOtp.findViewById(R.id.otp6);
-        tvOtpError = layoutOtp.findViewById(R.id.tvOtpError);
-        tvTimer = layoutOtp.findViewById(R.id.tvTimer);
-        btnVerifyOtp = layoutOtp.findViewById(R.id.btnVerifyOtp);
-
-        // --- Layout 3: Register Form ---
-        edtUsername = layoutForm.findViewById(R.id.edtUsername);
-        edtPassword = layoutForm.findViewById(R.id.edtPassword);
-        edtPhone = layoutForm.findViewById(R.id.edtPhone);
-        btnRegister = layoutForm.findViewById(R.id.btnRegister);
-
-        // --- Gán sự kiện Click ---
-        btnSendOTP.setOnClickListener(v -> sendOtp());
-        tvTimer.setOnClickListener(v -> resendOtp()); // (Nút Gửi lại)
-        btnRegister.setOnClickListener(v -> register());
-        btnVerifyOtp.setOnClickListener(v -> verifyOtp());
+        initViews();
+        setupOtpInput();
+        setupPasswordToggle();
+        setupClickListeners();
     }
 
+    private void initViews() {
+        View emailInclude = findViewById(R.id.layoutEmail);
+        View otpInclude   = findViewById(R.id.layoutOtp);
+        View formInclude  = findViewById(R.id.layoutForm);
+
+        // Email
+        edtEmail   = emailInclude.findViewById(R.id.edtEmail);
+        btnSendOTP = emailInclude.findViewById(R.id.btnSendOTP);
+
+        // OTP
+        otp1 = otpInclude.findViewById(R.id.otp1);
+        otp2 = otpInclude.findViewById(R.id.otp2);
+        otp3 = otpInclude.findViewById(R.id.otp3);
+        otp4 = otpInclude.findViewById(R.id.otp4);
+        otp5 = otpInclude.findViewById(R.id.otp5);
+        otp6 = otpInclude.findViewById(R.id.otp6);
+        tvOtpError  = otpInclude.findViewById(R.id.tvOtpError);
+        tvTimer     = otpInclude.findViewById(R.id.tvTimer);
+        tvResendOtp = otpInclude.findViewById(R.id.tvResendOtp);
+        btnVerifyOtp= otpInclude.findViewById(R.id.btnVerifyOtp);
+
+        // Form
+        edtUsername        = formInclude.findViewById(R.id.edtUsername);
+        edtPassword        = formInclude.findViewById(R.id.edtPassword);
+        edtConfirmPassword = formInclude.findViewById(R.id.edtConfirmPassword);
+        imgTogglePass      = formInclude.findViewById(R.id.imgTogglePass);
+        imgToggleConfirmPass = formInclude.findViewById(R.id.imgToggleConfirmPass);
+        tvPasswordError    = formInclude.findViewById(R.id.tvPasswordError);
+        btnRegister        = formInclude.findViewById(R.id.btnRegister);
+
+        // Layout cha
+        layoutEmail = (LinearLayout) emailInclude;
+        layoutOtp   = (LinearLayout) otpInclude;
+        layoutForm  = (ScrollView) formInclude;
+
+        // Ẩn ban đầu
+        layoutOtp.setVisibility(View.GONE);
+        layoutForm.setVisibility(View.GONE);
+        tvOtpError.setVisibility(View.GONE);
+        tvResendOtp.setVisibility(View.GONE);
+        tvPasswordError.setVisibility(View.GONE);
+    }
+
+    private void setupClickListeners() {
+        btnSendOTP.setOnClickListener(v -> sendOtp());
+        btnVerifyOtp.setOnClickListener(v -> verifyOtp());
+        tvResendOtp.setOnClickListener(v -> resendOtp());
+        btnRegister.setOnClickListener(v -> completeRegistration());
+    }
+
+    private void setupOtpInput() {
+        EditText[] otpFields = {otp1, otp2, otp3, otp4, otp5, otp6};
+        for (int i = 0; i < otpFields.length; i++) {
+            final int index = i;
+            otpFields[i].addTextChangedListener(new SimpleTextWatcher() {
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if (s.length() == 1 && index < 5) {
+                        otpFields[index + 1].requestFocus();
+                    } else if (s.length() == 0 && index > 0) {
+                        otpFields[index - 1].requestFocus();
+                    }
+                }
+            });
+        }
+    }
+
+    // HIỆN/ẨN MẬT KHẨU
+    private void setupPasswordToggle() {
+        imgTogglePass.setOnClickListener(v -> {
+            if (edtPassword.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
+                edtPassword.setInputType(InputType.TYPE_CLASS_TEXT);
+                imgTogglePass.setImageResource(R.drawable.ic_eye_open);
+            } else {
+                edtPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                imgTogglePass.setImageResource(R.drawable.ic_eye_closed);
+            }
+            edtPassword.setSelection(edtPassword.getText().length());
+        });
+
+        imgToggleConfirmPass.setOnClickListener(v -> {
+            if (edtConfirmPassword.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
+                edtConfirmPassword.setInputType(InputType.TYPE_CLASS_TEXT);
+                imgToggleConfirmPass.setImageResource(R.drawable.ic_eye_open);
+            } else {
+                edtConfirmPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                imgToggleConfirmPass.setImageResource(R.drawable.ic_eye_closed);
+            }
+            edtConfirmPassword.setSelection(edtConfirmPassword.getText().length());
+        });
+    }
+
+    // GỬI OTP
     private void sendOtp() {
         String email = edtEmail.getText().toString().trim();
-        if (TextUtils.isEmpty(email)) {
-            edtEmail.setError("Vui lòng nhập email");
+        if (TextUtils.isEmpty(email) || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            edtEmail.setError("Email không hợp lệ");
             return;
         }
 
-        // ✅ SỬA LỖI ĐƠ APP (ANR): Vô hiệu hóa nút (Rất quan trọng)
         btnSendOTP.setEnabled(false);
-        // progressBar.setVisibility(View.VISIBLE); // (Đã xóa)
+        btnSendOTP.setText("Đang gửi...");
 
         Map<String, Object> body = new HashMap<>();
         body.put("email", email);
@@ -98,55 +169,69 @@ public class ActivityRegister extends AppCompatActivity {
             @Override
             public void onResponse(Call<CommonResponse> call, Response<CommonResponse> response) {
                 btnSendOTP.setEnabled(true);
-                // progressBar.setVisibility(View.GONE); // (Đã xóa)
+                btnSendOTP.setText("Nhận mã OTP");
 
-                if (response.isSuccessful() && response.body() != null &&
-                        response.body().getStatus().trim().equalsIgnoreCase("Successful")) {
+                String status = response.body() != null ? response.body().getStatus() : null;
 
-                    Toast.makeText(ActivityRegister.this, "OTP đã gửi, vui lòng kiểm tra email", Toast.LENGTH_SHORT).show();
+                if (response.isSuccessful() && status != null && status.toLowerCase().contains("success")) {
                     verifiedEmail = email;
-                    switchToOtpLayout();
+                    Toast.makeText(ActivityRegister.this, "Đã gửi mã OTP!", Toast.LENGTH_SHORT).show();
+
+                    layoutEmail.setVisibility(View.GONE);
+                    layoutOtp.setVisibility(View.VISIBLE);
                     startOtpTimer();
+                    clearOtpFields();
+                    otp1.requestFocus();
                 } else {
-                    String errorMsg = "Gửi OTP thất bại";
-                    if (response.body() != null && response.body().getMessage() != null) {
-                        errorMsg = response.body().getMessage();
-                    }
-                    Toast.makeText(ActivityRegister.this, errorMsg, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ActivityRegister.this, "Gửi OTP thất bại!", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<CommonResponse> call, Throwable t) {
                 btnSendOTP.setEnabled(true);
-                // progressBar.setVisibility(View.GONE); // (Đã xóa)
-                Toast.makeText(ActivityRegister.this, "Lỗi kết nối server", Toast.LENGTH_SHORT).show();
+                btnSendOTP.setText("Nhận mã OTP");
+                Toast.makeText(ActivityRegister.this, "Lỗi mạng!", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    private void startOtpTimer() {
+        tvTimer.setVisibility(View.VISIBLE);
+        tvResendOtp.setVisibility(View.GONE);
+        if (countDownTimer != null) countDownTimer.cancel();
+
+        countDownTimer = new CountDownTimer(300000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                long minutes = millisUntilFinished / 60000;
+                long seconds = (millisUntilFinished % 60000) / 1000;
+                tvTimer.setText(String.format("Còn lại: %d:%02d", minutes, seconds));
+            }
+
+            @Override
+            public void onFinish() {
+                tvTimer.setText("OTP đã hết hạn");
+                tvResendOtp.setVisibility(View.VISIBLE);
+                tvResendOtp.setText("Gửi lại OTP");
+            }
+        }.start();
+    }
+
     private void verifyOtp() {
-        String o1 = otp1.getText().toString();
-        String o2 = otp2.getText().toString();
-        String o3 = otp3.getText().toString();
-        String o4 = otp4.getText().toString();
-        String o5 = otp5.getText().toString();
-        String o6 = otp6.getText().toString();
+        String otp = otp1.getText().toString() + otp2.getText().toString() +
+                otp3.getText().toString() + otp4.getText().toString() +
+                otp5.getText().toString() + otp6.getText().toString();
 
-        String otp = o1 + o2 + o3 + o4 + o5 + o6;
-
-        if (otp.length() < 6) {
-            tvOtpError.setText("Vui lòng nhập đủ 6 số OTP");
+        if (otp.length() != 6) {
+            tvOtpError.setText("Vui lòng nhập đủ 6 số");
             tvOtpError.setVisibility(View.VISIBLE);
             return;
         }
 
-        // Vô hiệu hóa nút
         btnVerifyOtp.setEnabled(false);
-        // progressBar.setVisibility(View.VISIBLE); // (Đã xóa)
-        tvOtpError.setVisibility(View.GONE);
+        btnVerifyOtp.setText("Đang xác thực...");
 
-        // ✅ SỬA 2: XÓA KHAI BÁO 'body' BỊ TRÙNG
         Map<String, String> body = new HashMap<>();
         body.put("email", verifiedEmail);
         body.put("otp", otp);
@@ -155,21 +240,15 @@ public class ActivityRegister extends AppCompatActivity {
             @Override
             public void onResponse(Call<CommonResponse> call, Response<CommonResponse> response) {
                 btnVerifyOtp.setEnabled(true);
-                // progressBar.setVisibility(View.GONE); // (Đã xóa)
+                btnVerifyOtp.setText("Xác nhận OTP");
 
-                // (Backend /verify-otp trả về "Success")
-                if (response.isSuccessful() && response.body() != null &&
-                        response.body().getStatus().trim().equalsIgnoreCase("Success")) {
-
+                if (response.isSuccessful() && response.body() != null) {
                     Toast.makeText(ActivityRegister.this, "Xác thực thành công!", Toast.LENGTH_SHORT).show();
-                    switchToRegisterForm(); // Chuyển sang Bước 3
-
+                    layoutOtp.setVisibility(View.GONE);
+                    layoutForm.setVisibility(View.VISIBLE);
+                    if (countDownTimer != null) countDownTimer.cancel();
                 } else {
-                    String errorMsg = "Xác thực thất bại";
-                    if (response.body() != null && response.body().getMessage() != null) {
-                        errorMsg = response.body().getMessage();
-                    }
-                    tvOtpError.setText(errorMsg);
+                    tvOtpError.setText("OTP sai hoặc đã hết hạn");
                     tvOtpError.setVisibility(View.VISIBLE);
                 }
             }
@@ -177,99 +256,72 @@ public class ActivityRegister extends AppCompatActivity {
             @Override
             public void onFailure(Call<CommonResponse> call, Throwable t) {
                 btnVerifyOtp.setEnabled(true);
-                // progressBar.setVisibility(View.GONE); // (Đã xóa)
-                tvOtpError.setText("Lỗi kết nối: " + t.getMessage());
-                tvOtpError.setVisibility(View.VISIBLE);
+                btnVerifyOtp.setText("Xác nhận OTP");
+                Toast.makeText(ActivityRegister.this, "Lỗi mạng!", Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    private void switchToOtpLayout() {
-        layoutEmail.setVisibility(View.GONE);
-        layoutOtp.setVisibility(View.VISIBLE);
-        layoutForm.setVisibility(View.GONE);
-    }
-
-    private void switchToRegisterForm() {
-        layoutEmail.setVisibility(View.GONE);
-        layoutOtp.setVisibility(View.GONE);
-        layoutForm.setVisibility(View.VISIBLE);
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
-        }
-    }
-
-    private void startOtpTimer() {
-        tvTimer.setVisibility(View.VISIBLE);
-        if (countDownTimer != null) countDownTimer.cancel();
-        countDownTimer = new CountDownTimer(5 * 60 * 1000, 1000) { // 5 phút
-            public void onTick(long millisUntilFinished) {
-                long minutes = millisUntilFinished / 60000;
-                long seconds = (millisUntilFinished % 60000) / 1000;
-                tvTimer.setText(String.format("%d:%02d", minutes, seconds));
-            }
-            public void onFinish() {
-                tvTimer.setText("Hết hạn, bấm để gửi lại OTP");
-            }
-        }.start();
     }
 
     private void resendOtp() {
-        if (verifiedEmail.isEmpty()) return;
-
-        // (Vô hiệu hóa nút Gửi lại)
-        tvTimer.setEnabled(false);
-
+        tvResendOtp.setText("Đang gửi lại...");
         Map<String, String> body = new HashMap<>();
         body.put("email", verifiedEmail);
+
         apiService.resendOtp(body).enqueue(new Callback<CommonResponse>() {
             @Override
             public void onResponse(Call<CommonResponse> call, Response<CommonResponse> response) {
-                tvTimer.setEnabled(true);
-                if (response.isSuccessful()) {
-                    Toast.makeText(ActivityRegister.this, "Đã gửi lại OTP", Toast.LENGTH_SHORT).show();
+                if (response.isSuccessful() && response.body() != null) {
+                    Toast.makeText(ActivityRegister.this, "Đã gửi lại OTP!", Toast.LENGTH_SHORT).show();
                     startOtpTimer();
+                    clearOtpFields();
+                    otp1.requestFocus();
+                } else {
+                    tvResendOtp.setText("Gửi lại thất bại");
                 }
             }
+
             @Override
             public void onFailure(Call<CommonResponse> call, Throwable t) {
-                tvTimer.setEnabled(true);
-                Toast.makeText(ActivityRegister.this, "Lỗi gửi lại OTP", Toast.LENGTH_SHORT).show();
+                tvResendOtp.setText("Lỗi mạng");
             }
         });
     }
 
-    private void register() {
+    private void completeRegistration() {
         String username = edtUsername.getText().toString().trim();
         String password = edtPassword.getText().toString().trim();
-        String phone = edtPhone.getText().toString().trim();
+        String confirmPass = edtConfirmPassword.getText().toString().trim();
 
-        if (TextUtils.isEmpty(username)) { edtUsername.setError("Vui lòng nhập tên đăng nhập"); return; }
-        if (TextUtils.isEmpty(password)) { edtPassword.setError("Vui lòng nhập mật khẩu"); return; }
-        if (TextUtils.isEmpty(phone)) { edtPhone.setError("Vui lòng nhập số điện thoại"); return; }
+        if (TextUtils.isEmpty(username)) {
+            Toast.makeText(this, "Vui lòng nhập tên đăng nhập", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        btnRegister.setEnabled(false);
-        // progressBar.setVisibility(View.VISIBLE); // (Đã xóa)
+        if (password.length() < 6) {
+            tvPasswordError.setText("Mật khẩu phải từ 6 ký tự");
+            tvPasswordError.setVisibility(View.VISIBLE);
+            return;
+        }
 
-        Map<String, Object> body = new HashMap<>();
+        if (!password.equals(confirmPass)) {
+            tvPasswordError.setText("Mật khẩu không trùng khớp");
+            tvPasswordError.setVisibility(View.VISIBLE);
+            return;
+        }
+
+        tvPasswordError.setVisibility(View.GONE);
+
+        Map<String, String> body = new HashMap<>();
         body.put("email", verifiedEmail);
         body.put("username", username);
         body.put("password", password);
-        body.put("phone", phone);
 
-        // (Bạn cần sửa ApiService.java để setPasswordUsername nhận Map<String, Object>)
         apiService.setPasswordUsername(body).enqueue(new Callback<CommonResponse>() {
             @Override
             public void onResponse(Call<CommonResponse> call, Response<CommonResponse> response) {
-                btnRegister.setEnabled(true);
-                // progressBar.setVisibility(View.GONE); // (Đã xóa)
-
-                // ✅ SỬA 3: SỬA LỖI LOGIC (Backend trả về "Success")
-                if (response.isSuccessful() && response.body() != null &&
-                        response.body().getStatus().trim().equalsIgnoreCase("Success")) {
-
-                    Toast.makeText(ActivityRegister.this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show();
-                    finish(); // Hoặc chuyển về Login
+                if (response.isSuccessful() && response.body() != null) {
+                    Toast.makeText(ActivityRegister.this, "Đăng ký thành công!", Toast.LENGTH_LONG).show();
+                    finish();
                 } else {
                     Toast.makeText(ActivityRegister.this, "Đăng ký thất bại", Toast.LENGTH_SHORT).show();
                 }
@@ -277,10 +329,19 @@ public class ActivityRegister extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<CommonResponse> call, Throwable t) {
-                btnRegister.setEnabled(true);
-                // progressBar.setVisibility(View.GONE); // (Đã xóa)
-                Toast.makeText(ActivityRegister.this, "Lỗi kết nối server", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ActivityRegister.this, "Lỗi kết nối", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void clearOtpFields() {
+        otp1.setText(""); otp2.setText(""); otp3.setText("");
+        otp4.setText(""); otp5.setText(""); otp6.setText("");
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (countDownTimer != null) countDownTimer.cancel();
+        super.onDestroy();
     }
 }

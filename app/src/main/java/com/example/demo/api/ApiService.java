@@ -8,6 +8,7 @@ import com.example.demo.models.CreateMomoRequest;
 import com.example.demo.models.CreateMomoResponse;
 import com.example.demo.models.CreateVnpayRequest;
 import com.example.demo.models.CreateVnpayResponse;
+import com.example.demo.models.MenuResponse;
 import com.example.demo.models.OrderListResponse;
 import com.example.demo.models.OrderResponse;
 
@@ -17,12 +18,10 @@ import retrofit2.http.*;
 
 import java.util.Map;
 
-import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
-import retrofit2.http.DELETE;
 import retrofit2.http.HTTP;
 
 public interface ApiService {
@@ -40,7 +39,7 @@ public interface ApiService {
     Call<CommonResponse> resendOtp(@Body Map<String, String> body);
 
     @PUT("user/set-password-username")
-    Call<CommonResponse> setPasswordUsername(@Body Map<String, Object> body);
+    Call<CommonResponse> setPasswordUsername(@Body Map<String, String> body);
 
     @PUT("user/change-password")
     Call<CommonResponse> changePassword(@Body Map<String, String> body);
@@ -52,6 +51,7 @@ public interface ApiService {
     Call<CommonResponse> deleteAccount(@Body Map<String, String> body);
 
     // ---- CART ----
+
     @GET("cart/view-and-caculate-total-money")
     Call<CartResponse> viewCart(@Query("userID") String userID);
     @POST("cart/add")
@@ -70,6 +70,7 @@ public interface ApiService {
     Call<CommonResponse> deleteAll(@Body Map<String, Object> body);
 
     // ---- ORDER ----
+
     @POST("order/create")
     Call<OrderResponse> createOrder(@Body Map<String, Object> body);
 
@@ -112,6 +113,12 @@ public interface ApiService {
     @POST("payment/create-payment-vnpay")
     Call<CreateVnpayResponse> createPaymentVnpay(@Body CreateVnpayRequest body);
 
+    // MENU - LẤY TẤT CẢ SẢN PHẨM ĐỂ GỢI Ý
+    @GET("menu/all-product")
+    Call<MenuResponse> getAllProducts();
 
+    // LẤY CHI TIẾT SẢN PHẨM ĐỂ LẤY ẢNH
+    @GET("menu/product")
+    Call<MenuResponse.SingleProductResponse> getProductDetail(@Query("productID") String productID);
 
 }

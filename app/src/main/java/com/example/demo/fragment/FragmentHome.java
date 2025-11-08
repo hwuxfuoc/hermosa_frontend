@@ -6,130 +6,114 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SearchView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.demo.ProductAdapter;
+import com.example.demo.adapters.BestSellerAdapter;
+import com.example.demo.adapters.ProductAdapter;
 import com.example.demo.ProductData;
 import com.example.demo.R;
-import com.example.demo.Product;
+import com.example.demo.models.Product;
+import com.google.android.gms.analytics.ecommerce.Product;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FragmentHome extends Fragment {
 
-    private RecyclerView recyclerView;
-    private ProductAdapter adapter;
-    private List<Product> allProducts;
-    private List<Product> filteredProducts;
-    private SearchView searchView;
+    private RecyclerView recyclerProducts, recyclerBestSeller;
+    private ProductAdapter productAdapter;
+    private BestSellerAdapter bestSellerAdapter;
+    private List<Product> currentProductList;
 
-    private TextView tabNearby, tabBestseller, tabRating;
-    private String currentTab = "nearby";
+    private TextView tabCake, tabDrink, tabFood;
+    private String currentCategory = "cake"; // Biến theo dõi category hiện tại
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        // Ánh xạ view
-        recyclerView = view.findViewById(R.id.recycler_products);
-        searchView = view.findViewById(R.id.search_view);
-        /*tabNearby = view.findViewById(R.id.tab_nearby);
-        tabBestseller = view.findViewById(R.id.tab_bestseller);
-        tabRating = view.findViewById(R.id.tab_rating);*/
+        // Ánh xạ
+        recyclerProducts = view.findViewById(R.id.recycler_products);
+        recyclerBestSeller = view.findViewById(R.id.recycler_best_seller);
+        SearchView searchView = view.findViewById(R.id.search_view);
+        tabCake = view.findViewById(R.id.tab_cake);
+        tabDrink = view.findViewById(R.id.tab_drink);
+        tabFood = view.findViewById(R.id.tab_food);
 
-        // Dữ liệu
+        // Khởi tạo dữ liệu
         ProductData.initializeData();
-        allProducts = ProductData.getProductsByCategory("cake"); // ví dụ mặc định
-        filteredProducts = new ArrayList<>(allProducts);
 
-        adapter = new ProductAdapter(getContext(), filteredProducts);
-        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        recyclerView.setAdapter(adapter);
+        // === BEST SELLER - ngang ===
+        List<Product> bestSellerList = new ArrayList<>();
+        bestSellerList.add(ProductData.getAllProducts().get(0));  // Strawberry Cheese
+        bestSellerList.add(ProductData.getAllProducts().get(1));  // Yellow Lemon
+        bestSellerList.add(ProductData.getAllProducts().get(8));  // Strawberry Smooth
+        bestSellerList.add(ProductData.getAllProducts().get(26)); // Sandwich
 
-        // Sự kiện chọn tab
-       /* setupTabs();*/
+        bestSellerAdapter = new BestSellerAdapter(requireContext(), bestSellerList);
+        recyclerBestSeller.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        recyclerBestSeller.setAdapter(bestSellerAdapter);
 
-        // Tìm kiếm
-        setupSearch();
+        // === DANH SÁCH CHÍNH - grid 2 cột ===
+        currentProductList = ProductData.getProductsByCategory(currentCategory);
+        productAdapter = new ProductAdapter(requireContext(), currentProductList);
+        recyclerProducts.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        recyclerProducts.setAdapter(productAdapter);
+
+        // === TAB ===
+        setupTabs();
+
+        // === SEARCH ===
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override public boolean onQueryTextSubmit(String query) { filter(query); return true; }
+            @Override public boolean onQueryTextChange(String newText) { filter(newText); return true; }
+        });
 
         return view;
     }
 
-    /*private void setupTabs() {
+    private void setupTabs() {
         View.OnClickListener listener = v -> {
             resetTabs();
+            TextView tab = (TextView) v;
+            tab.setBackgroundResource(R.drawable.tab_selected_bg);
+            tab.setTextColor(0xFFEB4341);
 
-            if (v.getId() == R.id.tab_nearby) {
-                currentTab = "nearby";
-                tabNearby.setTextColor(0xFFEB4341);
-                tabNearby.setBackgroundResource(R.drawable.tab_selected_bg);
-                // TODO: load dữ liệu theo tab "Gần tôi"
-            } else if (v.getId() == R.id.tab_bestseller) {
-                currentTab = "bestseller";
-                tabBestseller.setTextColor(0xFFEB4341);
-                tabBestseller.setBackgroundResource(R.drawable.tab_selected_bg);
-                // TODO: load dữ liệu theo tab "Bán chạy"
-            } else if (v.getId() == R.id.tab_rating) {
-                currentTab = "rating";
-                tabRating.setTextColor(0xFFEB4341);
-                tabRating.setBackgroundResource(R.drawable.tab_selected_bg);
-                // TODO: load dữ liệu theo tab "Đánh giá"
-            }
+            if (v.getId() == R.id.tab_drink) currentCategory = "drink";
+            else if (v.getId() == R.id.tab_food) currentCategory = "food";
+            else currentCategory = "cake";
+
+            currentProductList = ProductData.getProductsByCategory(currentCategory);
+            productAdapter.updateList(currentProductList);
         };
+        tabCake.setOnClickListener(listener);
+        tabDrink.setOnClickListener(listener);
+        tabFood.setOnClickListener(listener);
 
-        tabNearby.setOnClickListener(listener);
-        tabBestseller.setOnClickListener(listener);
-        tabRating.setOnClickListener(listener);
-    }*/
-
-    /*private void resetTabs() {
-        tabNearby.setTextColor(0xFF9E9E9E);
-        tabBestseller.setTextColor(0xFF9E9E9E);
-        tabRating.setTextColor(0xFF9E9E9E);
-
-        tabNearby.setBackgroundResource(R.drawable.tab_unselected_bg);
-        tabBestseller.setBackgroundResource(R.drawable.tab_unselected_bg);
-        tabRating.setBackgroundResource(R.drawable.tab_unselected_bg);
-    }*/
-
-    private void setupSearch() {
-        searchView.clearFocus();
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                filterList(query);
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                filterList(newText);
-                return true;
-            }
-        });
+        tabCake.performClick(); // default
     }
 
-    private void filterList(String text) {
-        filteredProducts.clear();
+    private void resetTabs() {
+        int gray = 0xFF9E9E9E;
+        tabCake.setBackgroundResource(R.drawable.tab_unselected_bg);
+        tabDrink.setBackgroundResource(R.drawable.tab_unselected_bg);
+        tabFood.setBackgroundResource(R.drawable.tab_unselected_bg);
+        tabCake.setTextColor(gray);
+        tabDrink.setTextColor(gray);
+        tabFood.setTextColor(gray);
+    }
 
-        if (text.isEmpty()) {
-            filteredProducts.addAll(allProducts);
-        } else {
-            String lowerText = text.toLowerCase();
-            for (Product product : allProducts) {
-                if (product.getName().toLowerCase().contains(lowerText)) {
-                    filteredProducts.add(product);
-                }
-            }
+    private void filter(String text) {
+        List<Product> filtered = new ArrayList<>();
+        for (Product p : ProductData.getProductsByCategory(currentCategory)) {
+            if (p.getName().toLowerCase().contains(text.toLowerCase())) filtered.add(p);
         }
-
-        adapter.notifyDataSetChanged();
+        productAdapter.updateList(filtered);
     }
 }

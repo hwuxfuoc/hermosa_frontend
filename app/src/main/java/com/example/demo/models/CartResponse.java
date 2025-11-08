@@ -1,38 +1,159 @@
 package com.example.demo.models;
 
+import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
+/**
+ * CLASS CHÍNH: CartResponse
+ * Đại diện cho toàn bộ phản hồi JSON từ API giỏ hàng
+ * Endpoint: GET /api/cart/view-and-caculate-total-money?userID=...
+ *
+ * Ví dụ JSON thực tế từ backend:
+ * {
+ *   "status": "Success",
+ *   "data": {
+ *     "items": [ ...danh sách món... ],
+ *     "totalMoney": 185000
+ *   }
+ * }
+ */
 public class CartResponse {
-    // Nếu backend trả về { status: "...", message: "...", data: { items: [...], totalMoney: 123 } }
-    // bạn cần map đúng cấu trúc. Mình ở đây map theo backend bạn đã dùng ở ví dụ trước:
-    private String status;
-    private String message;
 
-    // Nếu backend trả data là object chứa items và totalMoney
-    private CartData data;
+    // ------------------------------------------------------------------
+    // 1. TRẠNG THÁI PHẢN HỒI
+    // ------------------------------------------------------------------
+    private String status; // "Success" hoặc "Failed"
 
-    // Nếu backend trả total ở root, bạn có thể thêm field total (nếu cần)
-    private int total; // optional
+    // ------------------------------------------------------------------
+    // 2. DỮ LIỆU THỰC TẾ CỦA GIỎ HÀNG
+    // ------------------------------------------------------------------
+    // Backend trả về key "data" → phải đặt đúng tên biến hoặc dùng @SerializedName
+    private Data data;
 
-
+    // ------------------- GETTER (BẮT BUỘC) -------------------
     public String getStatus() { return status; }
-    public String getMessage() { return message; }
-    public CartData getData() { return data; }
-    public int getTotal() {
-        // nếu backend trả total ở data.totalMoney
-        if (data != null) return data.getTotalMoney();
-        return total;
-    }
 
-    public static class CartData {
-        private String userID;
+    /**
+     * Lấy dữ liệu giỏ hàng (items + totalMoney)
+     * Dùng trong FragmentCart: response.body().getData().getItems()
+     */
+    public Data getData() { return data; }
+    // ------------------------------------------------------------------
+
+
+    /**
+     * CLASS CON: Data
+     * Đại diện cho object "data" trong JSON
+     * Chứa danh sách món + tổng tiền
+     */
+    public static class Data {
+
+        // Danh sách các món trong giỏ hàng
+        // Có thể null nếu giỏ trống
         private List<CartItem> items;
-        private int totalMoney;
 
-        public String getUserID() { return userID; }
+        // Tổng tiền của tất cả món (đã tính size + topping + quantity)
+        private long totalMoney;
+
+        // Getter cho RecyclerView
         public List<CartItem> getItems() { return items; }
-        public int getTotalMoney() { return totalMoney; }
+
+        // Getter cho TextView tổng tiền
+        public long getTotalMoney() { return totalMoney; }
     }
 
 
+    /**
+     * CLASS CON: CartItem
+     * Đại diện cho MỘT món trong giỏ hàng
+     * Mỗi phần tử trong mảng "items" sẽ được Gson tự động map thành 1 CartItem
+     *
+     * ĐÃ ĐƯỢC FIX HOÀN CHỈNH – ĐỒNG BỘ 100% VỚI:
+     * - Backend Node.js (có size, topping, note)
+     * - Product.java (có getSize(), getTopping())
+     * - Giỏ hàng UI (checkbox, màu nền, ảnh)
+     */
+    public static class CartItem {
+
+        // ------------------------------------------------------------------
+        // 1. FIELD TỪ BACKEND (PHẢI DÙNG @SerializedName)
+        // ------------------------------------------------------------------
+        @SerializedName("_id")              // MongoDB ObjectId của mục trong giỏ
+        private String id;
+
+        @SerializedName("productID")         // Mã sản phẩm: C01, D05
+        private String productID;
+
+        @SerializedName("name")              // Tên món: "Strawberry Cheese"
+        private String name;
+
+        @SerializedName("price")             // Giá gốc 1 món (chưa tính size/topping)
+        private long price;
+
+        @SerializedName("picture")           // URL ảnh từ Cloudinary
+        private String picture;
+
+        @SerializedName("category")          // "cake", "drink", "lunch" → dùng để đổi màu nền
+        private String category;
+
+        // ------------------------------------------------------------------
+        // 2. FIELD TỪ BACKEND (KHÔNG CÓ @SerializedName → tên giống hệt JSON)
+        // ------------------------------------------------------------------
+        private int quantity;                // Số lượng: 1, 2, 3...
+        private int subtotal;                // Thành tiền = (price + size + topping) × quantity
+        private String size;                 // "small", "medium", "large"
+        private List<String> topping;        // ["Trân châu", "Pudding"] – backend trả mảng
+        private String note;                 // Ghi chú khách hàng
+
+        // ------------------------------------------------------------------
+        // 3. FIELD DÙNG TRONG APP (UI + Logic)
+        // ------------------------------------------------------------------
+        private boolean selected = true;     // Checkbox mặc định được tick
+
+        // ------------------------------------------------------------------
+        // 4. GETTER – BẮT BUỘC PHẢI CÓ ĐỦ ĐỂ PRODUCT.JAVA DÙNG ĐƯỢC
+        // ------------------------------------------------------------------
+        public String getId() { return id; }
+        public String getProductID() { return productID; }
+        public String getName() { return name; }
+        public long getPrice() { return price; }
+        public String getPicture() { return picture; }
+        public String getCategory() { return category; }
+
+        public int getQuantity() { return quantity; }
+        public int getSubtotal() { return subtotal; }
+
+        // PHẢI CÓ 2 DÒNG NÀY → để Product.fromCartItem() gọi được
+        public String getSize() { return size != null ? size : "medium"; }
+        public List<String> getTopping() { return topping; }
+        public String getNote() { return note; }
+
+        public boolean isSelected() { return selected; }
+
+        // ------------------------------------------------------------------
+        // 5. SETTER – CẦN KHI TĂNG/GIẢM SỐ LƯỢNG HOẶC CẬP NHẬT CHECKBOX
+        // ------------------------------------------------------------------
+        /**
+         * Tự động tính lại subtotal khi thay đổi số lượng
+         */
+        public void setQuantity(int quantity) {
+            this.quantity = quantity;
+            this.subtotal = (int) (this.price * quantity);
+        }
+
+        public void setSubtotal(int subtotal) { this.subtotal = subtotal; }
+        public void setSize(String size) { this.size = size; }
+        public void setTopping(List<String> topping) { this.topping = topping; }
+        public void setNote(String note) { this.note = note; }
+
+        /**
+         * Dùng khi tick/untick checkbox trong giỏ hàng
+         */
+        public void setSelected(boolean selected) { this.selected = selected; }
+
+        /**
+         * Dùng khi load ảnh từ menu (nếu backend cart chưa có picture)
+         */
+        public void setPicture(String picture) { this.picture = picture; }
+    }
 }

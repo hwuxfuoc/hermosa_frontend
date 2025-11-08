@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/layout_register_form"
     android:layout_width="match_parent"
@@ -18,13 +19,14 @@
             android:layout_marginBottom="12dp"/>
 
         <TextView
-            android:layout_height="wrap_content"
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Đăng ký"
             android:textSize="26sp"
             android:textStyle="bold"
             android:layout_marginBottom="20dp"/>
 
+        <!-- Username -->
         <EditText
             android:id="@+id/edtUsername"
             android:hint="Tên đăng nhập"
@@ -36,49 +38,78 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"/>
 
-        <EditText
-            android:id="@+id/edtEmail"
-            android:hint="Email"
-            android:drawableStart="@drawable/icon_email"
-            android:drawablePadding="8dp"
-            android:background="@drawable/edittext_border"
-            android:padding="12dp"
+        <!-- Mật khẩu -->
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="8dp">
 
-        <EditText
-            android:id="@+id/edtPassword"
-            android:hint="Mật khẩu"
-            android:drawableStart="@drawable/icon_password"
-            android:drawablePadding="8dp"
-            android:inputType="textPassword"
-            android:background="@drawable/edittext_border"
-            android:padding="12dp"
+            <EditText
+                android:id="@+id/edtPassword"
+                android:hint="Mật khẩu"
+                android:drawableStart="@drawable/icon_password"
+                android:drawablePadding="8dp"
+                android:inputType="textPassword"
+                android:background="@drawable/edittext_border"
+                android:padding="12dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <ImageView
+                android:id="@+id/imgTogglePass"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@drawable/ic_eye_closed"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="12dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?android:attr/selectableItemBackgroundBorderless"/>
+        </RelativeLayout>
+
+        <!-- Xác nhận mật khẩu -->
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="8dp">
 
-        <EditText
-            android:id="@+id/edtPhone"
-            android:hint="Số điện thoại"
-            android:drawableStart="@drawable/icon_password"
-            android:drawablePadding="8dp"
-            android:inputType="phone"
-            android:background="@drawable/edittext_border"
-            android:padding="12dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"/>
+            <EditText
+                android:id="@+id/edtConfirmPassword"
+                android:hint="Xác nhận mật khẩu"
+                android:drawableStart="@drawable/icon_password"
+                android:drawablePadding="8dp"
+                android:inputType="textPassword"
+                android:background="@drawable/edittext_border"
+                android:padding="12dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
 
+            <ImageView
+                android:id="@+id/imgToggleConfirmPass"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@drawable/ic_eye_closed"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="12dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?android:attr/selectableItemBackgroundBorderless"/>
+        </RelativeLayout>
+
+        <!-- Lỗi mật khẩu -->
         <TextView
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
             android:id="@+id/tvPasswordError"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Mật khẩu không trùng khớp"
             android:textColor="#EB4341"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"/>
 
+        <!-- Nút Đăng ký -->
         <Button
             android:id="@+id/btnRegister"
             android:text="Đăng ký"

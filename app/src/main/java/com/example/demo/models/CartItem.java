@@ -1,94 +1,126 @@
 package com.example.demo.models;
 
 import android.content.Context;
-
-import com.example.demo.Product;
 import com.example.demo.R;
 import com.google.gson.annotations.SerializedName;
 
 public class CartItem {
-    @SerializedName("_id")
-    private String id;
 
+    @SerializedName("_id")
+    private String id;                    // ObjectId từ MongoDB
+
+    @SerializedName("productID")
     private String productID;
+
+    @SerializedName("name")
     private String name;
 
-    // SỬA 1: Đổi price sang double để khớp với Adapter (%,.0f)
-    private double price;
+    @SerializedName("price")
+    private double price;                 // Giá sau khi tính size + topping
 
-    private int quantity;
-    private int subtotal;
-    private String size;
-    private String[] topping;
-    private String imageName;
+    @SerializedName("quantity")
+    private int quantity = 1;
 
-    // --- BỔ SUNG 1: Trường để lưu màu (giống Product.java) ---
-    private int color;
+    @SerializedName("subtotal")
+    private int subtotal;                 // = price × quantity
 
-    // --- BỔ SUNG 2: Trường cho CheckBox ---
-    private boolean isSelected = false; // Mặc định là chưa chọn
+    @SerializedName("size")
+    private String size;                  // null / "medium" / "large"
 
-    // ===== Getters =====
+    @SerializedName("topping")
+    private String[] topping;             // mảng tên topping
+
+    @SerializedName("note")
+    private String note;                  // Ghi chú (có thể null)
+
+    // THÊM: URL ảnh từ backend (menu.imageUrl)
+    @SerializedName("imageUrl")
+    private String imageUrl;
+
+    // Màu nền card (từ Product.getColor())
+    private int color = 0xFFFFFFFF;       // Mặc định trắng
+
+    // Checkbox chọn để tính tiền
+    private boolean isSelected = true;
+
+    // ================== GETTERS & SETTERS ==================
     public String getId() { return id; }
-    public String getProductID() { return productID; }
-    public String getName() { return name; }
+    public void setId(String id) { this.id = id; }
 
-    // Sửa kiểu trả về của getPrice()
+    public String getProductID() { return productID; }
+    public void setProductID(String productID) { this.productID = productID; }
+
+    public String getName() { return name != null ? name : "Unknown"; }
+    public void setName(String name) { this.name = name; }
+
     public double getPrice() { return price; }
+    public void setPrice(double price) { this.price = price; }
 
     public int getQuantity() { return quantity; }
+    public void setQuantity(int quantity) { this.quantity = quantity; }
+
     public int getSubtotal() { return subtotal; }
+    public void setSubtotal(int subtotal) { this.subtotal = subtotal; }
+
     public String getSize() { return size; }
+    public void setSize(String size) { this.size = size; }
+
     public String[] getTopping() { return topping; }
-    public String getImageName() { return imageName; }
+    public void setTopping(String[] topping) { this.topping = topping; }
 
-    // --- BỔ SUNG: Getters/Setters cho color (ĐÂY LÀ HÀM BỊ THIẾU) ---
-    public int getColor() {
-        return this.color;
+    public String getNote() { return note != null ? note : ""; }
+    public void setNote(String note) { this.note = note; }
+
+    // IMAGE URL
+    public String getImageUrl() {
+        return imageUrl != null && !imageUrl.trim().isEmpty() ? imageUrl : "";
     }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
-    public void setColor(int color) {
-        this.color = color;
-    }
+    // COLOR
+    public int getColor() { return color; }
+    public void setColor(int color) { this.color = color; }
 
-    // --- BỔ SUNG: Getters/Setters cho isSelected ---
+    // SELECTED
     public boolean isSelected() { return isSelected; }
     public void setSelected(boolean selected) { this.isSelected = selected; }
 
-    // ===== Setters =====
-    public void setQuantity(int q) { this.quantity = q; }
-    public void setSubtotal(int subtotal) { this.subtotal = subtotal; }
-    public void setImageName(String name) { this.imageName = name; }
-    public void setPrice(double price) { this.price = price; }
-    public void setName(String name) {this.name = name;}
-
-
-    // ===== Logic phụ trợ cho ảnh =====
-    public int getDrawableResId(Context context) {
-        if (imageName == null || imageName.isEmpty()) {
-            return R.drawable.logo_app;
-        }
-        int resId = context.getResources().getIdentifier(imageName, "drawable", context.getPackageName());
-        if (resId == 0) {
-            resId = R.drawable.logo_app;
-        }
-        return resId;
+    // CẬP NHẬT SUBTOTAL KHI THAY ĐỔI QUANTITY
+    public void updateSubtotal() {
+        this.subtotal = (int) (this.price * this.quantity);
     }
-    // ================== MAPPER từ Product sang CartItem ==================
-    public static CartItem fromProduct(Product p) {
+
+    // ================== FROM PRODUCT (khi thêm từ menu) ==================
+    public static CartItem fromProduct(Product product) {
         CartItem item = new CartItem();
-        item.setName(p.getName());
+        item.setProductID(product.getProductID());
+        item.setName(product.getName());
+        item.setImageUrl(product.getImageUrl());
+        item.setColor(product.getColor());
+
         try {
-            // Chuyển giá từ String → double an toàn
-            item.setPrice(Double.parseDouble(p.getPrice().replaceAll("[^0-9.]", "")));
+            item.setPrice(Double.parseDouble(product.getPrice().replaceAll("[^0-9.]", "")));
         } catch (Exception e) {
             item.setPrice(0);
         }
-        item.setQuantity(p.getQuantity());
-        item.setImageName(p.getImageName());
-        item.setColor(p.getColor());
-        item.setSubtotal((int)(item.getQuantity() * item.getPrice()));
+
+        item.setQuantity(1);
+        item.updateSubtotal();
+        item.setSelected(true);
         return item;
     }
 
+    // ================== TO STRING (dùng để debug) ==================
+    @Override
+    public String toString() {
+        return "CartItem{" +
+                "name='" + name + '\'' +
+                ", price=" + price +
+                ", quantity=" + quantity +
+                ", subtotal=" + subtotal +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", color=" + color +
+                ", isSelected=" + isSelected +
+                '}';
+    }
 }

@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.adapters;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,16 +9,15 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-// ✅ BƯỚC 1: THÊM 2 DÒNG IMPORT
-import com.bumptech.glide.Glide;
+import com.example.demo.AddToCartBottomSheet;
+import com.example.demo.R;
 import com.example.demo.description.DescriptionCake;
 import com.example.demo.description.DescriptionDrink;
 import com.example.demo.description.DescriptionFood;
 import com.example.demo.models.Product;
-
-import java.util.Locale;
 
 import java.util.List;
 
@@ -57,51 +56,41 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     @Override
     public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
-        Product product = productList.get(position); // Lấy sản phẩm tại vị trí hiện tại
-        holder.textName.setText(product.getName()); // Đặt tên sản phẩm vào TextView
-
-        // ✅ BƯỚC 2: SỬA LỖI HIỂN THỊ GIÁ
-        // (Code này sẽ parse giá "55000" thành "55.000 VND")
-        try {
-            double priceValue = Double.parseDouble(product.getPrice());
-            holder.textPrice.setText(String.format(Locale.getDefault(), "%,.0f VND", priceValue));
-        } catch (Exception e) {
-            holder.textPrice.setText(product.getPrice()); // Hiển thị gốc nếu lỗi
-        }
-
-        // ✅ BƯỚC 3: SỬA LỖI TẢI ẢNH (Quan trọng nhất)
-        // XÓA DÒNG NÀY: holder.imageProduct.setImageResource(product.getImageResId());
-        // THAY BẰNG GLIDE:
-        Glide.with(context)
-                .load(product.getImageResId()) // Tải ID (Glide tự xử lý nếu ID = 0)
-                .placeholder(R.drawable.logo_app) // Ảnh chờ
-                .error(R.drawable.logo_app)       // Ảnh lỗi (nếu ID = 0 hoặc lỗi)
-                .into(holder.imageProduct);
-
-
-        // (Các dòng còn lại giữ nguyên, chúng đã đúng)
+        Product product = productList.get(position);
+        holder.textName.setText(product.getName());
+        holder.textPrice.setText(product.getPrice());
+        holder.imageProduct.setImageResource(product.getImageResId());
         holder.viewTopBar.setBackgroundColor(product.getColor());
-        holder.buttonPlus.setBackgroundColor(product.getColor());
-        holder.buttonPlus.setOnClickListener(v -> {
-            Intent intent;
+        holder.buttonPlus.setBackgroundTintList(android.content.res.ColorStateList.valueOf(product.getColor()));
 
+        // Bấm itemView → mở Description
+        holder.itemView.setOnClickListener(v -> {
+            Class<?> cls;
             switch (product.getCategory()) {
                 case "drink":
-                    intent = new Intent(context, DescriptionDrink.class);
+                    cls = DescriptionDrink.class;
                     break;
                 case "food":
-                    intent = new Intent(context, DescriptionFood.class);
+                    cls = DescriptionFood.class;
                     break;
                 default:
-                    intent = new Intent(context, DescriptionCake.class);
+                    cls = DescriptionCake.class;
                     break;
             }
 
-            intent.putExtra("name", product.getName());
-            intent.putExtra("price", product.getPrice());
-            intent.putExtra("imageResId", product.getImageResId());
-            intent.putExtra("description", product.getDescription());
-            context.startActivity(intent);
+            Intent i = new Intent(context, cls);
+            i.putExtra("name", product.getName());
+            i.putExtra("price", product.getPrice());
+            i.putExtra("imageResId", product.getImageResId());
+            i.putExtra("description", product.getDescription());
+            i.putExtra("category", product.getCategory());
+            context.startActivity(i);
+        });
+
+        // Bấm button + → mở BottomSheet trực tiếp
+        holder.buttonPlus.setOnClickListener(v -> {
+            AddToCartBottomSheet bottomSheet = AddToCartBottomSheet.newInstance(product);
+            bottomSheet.show(((AppCompatActivity) context).getSupportFragmentManager(), "AddToCart");
         });
     }
 
@@ -113,11 +102,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     public void updateList(List<Product> newList){
         productList.clear();
         productList.addAll(newList);
-
-        // 💡 LƯU Ý TỐI ƯU:
-        // Dùng notifyDataSetChanged() rất chậm và gây giật.
-        // Bạn nên tìm hiểu về "ListAdapter" và "DiffUtil"
-        // để tối ưu hóa hàm này, app sẽ mượt hơn khi lọc.
         notifyDataSetChanged();
     }
 

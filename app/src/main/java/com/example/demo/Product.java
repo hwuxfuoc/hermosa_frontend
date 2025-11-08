@@ -1,3 +1,4 @@
+/*
 package com.example.demo;
 
 import android.content.Context;
@@ -46,10 +47,12 @@ public class Product {
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
-    /**
+    */
+/**
      * Hàm tự động tìm ID ảnh trong resource (drawable)
      * Nếu không có, trả về 0 để dùng ảnh online thay thế.
-     */
+     *//*
+
     public int resolveImageResource(Context context) {
         if (imageResId != 0) return imageResId;
         if (imageName == null || imageName.isEmpty()) return 0;
@@ -60,12 +63,15 @@ public class Product {
         return resId;
     }
 
-    /**
+    */
+/**
      * 🔹 Hàm tiện ích xác định nên hiển thị ảnh online hay ảnh nội bộ.
      * Nếu imageUrl khác null → load online
      * Nếu không → dùng ảnh drawable
-     */
+     *//*
+
     public boolean hasOnlineImage() {
         return imageUrl != null && !imageUrl.isEmpty();
     }
 }
+*/

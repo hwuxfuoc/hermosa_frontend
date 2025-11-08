@@ -1,0 +1,12 @@
+{
+  "prod_strawberry_cheese": "https://firebasestorage.googleapis.com/v0/b/cafeapp-12345.appspot.com/o/cake_strawberry_cheese.jpg?alt=media",
+  "prod_matcha_latte": "https://firebasestorage.googleapis.com/v0/b/cafeapp-12345.appspot.com/o/drink_matcha_latte.jpg?alt=media",
+  "prod_lemon_cake": "https://firebasestorage.googleapis.com/v0/b/cafeapp-12345.appspot.com/o/cake_yellow_lemon.jpg?alt=media",
+  "prod_strawberry_smoothie": "https://firebasestorage.googleapis.com/v0/b/cafeapp-12345.appspot.com/o/drink_strawberry_smoothie.jpg?alt=media",
+  "prod_sandwich": "https://firebasestorage.googleapis.com/v0/b/cafeapp-12345.appspot.com/o/food_sandwich.jpg?alt=media",
+  "prod_chocolate_cake": "https://firebasestorage.googleapis.com/v0/b/cafeapp-12345.appspot.com/o/cake_chocolate.jpg?alt=media",
+  "prod_caramel_macchiato": "https://firebasestorage.googleapis.com/v0/b/cafeapp-12345.appspot.com/o/drink_caramel_macchiato.jpg?alt=media",
+  "prod_capuchino": "https://firebasestorage.googleapis.com/v0/b/cafeapp-12345.appspot.com/o/drink_capuchino.jpg?alt=media",
+  "prod_cheese_cake": "https://firebasestorage.googleapis.com/v0/b/cafeapp-12345.appspot.com/o/cake_cheese.jpg?alt=media",
+  "prod_croissant": "https://firebasestorage.googleapis.com/v0/b/cafeapp-12345.appspot.com/o/food_croissant.jpg?alt=media"
+}
