@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F4F4F4"
-    tools:context=".ui.cart.CartActivity">
+    tools:context=".fragment.FragmentCart">
 
-    <!-- 🔹 HEADER -->
+    <!-- HEADER -->
     <LinearLayout
+        android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:orientation="horizontal"
@@ -47,22 +47,59 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- 🔹 DANH SÁCH GIỎ HÀNG -->
+    <!-- DANH SÁCH GIỎ HÀNG -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewCart"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/footer"
+        android:layout_below="@+id/header"
         android:padding="8dp"
         android:clipToPadding="false"
         android:scrollbars="vertical"
-        android:overScrollMode="ifContentScrolls"
+        android:overScrollMode="never"
         android:background="#F4F4F4" />
 
-    <!-- 🔹 FOOTER -->
+    <!-- THÔNG BÁO GIỎ HÀNG TRỐNG – CHÍNH GIỮA MÀN HÌNH -->
     <LinearLayout
+        android:id="@+id/tv_empty_cart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/ic_cart_empty"
+            android:contentDescription="Giỏ hàng trống" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Giỏ hàng của bạn đang trống"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#999999" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Hãy thêm món ngon nào đó nhé!"
+            android:textSize="14sp"
+            android:textColor="#AAAAAA" />
+    </LinearLayout>
+
+    <!-- FOOTER -->
+    <LinearLayout
+        android:id="@+id/footer"
         android:layout_width="match_parent"
         android:layout_height="64dp"
+        android:layout_alignParentBottom="true"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:padding="8dp"
@@ -100,4 +137,4 @@
             android:elevation="2dp" />
     </LinearLayout>
 
-</LinearLayout>
+</RelativeLayout>

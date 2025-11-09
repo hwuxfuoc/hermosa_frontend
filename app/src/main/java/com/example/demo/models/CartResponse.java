@@ -1,8 +1,10 @@
+/*
 package com.example.demo.models;
 
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
+*/
 /**
  * CLASS CHÍNH: CartResponse
  * Đại diện cho toàn bộ phản hồi JSON từ API giỏ hàng
@@ -16,7 +18,8 @@ import java.util.List;
  *     "totalMoney": 185000
  *   }
  * }
- */
+ *//*
+
 public class CartResponse {
 
     // ------------------------------------------------------------------
@@ -33,19 +36,23 @@ public class CartResponse {
     // ------------------- GETTER (BẮT BUỘC) -------------------
     public String getStatus() { return status; }
 
-    /**
+    */
+/**
      * Lấy dữ liệu giỏ hàng (items + totalMoney)
      * Dùng trong FragmentCart: response.body().getData().getItems()
-     */
+     *//*
+
     public Data getData() { return data; }
     // ------------------------------------------------------------------
 
 
-    /**
+    */
+/**
      * CLASS CON: Data
      * Đại diện cho object "data" trong JSON
      * Chứa danh sách món + tổng tiền
-     */
+     *//*
+
     public static class Data {
 
         // Danh sách các món trong giỏ hàng
@@ -63,7 +70,8 @@ public class CartResponse {
     }
 
 
-    /**
+    */
+/**
      * CLASS CON: CartItem
      * Đại diện cho MỘT món trong giỏ hàng
      * Mỗi phần tử trong mảng "items" sẽ được Gson tự động map thành 1 CartItem
@@ -72,7 +80,8 @@ public class CartResponse {
      * - Backend Node.js (có size, topping, note)
      * - Product.java (có getSize(), getTopping())
      * - Giỏ hàng UI (checkbox, màu nền, ảnh)
-     */
+     *//*
+
     public static class CartItem {
 
         // ------------------------------------------------------------------
@@ -133,9 +142,11 @@ public class CartResponse {
         // ------------------------------------------------------------------
         // 5. SETTER – CẦN KHI TĂNG/GIẢM SỐ LƯỢNG HOẶC CẬP NHẬT CHECKBOX
         // ------------------------------------------------------------------
-        /**
+        */
+/**
          * Tự động tính lại subtotal khi thay đổi số lượng
-         */
+         *//*
+
         public void setQuantity(int quantity) {
             this.quantity = quantity;
             this.subtotal = (int) (this.price * quantity);
@@ -146,14 +157,120 @@ public class CartResponse {
         public void setTopping(List<String> topping) { this.topping = topping; }
         public void setNote(String note) { this.note = note; }
 
-        /**
+        */
+/**
          * Dùng khi tick/untick checkbox trong giỏ hàng
-         */
+         *//*
+
         public void setSelected(boolean selected) { this.selected = selected; }
 
-        /**
+        */
+/**
          * Dùng khi load ảnh từ menu (nếu backend cart chưa có picture)
-         */
+         *//*
+
+        public void setPicture(String picture) { this.picture = picture; }
+    }
+}*/
+package com.example.demo.models;
+
+import com.google.gson.annotations.SerializedName;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * CLASS CHÍNH: CartResponse
+ * Đại diện cho toàn bộ phản hồi JSON từ API giỏ hàng
+ * Endpoint: GET /cart/view-and-caculate-total-money?userID=...
+ *
+ * Ví dụ JSON:
+ * {"status":"Success","message":"View cart successfull","data":null}
+ * hoặc
+ * {"status":"Success","message":"View cart successfull","data":{"items":[...],"totalMoney":185000}}
+ */
+public class CartResponse {
+
+    private String status;
+    private String message;
+    private Data data;
+
+    public String getStatus() { return status; }
+    public String getMessage() { return message; }
+    public Data getData() { return data; }
+
+    /**
+     * CLASS CON: Data
+     * Đảm bảo items luôn là ArrayList (không null)
+     */
+    public static class Data {
+
+        @SerializedName("items")
+        private List<CartItem> items = new ArrayList<>();  // Khởi tạo mặc định
+
+        @SerializedName("totalMoney")
+        private long totalMoney = 0;
+
+        public List<CartItem> getItems() {
+            return items != null ? items : new ArrayList<>();
+        }
+
+        public long getTotalMoney() { return totalMoney; }
+    }
+
+    /**
+     * CLASS CON: CartItem
+     * Đồng bộ 100% với backend
+     */
+    public static class CartItem {
+
+        @SerializedName("_id")
+        private String id;
+
+        @SerializedName("productID")
+        private String productID;
+
+        @SerializedName("name")
+        private String name;
+
+        @SerializedName("price")
+        private long price;
+
+        @SerializedName("picture")
+        private String picture;
+
+        @SerializedName("category")
+        private String category;
+
+        private int quantity;
+        private int subtotal;
+        private String size;
+        private List<String> topping;
+        private String note;
+
+        // UI: checkbox
+        private boolean selected = true;
+
+        // --- GETTER ---
+        public String getId() { return id; }
+        public String getProductID() { return productID; }
+        public String getName() { return name; }
+        public long getPrice() { return price; }
+        public String getPicture() { return picture; }
+        public String getCategory() { return category; }
+        public int getQuantity() { return quantity; }
+        public int getSubtotal() { return subtotal; }
+        public String getSize() { return size != null ? size : "medium"; }
+        public List<String> getTopping() { return topping != null ? topping : new ArrayList<>(); }
+        public String getNote() { return note; }
+        public boolean isSelected() { return selected; }
+
+        // --- SETTER ---
+        public void setQuantity(int quantity) { this.quantity = quantity; }
+        public void setSubtotal(int subtotal) { this.subtotal = subtotal; }
+        public void setSize(String size) { this.size = size; }
+        public void setTopping(List<String> topping) { this.topping = topping; }
+        public void setNote(String note) { this.note = note; }
+        public void setSelected(boolean selected) { this.selected = selected; }
         public void setPicture(String picture) { this.picture = picture; }
     }
 }

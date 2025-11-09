@@ -63,10 +63,11 @@ public interface ApiService {
     @PUT("cart/update-decrease")
     Call<CommonResponse> decreaseItem(@Body Map<String, Object> body);
 
-    @HTTP(method = "DELETE", path = "cart/delete", hasBody = true)
+    // FIX: THAY @HTTP BẰNG @DELETE CHUẨN
+    @DELETE("cart/delete")
     Call<CommonResponse> deleteItem(@Body Map<String, Object> body);
 
-    @HTTP(method = "DELETE", path = "cart/delete-all", hasBody = true)
+    @DELETE("cart/delete-all")
     Call<CommonResponse> deleteAll(@Body Map<String, Object> body);
 
     // ---- ORDER ----
