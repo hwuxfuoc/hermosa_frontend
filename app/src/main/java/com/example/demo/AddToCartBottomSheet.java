@@ -44,7 +44,14 @@ public class AddToCartBottomSheet extends BottomSheetDialogFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         int layoutId;
-        switch (product.getCategory()) {
+
+        // FIX: XỬ LÝ NULL AN TOÀN
+        String category = product.getCategory();
+        if (category == null) {
+            category = "cake"; // mặc định
+        }
+
+        switch (category.toLowerCase()) {
             case "drink":
                 layoutId = R.layout.layout_add_item_drink;
                 break;
@@ -55,6 +62,7 @@ public class AddToCartBottomSheet extends BottomSheetDialogFragment {
                 layoutId = R.layout.layout_add_item_cake;
                 break;
         }
+
         View view = inflater.inflate(layoutId, container, false);
 
         TextView tvTitle = view.findViewById(R.id.text_title_edit);

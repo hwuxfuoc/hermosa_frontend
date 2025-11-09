@@ -18,7 +18,7 @@ import com.example.demo.adapters.ProductAdapter;
 import com.example.demo.ProductData;
 import com.example.demo.R;
 import com.example.demo.models.Product;
-import com.google.android.gms.analytics.ecommerce.Product;
+/*import com.google.android.gms.analytics.ecommerce.Product;*/
 
 import java.util.ArrayList;
 import java.util.List;

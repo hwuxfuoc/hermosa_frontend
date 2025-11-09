@@ -28,9 +28,11 @@
         <activity android:name=".ActivityRegister" />
         <activity android:name=".ActivityForgotPassword" />
         <activity android:name=".MainActivity" />
-        <activity android:name=".DescriptionCake" />
-        <activity android:name=".DescriptionDrink" />
-        <activity android:name=".DescriptionFood" />
+        <activity android:name=".description.DescriptionCake" />
+        <activity android:name=".description.DescriptionDrink" />
+        <activity android:name=".description.DescriptionFood" />
+        <activity android:name=".ConfirmOrderActivity"/>
+
     </application>
 
 </manifest>
