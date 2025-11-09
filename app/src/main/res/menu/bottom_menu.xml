@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_home"
+        android:icon="@drawable/home_icon"
+        android:title="Home" />
+
+    <item
+        android:id="@+id/menu_favorite"
+        android:icon="@drawable/favorite_icon_fill"
+        android:title="Favorite" />
+
+    <item
+        android:id="@+id/menu_cart"
+        android:icon="@drawable/cart_icon"
+        android:title="Cart" />
+
+    <item
+        android:id="@+id/menu_voucher"
+        android:icon="@drawable/voucher_icon"
+        android:title="Voucher" />
+
+    <item
+        android:id="@+id/menu_notification"
+        android:icon="@drawable/notification_icon"
+        android:title="Notification" />
+
+    <item
+        android:id="@+id/menu_profile"
+        android:icon="@drawable/profile_icon"
+        android:title="Profile" />
+</menu>
