@@ -1,7 +1,8 @@
-package com.example.demo;
+package com.example.demo.model;
 
 import android.graphics.Color;
 
+import com.example.demo.R;
 import com.example.demo.model.Product;
 
 import java.util.ArrayList;

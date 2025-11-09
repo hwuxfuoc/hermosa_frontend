@@ -4,124 +4,106 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
 import com.example.demo.R;
-import com.example.demo.model.Product;
+import com.example.demo.api.ApiClient;
+import com.example.demo.api.ApiService;
+import com.example.demo.model.CartItem;
+import com.example.demo.model.CommonResponse;
+import com.example.demo.model.MenuResponse;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
 
-    public interface OnAction {
-        void onIncrease(Product item);
-        void onDecrease(Product item);
-        void onDelete(Product item);
-        void onToggleSelect(Product item, boolean selected);
-        void onEdit(Product item);
-    }
-
+    private final List<CartItem> items;
     private final Context context;
-    private final List<Product> list;
-    private final OnAction action;
-    private boolean isEditMode = false;
+    private final String userID;
+    private final OnAction listener;
 
-    public CartAdapter(Context context, List<Product> list, OnAction action) {
+    // Interface chính – FragmentCart sẽ implement
+    public interface OnAction {
+        void onIncrease(CartItem item);
+        void onDecrease(CartItem item);
+        void onDelete(CartItem item);
+        void onToggleSelect(CartItem item, boolean selected);
+        void onDataChanged();
+    }
+
+    public CartAdapter(Context context, List<CartItem> items, String userID, OnAction listener) {
         this.context = context;
-        this.list = list;
-        this.action = action;
-    }
-
-    public void setEditMode(boolean editMode) {
-        isEditMode = editMode;
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        Product item = list.get(position);
-        String category = item.getCategory();
-
-        if (isEditMode) {
-            switch (category) {
-                case "drink":
-                    return R.layout.cart_item_edit_drink;
-                case "food":
-                    return R.layout.cart_item_edit_food;
-                default:
-                    return R.layout.cart_item_edit_cake;
-            }
-        } else {
-            switch (category) {
-                case "drink":
-                    return R.layout.cart_item_select_drink;
-                case "food":
-                    return R.layout.cart_item_select_food;
-                default:
-                    return R.layout.cart_item_select_cake;
-            }
-        }
+        this.items = items;
+        this.userID = userID;
+        this.listener = listener;
     }
 
     @NonNull
     @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(viewType, parent, false);
-        return new VH(view);
+        View v = LayoutInflater.from(context).inflate(R.layout.cart_item, parent, false);
+        return new VH(v);
     }
 
     @Override
     public void onBindViewHolder(@NonNull VH holder, int position) {
-        Product item = list.get(position);
+        CartItem item = items.get(position); // ĐÚNG KIỂU!
 
-        holder.textName.setText(item.getName());
-        holder.textPrice.setText(String.format("%,d VND", item.getPrice()));
-        holder.textQuantity.setText(String.valueOf(item.getQuantity()));
-        holder.imageProduct.setImageResource(item.getImageResId());
+        holder.tvName.setText(item.getName());
+        holder.tvPrice.setText(String.format("%,d đ", item.getSubtotal()));
+        holder.tvQuantity.setText(String.valueOf(item.getQuantity()));
 
-        // Checkbox chọn (chỉ có ở select mode)
-        if (holder.checkBoxSelect != null) {
-            holder.checkBoxSelect.setChecked(item.isSelected()); // DÙNG isSelected() – ĐÃ CÓ TRONG Product.java
-            holder.checkBoxSelect.setOnCheckedChangeListener((btn, isChecked) ->
-                    action.onToggleSelect(item, isChecked));
+        // Load ảnh từ URL đã có trong CartItem (được set từ FragmentCart)
+        if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
+            Glide.with(context)
+                    .load(item.getImageUrl())
+                    //.placeholder(R.drawable.placeholder)
+                    .into(holder.img);
         }
 
-        holder.buttonPlus.setOnClickListener(v -> action.onIncrease(item));
-        holder.buttonMinus.setOnClickListener(v -> action.onDecrease(item));
-        holder.buttonDelete.setOnClickListener(v -> action.onDelete(item));
+        // Checkbox
+        holder.cbSelect.setChecked(item.isSelected());
+        holder.cbSelect.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            item.setSelected(isChecked);
+            listener.onToggleSelect(item, isChecked);
+        });
 
-        // Click item → mở edit (chỉ khi edit mode)
-        if (isEditMode) {
-            holder.itemView.setOnClickListener(v -> action.onEdit(item));
-        } else {
-            holder.itemView.setOnClickListener(null);
-        }
+        // Nút tăng/giảm/xóa
+        holder.btnMinus.setOnClickListener(v -> listener.onDecrease(item));
+        holder.btnPlus.setOnClickListener(v -> listener.onIncrease(item));
+        holder.btnDelete.setOnClickListener(v -> listener.onDelete(item));
+
+        // Background color
+        holder.itemView.setBackgroundColor(item.getColor());
     }
 
     @Override
     public int getItemCount() {
-        return list.size();
+        return items.size();
     }
 
-    // ==================== ViewHolder ====================
     static class VH extends RecyclerView.ViewHolder {
-        TextView textName, textPrice, textQuantity;
-        ImageView imageProduct;
-        ImageButton buttonPlus, buttonMinus, buttonDelete;
-        CheckBox checkBoxSelect;
+        ImageView img;
+        TextView tvName, tvPrice, tvQuantity;
+        ImageButton btnMinus, btnPlus, btnDelete;
+        CheckBox cbSelect;
 
-        VH(@NonNull View itemView) {
-            super(itemView);
-            textName = itemView.findViewById(R.id.text_name);
-            textPrice = itemView.findViewById(R.id.text_price);
-            textQuantity = itemView.findViewById(R.id.text_quantity);
-            imageProduct = itemView.findViewById(R.id.image_product);
-            buttonPlus = itemView.findViewById(R.id.button_plus);
-            buttonMinus = itemView.findViewById(R.id.button_minus);
-            buttonDelete = itemView.findViewById(R.id.button_delete);
-            checkBoxSelect = itemView.findViewById(R.id.check_box_select);
+        VH(@NonNull View v) {
+            super(v);
+            img = v.findViewById(R.id.imgProduct);
+            tvName = v.findViewById(R.id.text_name_cart);
+            tvPrice = v.findViewById(R.id.text_price_cart);
+            tvQuantity = v.findViewById(R.id.tvQuantity);
+            btnMinus = v.findViewById(R.id.button_minus);
+            btnPlus = v.findViewById(R.id.button_plus);
+            btnDelete = v.findViewById(R.id.btnDelete);
+            cbSelect = v.findViewById(R.id.cbSelect);
         }
     }
 }

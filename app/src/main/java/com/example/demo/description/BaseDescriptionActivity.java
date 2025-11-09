@@ -6,9 +6,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.demo.AddToCartBottomSheet;
 import com.example.demo.R;
 import com.example.demo.model.Product;
 

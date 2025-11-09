@@ -17,12 +17,4 @@ public class DescriptionFood extends BaseDescriptionActivity {
     @Override
     protected int getDescriptionTextViewId() { return R.id.food_description; }
 
-    @Override
-    protected void setupAddToCart() {
-        Button btnAdd = findViewById(R.id.button_add_to_cart);
-        btnAdd.setOnClickListener(v -> {
-            AddToCartBottomSheet sheet = AddToCartBottomSheet.newInstance(product);
-            sheet.show(getSupportFragmentManager(), "AddToCart");
-        });
-    }
 }

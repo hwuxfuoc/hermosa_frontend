@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;  // ĐÚNG RỒI!
 
 import com.example.demo.model.Product;
+import com.example.demo.model.ProductData;
 
 public class AddToCartBottomSheet extends BottomSheetDialogFragment {
 

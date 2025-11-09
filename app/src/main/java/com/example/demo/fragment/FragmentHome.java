@@ -15,9 +15,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.demo.adapter.BestSellerAdapter;
 import com.example.demo.adapter.ProductAdapter;
-import com.example.demo.ProductData;
+import com.example.demo.model.ProductData;
 import com.example.demo.R;
 import com.example.demo.model.Product;
+//import com.google.android.gms.analytics.ecommerce.Product;
 
 import java.util.ArrayList;
 import java.util.List;

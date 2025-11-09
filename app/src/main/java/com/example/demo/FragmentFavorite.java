@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 
 import com.example.demo.adapter.ProductAdapter;
 import com.example.demo.model.Product;
+import com.example.demo.model.ProductData;
 
 import java.util.ArrayList;
 import java.util.List;

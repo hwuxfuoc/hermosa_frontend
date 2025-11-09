@@ -1,81 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
-    tools:context=".fragment.FragmentCart">
+    android:background="#F4F4F4"
+    tools:context="fragment.FragmentCart">
 
-    <!-- 🔹 Header -->
+    <!-- 🔹 HEADER -->
     <LinearLayout
-        android:id="@+id/header_cart"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:orientation="horizontal"
+        android:background="#FFFFFF"
         android:gravity="center_vertical"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:background="@color/white"
-        android:elevation="2dp">
+        android:paddingHorizontal="8dp"
+        android:elevation="4dp">
 
-        <!-- Nút quay lại -->
-        <ImageView
-            android:id="@+id/btn_back_cart"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:src="@drawable/icon_return_arrow"
-            android:contentDescription="Quay lại"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            app:tint="#A71317" />
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_arrow_back"
+            android:background="@android:color/transparent"
+            android:contentDescription="Back" />
 
-        <!-- Tiêu đề Giỏ Hàng -->
         <TextView
-            android:id="@+id/text_cart_title"
+            android:id="@+id/tvTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Giỏ Hàng"
-            android:textColor="#000000"
+            android:gravity="center"
+            android:text="Giỏ hàng"
+            android:textColor="#000"
             android:textSize="20sp"
-            android:textStyle="bold"
-            android:gravity="center" />
+            android:textStyle="bold" />
 
-        <!-- Nút Sửa -->
         <TextView
-            android:id="@+id/text_edit_cart"
+            android:id="@+id/tvEdit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingEnd="8dp"
             android:text="Sửa"
-            android:textColor="#A71317"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:padding="4dp"
-            android:background="?attr/selectableItemBackgroundBorderless" />
+            android:textColor="#1976D2"
+            android:textSize="16sp"
+            android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- 🔹 RecyclerView hiển thị các item trong giỏ hàng -->
+    <!-- 🔹 DANH SÁCH GIỎ HÀNG -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewCart"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="8dp" />
-
-    <!-- 🔹 Footer (checkbox & nút mua hàng) -->
-    <LinearLayout
-        android:orientation="horizontal"
         android:padding="8dp"
-        android:gravity="center_vertical"
+        android:clipToPadding="false"
+        android:scrollbars="vertical"
+        android:overScrollMode="ifContentScrolls"
+        android:background="#F4F4F4" />
+
+    <!-- 🔹 FOOTER -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="64dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="8dp"
+        android:background="#FFFFFF"
+        android:elevation="6dp">
 
         <CheckBox
-            android:id="@+id/checkAll"
+            android:id="@+id/cbSelectAll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Tất cả"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"/>
+            android:textSize="15sp"
+            android:textColor="#000" />
 
         <TextView
             android:id="@+id/tvTotal"
@@ -89,17 +89,15 @@
             android:textSize="16sp" />
 
         <Button
-            android:id="@+id/btnMuaHang"
-            android:text="Mua hàng"
-            android:backgroundTint="#A71317"
-            android:textColor="@android:color/white"
-            android:textStyle="bold"
-            android:layout_marginStart="5dp"
+            android:id="@+id/btnPurchase"
             android:layout_width="120dp"
-            android:layout_height="wrap_content"/>
+            android:layout_height="40dp"
+            android:text="Mua hàng"
+            android:backgroundTint="#B71C1C"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_marginStart="8dp"
+            android:elevation="2dp" />
     </LinearLayout>
-
-    <!-- 🔹 Thanh điều hướng (tùy chọn) -->
-    <!-- <include layout="@layout/bottom_nav" /> -->
 
 </LinearLayout>

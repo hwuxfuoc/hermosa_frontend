@@ -48,6 +48,8 @@ dependencies {
     implementation(libs.fragment)  // Cho Fragment cơ bản
     implementation(libs.fragment.ktx)  // Cho Kotlin extension (tùy chọn)
 
+    implementation("org.greenrobot:eventbus:3.3.1")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
