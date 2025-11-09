@@ -110,11 +110,19 @@ public class Product implements Serializable {
         this.color = category != null && category.contains("cake") ? 0xFFF1BCBC : 0xFFA71317;
     }
     // Constructor 4: Dùng cho dữ liệu Local (File ProductData.java)
+    /*public Product(String name, String price, int imageResId, int color, String description, String category) {
+        this.name = name;
+        this.price = price;
+        this.imageResId = imageResId;
+        this.color = color;
+    }*/
     public Product(String name, String price, int imageResId, int color, String description, String category) {
         this.name = name;
         this.price = price;
         this.imageResId = imageResId;
         this.color = color;
+        this.description = description;
+        this.category = category != null ? category.toLowerCase() : "cake";
     }
 
     // ==================================================================
