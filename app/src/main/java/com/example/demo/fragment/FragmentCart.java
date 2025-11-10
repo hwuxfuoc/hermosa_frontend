@@ -468,7 +468,7 @@ public class FragmentCart extends Fragment implements CartAdapter.OnCartUpdateLi
         onUpdateTotal();
     }
 
-    private void gotoConfirm() {
+    /*private void gotoConfirm() {
         List<CartResponse.CartItem> selected = new ArrayList<>();
         for (CartResponse.CartItem item : cartItems) {
             if (item.isSelected()) selected.add(item);
@@ -480,6 +480,23 @@ public class FragmentCart extends Fragment implements CartAdapter.OnCartUpdateLi
         long total = selected.stream().mapToLong(i -> i.getSubtotal()).sum();
         Intent intent = new Intent(requireActivity(), ConfirmOrderActivity.class);
         intent.putExtra("selectedItems", new ArrayList<>(selected));
+        intent.putExtra("totalMoney", total);
+        startActivity(intent);
+    }*/
+    private void gotoConfirm() {
+        List<CartResponse.CartItem> selected = new ArrayList<>();
+        for (CartResponse.CartItem item : cartItems) {
+            if (item.isSelected()) selected.add(item);
+        }
+        if (selected.isEmpty()) {
+            Toast.makeText(requireContext(), "Chọn ít nhất 1 món", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        long total = selected.stream().mapToLong(i -> i.getSubtotal()).sum();
+        Intent intent = new Intent(requireActivity(), ConfirmOrderActivity.class);
+
+        // BỔ SUNG: Truyền List Parcelable
+        intent.putParcelableArrayListExtra("selectedItems", new ArrayList<>(selected));
         intent.putExtra("totalMoney", total);
         startActivity(intent);
     }

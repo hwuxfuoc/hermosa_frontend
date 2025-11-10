@@ -1,3 +1,4 @@
+/*
 package com.example.demo;
 
 import android.graphics.Color;
@@ -88,13 +89,92 @@ public class ProductData {
     }
 
     // Lấy sản phẩm theo danh mục (cake / drink / food)
-    /*public static List<Product> getProductsByCategory(String category) {
+    */
+/*public static List<Product> getProductsByCategory(String category) {
         List<Product> list = new ArrayList<>();
         for (Product p : allProducts) {
             if (p.getCategory().equalsIgnoreCase(category)) list.add(p);
         }
         return list;
-    }*/
+    }*//*
+
+    public static List<Product> getProductsByCategory(String category) {
+        List<Product> filteredList = new ArrayList<>();
+
+        // FIX: Kiểm tra null trước khi so sánh
+        for (Product p : allProducts) {
+            if (p.getCategory() != null &&
+                    p.getCategory().equalsIgnoreCase(category != null ? category : "")) {
+                filteredList.add(p);
+            }
+        }
+        return filteredList;
+    }
+}
+*/
+package com.example.demo;
+
+import android.graphics.Color;
+
+import com.example.demo.models.Product;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class ProductData {
+    private static final List<Product> allProducts = new ArrayList<>();
+    public static final List<Product> cartList = new ArrayList<>();
+
+    public static List<Product> getCartList() {
+        return cartList; // Xóa if (cartList == null) {} – không cần
+    }
+
+    // Gọi hàm này trong MainActivity hoặc lần đầu khi app khởi chạy
+    public static void initializeData() {
+        if (!allProducts.isEmpty()) return; // tránh khởi tạo lại nhiều lần
+        //can bo sung day du dung 26 san pham + check product dung
+        // Cake – BỔ SUNG productID (ví dụ "C01")
+        allProducts.add(new Product("Strawberry Cheese", "85.000 VND / pc", R.drawable.cake_strawberry_cheese, Color.parseColor("#F1BCBC"),
+                "This dessert features a buttery biscuit base topped with a silky smooth cream cheese layer. Fresh strawberry sauce adds a fruity sweetness, creating a perfect balance of tangy and creamy in every bite.","cake", "C04"));
+        allProducts.add(new Product("Yellow Lemon Cheese", "90.000 VND / pc", R.drawable.cake_yellow_lemon_cheese, Color.parseColor("#A55102"),
+                "A refreshing twist on classic cheesecake with a vibrant lemon curd topping. The creamy cheese layer blends perfectly with the zesty lemon flavor, giving each bite a light, citrusy finish.","cake", "C02"));
+        allProducts.add(new Product("Blueberry Cheese", "85.000 VND / pc", R.drawable.cake_blueberry_cheese, Color.parseColor("#1F2831"),
+                "Rich cream cheese paired with sweet, juicy blueberry compote. The fruity topping enhances the velvety cheesecake base, creating a burst of flavor that melts in your mouth.","cake", "C03"));
+        allProducts.add(new Product("Tiramisu Chocolate", "75.000 VND / pc", R.drawable.cake_tiramisu_chocolate, Color.parseColor("#562715"),
+                "This dessert still has the traditional lady finger cookies, and definitely still calls for that delicious mascarpone cheese-based layer of deliciousness, but in this chocolate version, the cookies are dunked in strong hot chocolate to soften them, and in between each cookie layer is a thick layer of rich, dark chocolate ganache.","cake", "C04"));
+        allProducts.add(new Product("Tiramisu Matcha", "85.000 VND / pc", R.drawable.cake_tiramisu_matcha, Color.parseColor("#727C26"),
+                "A delicate twist on the Italian classic — lady finger cookies soaked in smooth matcha syrup, layered with creamy mascarpone and a light dusting of earthy matcha powder. Balanced, aromatic, and elegant.","cake", "C05"));
+        allProducts.add(new Product("Eclair Cake", "90.000 VND / pc", R.drawable.cake_eclair_cake, Color.parseColor("#4F252D"),
+                "A soft, creamy delight made with layers of vanilla custard and light pastry. Topped with a glossy chocolate glaze that gives each spoonful a melt-in-your-mouth texture.","cake", "C06"));
+        allProducts.add(new Product("Truffle Cake", "60.000 VND / pc", R.drawable.cake_truffle_cake, Color.parseColor("#FAE4B0"),
+                "Decadent layers of moist chocolate sponge and smooth chocolate truffle cream. Every slice is rich, indulgent, and filled with intense cocoa flavor that chocolate lovers will adore.","cake", "C07"));
+
+        // Drink – BỔ SUNG productID (ví dụ "D01")
+        allProducts.add(new Product("Black Coffee", "50.000 VND / pc", R.drawable.drink_black_ice_coffee, Color.parseColor("#220203"),
+                "Strong Vietnamese coffee served over ice — bold, aromatic, and refreshingly bitter, perfect for coffee lovers who like it pure and intense.","drink", "D01"));
+        allProducts.add(new Product("Milk Coffee", "70.000 VND / pc", R.drawable.drink_milk_coffee, Color.parseColor("#964E12"),
+                "Smooth Vietnamese coffee mixed with creamy condensed milk, creating a bold yet sweet flavor that’s both energizing and comforting.","drink", "D02"));
+        allProducts.add(new Product("Hot Coffee", "50.000 VND / pc", R.drawable.drink_hot_coffee, Color.parseColor("#220203"),
+                "A classic cup of freshly brewed hot coffee with a deep aroma and balanced flavor — simple, strong, and satisfying.","drink", "D03"));
+        allProducts.add(new Product("Green Tea", "50.000 VND / pc", R.drawable.drink_green_tea, Color.parseColor("#4C4116"),
+                "Fragrant green tea brewed gently to preserve its fresh, grassy notes and light sweetness. A refreshing drink for a peaceful moment.","drink", "D04"));
+        allProducts.add(new Product("Guava Tea", "70.000 VND / pc", R.drawable.drink_guava_tea, Color.parseColor("#FBA79E"),
+                "A tropical twist on tea — infused with the sweet and slightly tangy flavor of guava, creating a light, fruity refreshment.","drink", "D05"));
+        allProducts.add(new Product("Longan Tea", "70.000 VND / pc", R.drawable.drink_longan_tea, Color.parseColor("#D7A95E"),
+                "A soothing herbal tea steeped with dried longan, giving it a natural sweetness and a delicate, honey-like aroma that’s both calming and comforting.","drink", "D06"));
+
+        // Food – BỔ SUNG productID (ví dụ "F01")
+        allProducts.add(new Product("Sandwich", "₫50.000", R.drawable.food_sandwich, Color.parseColor("#E1B55C"),
+                "Freshly toasted bread filled with layers of ham, cheese, and crisp vegetables. The combination of soft bread, creamy sauce, and fresh ingredients makes every bite light, flavorful, and satisfying.","food", "F01"));
+        allProducts.add(new Product("Fried Chicken Burger", "₫60.000", R.drawable.food_burger, Color.parseColor("#A55102"),
+                "A crispy fried chicken fillet coated in golden breadcrumbs, layered with fresh lettuce, tomato, and creamy sauce inside a soft burger bun. Juicy, crunchy, and packed with irresistible flavor.","food", "F02"));
+    }
+
+    public static List<Product> getAllProducts() {
+        return allProducts; // trả về tất cả sản phẩm
+    }
+
+    // Lấy sản phẩm theo danh mục (cake / drink / food)
     public static List<Product> getProductsByCategory(String category) {
         List<Product> filteredList = new ArrayList<>();
 

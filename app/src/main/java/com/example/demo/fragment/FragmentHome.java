@@ -53,8 +53,8 @@ public class FragmentHome extends Fragment {
         bestSellerList.add(ProductData.getAllProducts().get(0));  // Strawberry Cheese
         bestSellerList.add(ProductData.getAllProducts().get(1));  // Yellow Lemon
         bestSellerList.add(ProductData.getAllProducts().get(8));  // Strawberry Smooth
-        bestSellerList.add(ProductData.getAllProducts().get(26)); // Sandwich
-
+        /*bestSellerList.add(ProductData.getAllProducts().get(26));*/ // Sandwich
+        bestSellerList.add(ProductData.getAllProducts().get(5));
         bestSellerAdapter = new BestSellerAdapter(requireContext(), bestSellerList);
         recyclerBestSeller.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         recyclerBestSeller.setAdapter(bestSellerAdapter);

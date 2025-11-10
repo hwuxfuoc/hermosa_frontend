@@ -103,15 +103,16 @@ public interface ApiService {
             @Query("orderID") String orderID,
             @Body Map<String, Object> body
     );
-    @POST("payment/create-payment-momo")
+    /*@POST("create-payment-momo")
+    Call<CreateMomoResponse> createPaymentMomo(@Body CreateMomoRequest body);*/
+    @POST("create-payment-momo")
     Call<CreateMomoResponse> createPaymentMomo(@Body CreateMomoRequest body);
 
-
-    @GET("payment/confirm")
+    @GET("confirm")
     Call<ConfirmPaymentResponse> confirmPaymentStatus(@Query("orderID") String orderID);
 
 
-    @POST("payment/create-payment-vnpay")
+    @POST("create-payment-vnpay")
     Call<CreateVnpayResponse> createPaymentVnpay(@Body CreateVnpayRequest body);
 
     // MENU - LẤY TẤT CẢ SẢN PHẨM ĐỂ GỢI Ý
