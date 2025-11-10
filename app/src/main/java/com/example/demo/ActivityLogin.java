@@ -26,6 +26,7 @@ public class ActivityLogin extends AppCompatActivity {
     private ImageView imgTogglePassword;
     private Button buttonLogin;
     private TextView textViewRegister;
+    private TextView textViewForgotPassword; // ← THÊM DÒNG NÀY
     private CheckBox checkBoxRemember;
     private ApiService apiService;
     private SharedPreferences prefs;
@@ -40,6 +41,7 @@ public class ActivityLogin extends AppCompatActivity {
         imgTogglePassword = findViewById(R.id.imgTogglePassword);
         buttonLogin = findViewById(R.id.button_login);
         textViewRegister = findViewById(R.id.text_view_register);
+        textViewForgotPassword = findViewById(R.id.text_view_forgot_password); // ← THÊM DÒNG NÀY
         checkBoxRemember = findViewById(R.id.checkBoxRemember);
 
         apiService = ApiClient.getClient().create(ApiService.class);
@@ -66,6 +68,7 @@ public class ActivityLogin extends AppCompatActivity {
 
         buttonLogin.setOnClickListener(v -> login());
         textViewRegister.setOnClickListener(v -> startActivity(new Intent(this, ActivityRegister.class)));
+        textViewForgotPassword.setOnClickListener(v -> startActivity(new Intent(this, ActivityForgotPassword.class)));
     }
 
     private void login() {
