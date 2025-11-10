@@ -60,7 +60,6 @@ public class PaymentMethodBottomSheetFragment extends BottomSheetDialogFragment 
                 listener.onPaymentMethodSelected(method);
             }
 
-            // Tự động đóng sau 300ms để thấy hiệu ứng đẹp
             view.postDelayed(this::dismiss, 300);
         };
 
