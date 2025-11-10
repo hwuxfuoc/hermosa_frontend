@@ -14,17 +14,12 @@
     <item
         android:id="@+id/menu_cart"
         android:icon="@drawable/cart_icon"
-        android:title="Cart" />
-
-    <item
-        android:id="@+id/menu_voucher"
-        android:icon="@drawable/voucher_icon"
-        android:title="Voucher" />
+        android:title="Giỏ hàng" />
 
     <item
         android:id="@+id/menu_notification"
         android:icon="@drawable/notification_icon"
-        android:title="Notification" />
+        android:title="Thông báo" />
 
     <item
         android:id="@+id/menu_profile"
