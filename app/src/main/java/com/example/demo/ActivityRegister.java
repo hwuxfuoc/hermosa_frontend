@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.demo.api.ApiClient;
 import com.example.demo.api.ApiService;
 import com.example.demo.models.CommonResponse;
+import com.example.demo.utils.SessionManager;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -321,6 +322,16 @@ public class ActivityRegister extends AppCompatActivity {
             public void onResponse(Call<CommonResponse> call, Response<CommonResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Toast.makeText(ActivityRegister.this, "Đăng ký thành công!", Toast.LENGTH_LONG).show();
+                    String username = edtUsername.getText().toString().trim();
+
+                    // LƯU VÀO SESSION
+                    SessionManager.saveUserSession(
+                            ActivityRegister.this,
+                            verifiedEmail,        // tạm dùng email làm userID nếu chưa có
+                            username,             // tên người dùng
+                            "",                   // tạm không có số điện thoại
+                            ""
+                    );
                     finish();
                 } else {
                     Toast.makeText(ActivityRegister.this, "Đăng ký thất bại", Toast.LENGTH_SHORT).show();

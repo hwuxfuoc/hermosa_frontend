@@ -18,12 +18,14 @@ import com.example.demo.adapters.ProductAdapter;
 import com.example.demo.ProductData;
 import com.example.demo.R;
 import com.example.demo.models.Product;
+import com.example.demo.utils.SessionManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FragmentHome extends Fragment {
 
+    private TextView tvUsername;
     private RecyclerView recyclerProducts, recyclerBestSeller;
     private ProductAdapter productAdapter;
     private BestSellerAdapter bestSellerAdapter;
@@ -38,12 +40,15 @@ public class FragmentHome extends Fragment {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
         // Ánh xạ
+        tvUsername = view.findViewById(R.id.username_text);
         recyclerProducts = view.findViewById(R.id.recycler_products);
         recyclerBestSeller = view.findViewById(R.id.recycler_best_seller);
         SearchView searchView = view.findViewById(R.id.search_view);
         tabCake = view.findViewById(R.id.tab_cake);
         tabDrink = view.findViewById(R.id.tab_drink);
         tabFood = view.findViewById(R.id.tab_food);
+
+        updateUserInfo();
 
         // Khởi tạo dữ liệu
         ProductData.initializeData();
@@ -114,5 +119,21 @@ public class FragmentHome extends Fragment {
             if (p.getName().toLowerCase().contains(text.toLowerCase())) filtered.add(p);
         }
         productAdapter.updateList(filtered);
+    }
+
+    private void updateUserInfo() {
+        String userName = SessionManager.getUserName(requireContext());
+
+        if (userName != null && !userName.isEmpty()) {
+            tvUsername.setText(userName);
+        } else {
+            tvUsername.setText("Khách");
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateUserInfo(); // Đảm bảo cập nhật lại nếu vừa đăng ký xong
     }
 }

@@ -9,6 +9,8 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.demo.utils.NetworkUtil;
+
 public class ActivitySplash extends AppCompatActivity {
 
     private static final int SPLASH_DELAY = 2500; // 2.5 giây
