@@ -10,7 +10,7 @@ import androidx.annotation.Nullable;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.example.demo.R;
 
-public class PaymentMethodBottomSheetFragment extends BottomSheetDialogFragment {
+public class FragmentPaymentMethodBottomSheet extends BottomSheetDialogFragment {
 
     public interface PaymentMethodListener {
         void onPaymentMethodSelected(String method);

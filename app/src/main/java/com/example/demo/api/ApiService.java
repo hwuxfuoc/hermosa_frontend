@@ -64,7 +64,7 @@ public interface ApiService {
     Call<CommonResponse> decreaseItem(@Body Map<String, Object> body);
 
     // FIX: THAY @HTTP BẰNG @DELETE CHUẨN
-    @DELETE("cart/delete")
+    @HTTP(method = "DELETE", path = "cart/delete", hasBody = true)
     Call<CommonResponse> deleteItem(@Body Map<String, Object> body);
 
     @DELETE("cart/delete-all")

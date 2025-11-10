@@ -1,4 +1,3 @@
-
 package com.example.demo.fragment;
 
 import android.content.Intent;
@@ -34,6 +33,7 @@ public class FragmentCart extends Fragment implements CartAdapter.OnCartUpdateLi
     private TextView tvTotal, tvEdit;
     private CheckBox cbSelectAll;
     private Button btnCheckout;
+    private View emptyCartView;
     private List<CartResponse.CartItem> cartItems = new ArrayList<>();
     private String userID;
 
@@ -46,12 +46,14 @@ public class FragmentCart extends Fragment implements CartAdapter.OnCartUpdateLi
         tvEdit = view.findViewById(R.id.tvEdit);
         cbSelectAll = view.findViewById(R.id.cbSelectAll);
         btnCheckout = view.findViewById(R.id.btnCheckout);
+        emptyCartView = view.findViewById(R.id.tv_empty_cart); // ← ĐÚNG ID trong XML
 
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         userID = SessionManager.getUserID(requireContext());
         if (userID == null || userID.isEmpty()) {
             Toast.makeText(requireContext(), "Vui lòng đăng nhập", Toast.LENGTH_SHORT).show();
+            showEmptyState();
             return view;
         }
 
@@ -81,23 +83,42 @@ public class FragmentCart extends Fragment implements CartAdapter.OnCartUpdateLi
                         if (!isAdded()) return;
 
                         if (res.isSuccessful() && res.body() != null && res.body().getData() != null) {
-                            cartItems = new ArrayList<>(res.body().getData().getItems());
+                            cartItems.clear();
+                            cartItems.addAll(res.body().getData().getItems());
+
                             Log.d("CART_LOAD", "Cart loaded, items count: " + cartItems.size());
+
+                            if (cartItems.isEmpty()) {
+                                // GIỎ TRỐNG → HIỆN EMPTY + XÓA ADAPTER
+                                showEmptyState();
+                                recyclerView.setAdapter(null);
+                                return;
+                            }
+
+                            // CÓ MÓN → HIỆN DANH SÁCH
                             adapter = new CartAdapter(cartItems, requireContext(), FragmentCart.this);
                             adapter.setCheckListener(FragmentCart.this);
                             adapter.setConfirmMode(false);
                             recyclerView.setAdapter(adapter);
+                            hideEmptyState();
                             onUpdateTotal();
+
                         } else {
+                            // SERVER TRẢ RỖNG HOẶC LỖI
                             cartItems.clear();
-                            Log.d("CART_LOAD", "Cart load failed or empty");
-                            updateEmptyUI();
+                            showEmptyState();
+                            recyclerView.setAdapter(null); // ← QUAN TRỌNG
                         }
                     }
 
                     @Override
                     public void onFailure(Call<CartResponse> call, Throwable t) {
-                        if (isAdded()) Toast.makeText(requireContext(), "Lỗi mạng", Toast.LENGTH_SHORT).show();
+                        if (isAdded()) {
+                            Toast.makeText(requireContext(), "Lỗi mạng", Toast.LENGTH_SHORT).show();
+                        }
+                        cartItems.clear();
+                        showEmptyState();
+                        recyclerView.setAdapter(null); // ← QUAN TRỌNG
                         Log.e("CART_LOAD", "Network error: " + t.getMessage());
                     }
                 });
@@ -111,6 +132,26 @@ public class FragmentCart extends Fragment implements CartAdapter.OnCartUpdateLi
         onUpdateTotal();
     }
 
+    private void showEmptyState() {
+        recyclerView.setVisibility(View.GONE);
+        if (emptyCartView != null) {
+            emptyCartView.setVisibility(View.VISIBLE);
+        }
+        tvTotal.setText("Tổng: 0đ");
+        cbSelectAll.setChecked(false);
+        cbSelectAll.setVisibility(View.GONE);
+        btnCheckout.setEnabled(false);
+    }
+
+    private void hideEmptyState() {
+        recyclerView.setVisibility(View.VISIBLE);
+        if (emptyCartView != null) {
+            emptyCartView.setVisibility(View.GONE);
+        }
+        cbSelectAll.setVisibility(View.VISIBLE);
+        btnCheckout.setEnabled(true);
+    }
+
     private void gotoConfirm() {
         List<CartResponse.CartItem> selected = new ArrayList<>();
         for (CartResponse.CartItem item : cartItems) {
@@ -120,10 +161,8 @@ public class FragmentCart extends Fragment implements CartAdapter.OnCartUpdateLi
             Toast.makeText(requireContext(), "Chọn ít nhất 1 món", Toast.LENGTH_SHORT).show();
             return;
         }
-        long total = selected.stream().mapToLong(i -> i.getSubtotal()).sum();
-        Log.d("CART_CONFIRM", "Chuyển sang Confirm, selected items: " + selected.size() + ", total: " + total);
+
         Intent intent = new Intent(requireActivity(), ConfirmOrderActivity.class);
-        // Không truyền selectedItems nữa, để Confirm load từ API
         startActivity(intent);
     }
 
@@ -142,7 +181,7 @@ public class FragmentCart extends Fragment implements CartAdapter.OnCartUpdateLi
 
     @Override
     public void onCartUpdated() {
-        loadCart();
+        loadCart(); // ← TỰ ĐỘNG RELOAD → HIỆN EMPTY NẾU TRỐNG
     }
 
     @Override
@@ -151,10 +190,5 @@ public class FragmentCart extends Fragment implements CartAdapter.OnCartUpdateLi
         if (userID != null) {
             loadCart();
         }
-    }
-
-    private void updateEmptyUI() {
-        // Thêm code xử lý UI trống nếu cần
-        // Ví dụ: showEmptyState();
     }
 }

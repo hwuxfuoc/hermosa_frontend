@@ -4,10 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 public class SessionManager {
-    private static final String PREF_NAME = "UserSession";
-
-    // Khai báo các "Khóa" (Key)
-    private static final String KEY_USER_ID = "userID";
+    private static final String PREF_NAME = "MyAppPrefs";
+    private static final String KEY_USER_ID = "USER_ID";
     private static final String KEY_USERNAME = "username";
     private static final String KEY_PHONE = "phone";
     private static final String KEY_ADDRESS = "address";

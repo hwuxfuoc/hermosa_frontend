@@ -22,6 +22,7 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
         setContentView(getLayoutResId());
 
         // Lấy dữ liệu từ Intent
+        String productID = getIntent().getStringExtra("productID");
         String name = getIntent().getStringExtra("name");
         String price = getIntent().getStringExtra("price");
         int imageResId = getIntent().getIntExtra("imageResId", 0);
