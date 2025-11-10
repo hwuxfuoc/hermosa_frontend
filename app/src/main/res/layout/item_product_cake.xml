@@ -12,14 +12,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- Layer đỏ trên -->
+        <!-- Layer màu trên -->
         <View
             android:id="@+id/view_top_bar"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:background="#EB4341" />
 
-        <!-- Nội dung trắng -->
+        <!-- Nội dung -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -33,17 +33,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Tên sản phẩm"
-                android:textSize="12sp"
+                android:textSize="14sp"
+                android:textStyle="bold"
                 android:textColor="#000"
-                android:layout_marginTop="20dp"/>
+                android:layout_marginTop="16dp"/>
 
             <TextView
                 android:id="@+id/text_price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="₫0"
-                android:textSize="12sp"
-                android:textColor="#555" />
+                android:text="₫85.000"
+                android:textSize="13sp"
+                android:textColor="#B30000"
+                android:textStyle="bold"
+                android:layout_marginTop="4dp" />
 
             <Button
                 android:id="@+id/button_plus"
@@ -54,20 +57,22 @@
                 android:textColor="#FFFFFF"
                 android:textSize="13sp"
                 android:textStyle="bold"
+                android:backgroundTint="#B30000"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
                 android:padding="0dp"
                 android:layout_gravity="bottom|end" />
         </LinearLayout>
 
-        <!-- Ảnh sản phẩm nổi giữa -->
+        <!-- ẢNH SẢN PHẨM – KHÔNG CỨNG SRC NỮA -->
         <ImageView
             android:id="@+id/image_product"
-            android:layout_width="200dp"
-            android:layout_height="90dp"
+            android:layout_width="140dp"
+            android:layout_height="100dp"
             android:layout_gravity="top|center_horizontal"
-            android:layout_marginTop="0dp"
-            android:src="@drawable/cake_strawberry_cheese"
-            android:elevation="8dp" />
+            android:layout_marginTop="-10dp"
+            android:scaleType="centerCrop"
+            android:elevation="8dp"
+            android:contentDescription="Product image" />
     </FrameLayout>
 </androidx.cardview.widget.CardView>

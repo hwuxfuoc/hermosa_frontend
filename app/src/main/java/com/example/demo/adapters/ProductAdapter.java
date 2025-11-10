@@ -2,6 +2,7 @@ package com.example.demo.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.demo.AddToCartBottomSheet;
 import com.example.demo.R;
 import com.example.demo.description.DescriptionCake;
@@ -57,41 +59,56 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     @Override
     public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
         Product product = productList.get(position);
-        holder.textName.setText(product.getName());
-        holder.textPrice.setText(product.getPrice());
-        holder.imageProduct.setImageResource(product.getImageResId());
-        holder.viewTopBar.setBackgroundColor(product.getColor());
-        holder.buttonPlus.setBackgroundTintList(android.content.res.ColorStateList.valueOf(product.getColor()));
 
-        // Bấm itemView → mở Description
+        holder.textName.setText(product.getName());
+        holder.textPrice.setText(formatPrice(product.getPrice()));
+        holder.viewTopBar.setBackgroundColor(product.getColor());
+        holder.buttonPlus.setBackgroundTintList(ColorStateList.valueOf(product.getColor()));
+
+        // GLIDE + URL + PLACEHOLDER ĐẸP
+        Glide.with(context)
+                .load(product.getImageUrl())
+                .placeholder(getPlaceholderDrawable(product.getCategory())) // ảnh chờ đẹp
+                .error(R.drawable.placeholder_cake)
+                .fallback(R.drawable.placeholder_cake)
+                .into(holder.imageProduct);
+
+        // Bấm item → mở chi tiết
         holder.itemView.setOnClickListener(v -> {
-            Class<?> cls;
-            switch (product.getCategory()) {
-                case "drink":
-                    cls = DescriptionDrink.class;
-                    break;
-                case "food":
-                    cls = DescriptionFood.class;
-                    break;
-                default:
-                    cls = DescriptionCake.class;
-                    break;
-            }
+            Class<?> cls = switch (product.getCategory().toLowerCase()) {
+                case "drink" -> DescriptionDrink.class;
+                case "food" -> DescriptionFood.class;
+                default -> DescriptionCake.class;
+            };
 
             Intent i = new Intent(context, cls);
-            i.putExtra("name", product.getName());
-            i.putExtra("price", product.getPrice());
-            i.putExtra("imageResId", product.getImageResId());
-            i.putExtra("description", product.getDescription());
-            i.putExtra("category", product.getCategory());
+            i.putExtra("product", product);
             context.startActivity(i);
         });
 
-        // Bấm button + → mở BottomSheet trực tiếp
+        // Bấm +
         holder.buttonPlus.setOnClickListener(v -> {
             AddToCartBottomSheet bottomSheet = AddToCartBottomSheet.newInstance(product);
             bottomSheet.show(((AppCompatActivity) context).getSupportFragmentManager(), "AddToCart");
         });
+    }
+
+    // HÀM TRẢ PLACEHOLDER THEO LOẠI
+    private int getPlaceholderDrawable(String category) {
+        return switch (category.toLowerCase()) {
+            case "drink" -> R.drawable.placeholder_drink;
+            case "food" -> R.drawable.placeholder_food;
+            default -> R.drawable.placeholder_cake;
+        };
+    }
+
+    private String formatPrice(String price) {
+        try {
+            long p = Long.parseLong(price.replaceAll("[^0-9]", ""));
+            return String.format("₫%,d", p);
+        } catch (Exception e) {
+            return "₫" + price;
+        }
     }
 
     @Override

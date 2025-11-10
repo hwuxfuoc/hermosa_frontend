@@ -2,6 +2,8 @@ package com.example.demo.models;
 
 import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
+import com.google.gson.Gson;
+import android.graphics.Color;
 
 /**
  * CLASS CHÍNH: Product
@@ -38,8 +40,11 @@ public class Product implements Serializable {
     // → Vì backend menu trả price là String (tránh lỗi parse)
     // → Dễ format: 85.000 đ, 100.000 đ
 
-    @SerializedName("picture")
+    @SerializedName("image")
     private String imageUrl; // URL Cloudinary: "https://res.cloudinary.com/.../cake01.jpg"
+
+    @SerializedName("color")
+    private String colorHex; // ví dụ: "#FF5733"
 
     @SerializedName("description")
     private String description;
@@ -78,19 +83,20 @@ public class Product implements Serializable {
     /**
      * Constructor 1: Tạo từ API đầy đủ (dùng khi load từ backend)
      */
-    public Product(String id, String productID, String name, String price, String imageUrl,
+    public Product(String id, String name, String productID, String price, String imageUrl,
                    String description, String category, int sumofFavorites, int sumofRatings) {
         this.id = id;
-        this.productID = productID;
         this.name = name;
+        this.productID = productID;
         this.price = price;
         this.imageUrl = imageUrl;
         this.description = description;
         this.category = category;
         this.sumofFavorites = sumofFavorites;
         this.sumofRatings = sumofRatings;
-        // Tự động gán màu theo category
-        this.color = (category != null && category.toLowerCase().contains("cake")) ? 0xFFF1BCBC : 0xFFA71317;
+
+        this.color = (category != null && category.toLowerCase().contains("cake"))
+                ? 0xFFF1BCBC : 0xFFA71317;
     }
 
     /**
@@ -168,6 +174,7 @@ public class Product implements Serializable {
         }
     }
 
+
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
@@ -216,18 +223,57 @@ public class Product implements Serializable {
     /**
      * Chuyển từ MenuResponse.MenuItem (API) → Product
      */
+
     public static Product fromMenuItem(MenuResponse.MenuItem item) {
-        return new Product(
+        String normalizedCat = normalizeCategory(item.getCategory());
+
+        int color = 0xFFEB4341;
+        if (item.getBackgroundHexacode() != null && !item.getBackgroundHexacode().isEmpty()) {
+            try {
+                String hex = item.getBackgroundHexacode().trim();
+                if (!hex.startsWith("#")) hex = "#" + hex;
+                if (hex.length() == 7) hex = "#FF" + hex.substring(1);
+                color = Color.parseColor(hex);
+            } catch (Exception e) {
+                switch (normalizedCat) {
+                    case "drink": color = 0xFFA71317; break;
+                    case "food": color = 0xFF388E3C; break;
+                    default: color = 0xFFEB4341;
+                }
+            }
+        }
+
+        Product p = new Product(
                 item.getId(),
-                item.getProductID(),
                 item.getName(),
+                item.getProductID(),
                 String.valueOf(item.getPrice()),
                 item.getPicture(),
                 item.getDescription(),
-                item.getCategory(),
+                normalizedCat,
                 item.getSumofFavorites(),
                 item.getSumofRatings()
         );
+
+        p.setImageUrl(item.getPicture());
+        p.setColor(color);
+
+        p.setCategory(normalizedCat);
+
+        return p;
+    }
+
+    public static String normalizeCategory(String category) {
+        if (category == null) return "";
+        String lower = category.toLowerCase().trim();
+        if (lower.contains("launch") || lower.contains("lunch") || lower.contains("food")) {
+            return "food";
+        } else if (lower.contains("drink") || lower.contains("coffee") || lower.contains("tea")) {
+            return "drink";
+        } else if (lower.contains("cake") || lower.contains("dessert") || lower.contains("donut")) {
+            return "cake";
+        }
+        return lower;
     }
 
     /**

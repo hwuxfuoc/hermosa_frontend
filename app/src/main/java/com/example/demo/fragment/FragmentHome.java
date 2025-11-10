@@ -1,11 +1,13 @@
 package com.example.demo.fragment;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -13,15 +15,21 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.demo.R;
 import com.example.demo.adapters.BestSellerAdapter;
 import com.example.demo.adapters.ProductAdapter;
-import com.example.demo.ProductData;
-import com.example.demo.R;
+import com.example.demo.api.ApiClient;
+import com.example.demo.api.ApiService;
+import com.example.demo.models.MenuResponse;
 import com.example.demo.models.Product;
 import com.example.demo.utils.SessionManager;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class FragmentHome extends Fragment {
 
@@ -29,15 +37,21 @@ public class FragmentHome extends Fragment {
     private RecyclerView recyclerProducts, recyclerBestSeller;
     private ProductAdapter productAdapter;
     private BestSellerAdapter bestSellerAdapter;
-    private List<Product> currentProductList;
+    private ApiService apiService;
+
+    private List<Product> allProducts = new ArrayList<>();
+    private List<Product> currentProductList = new ArrayList<>();
+    private List<Product> bestSellerList = new ArrayList<>();
 
     private TextView tabCake, tabDrink, tabFood;
-    private String currentCategory = "cake"; // Biến theo dõi category hiện tại
+    private String currentCategory = "cake";
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
+
+        apiService = ApiClient.getClient().create(ApiService.class);
 
         // Ánh xạ
         tvUsername = view.findViewById(R.id.username_text);
@@ -49,37 +63,85 @@ public class FragmentHome extends Fragment {
         tabFood = view.findViewById(R.id.tab_food);
 
         updateUserInfo();
-
-        // Khởi tạo dữ liệu
-        ProductData.initializeData();
-
-        // === BEST SELLER - ngang ===
-        List<Product> bestSellerList = new ArrayList<>();
-        bestSellerList.add(ProductData.getAllProducts().get(0));  // Strawberry Cheese
-        bestSellerList.add(ProductData.getAllProducts().get(1));  // Yellow Lemon
-        bestSellerList.add(ProductData.getAllProducts().get(8));  // Strawberry Smooth
-        /*bestSellerList.add(ProductData.getAllProducts().get(26));*/ // Sandwich
-        bestSellerList.add(ProductData.getAllProducts().get(5));
-        bestSellerAdapter = new BestSellerAdapter(requireContext(), bestSellerList);
-        recyclerBestSeller.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        recyclerBestSeller.setAdapter(bestSellerAdapter);
-
-        // === DANH SÁCH CHÍNH - grid 2 cột ===
-        currentProductList = ProductData.getProductsByCategory(currentCategory);
-        productAdapter = new ProductAdapter(requireContext(), currentProductList);
-        recyclerProducts.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        recyclerProducts.setAdapter(productAdapter);
-
-        // === TAB ===
+        setupRecyclerViews();
         setupTabs();
+        setupSearch(searchView);
 
-        // === SEARCH ===
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override public boolean onQueryTextSubmit(String query) { filter(query); return true; }
-            @Override public boolean onQueryTextChange(String newText) { filter(newText); return true; }
-        });
+        // GỌI API LẤY TẤT CẢ SẢN PHẨM
+        loadAllProducts();
 
         return view;
+    }
+
+    private void setupRecyclerViews() {
+        // Best Seller - ngang
+        recyclerBestSeller.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        bestSellerAdapter = new BestSellerAdapter(requireContext(), bestSellerList);
+        recyclerBestSeller.setAdapter(bestSellerAdapter);
+
+        // Danh sách chính - grid 2 cột
+        recyclerProducts.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        productAdapter = new ProductAdapter(requireContext(), currentProductList);
+        recyclerProducts.setAdapter(productAdapter);
+    }
+
+    private void loadAllProducts() {
+        apiService.getAllProducts().enqueue(new Callback<MenuResponse>() {
+            @Override
+            public void onResponse(Call<MenuResponse> call, Response<MenuResponse> response) {
+                Log.d("HOME", "API Response: " + response.isSuccessful() + " | Body: " + (response.body() != null));
+
+                if (response.isSuccessful() && response.body() != null && "Success".equals(response.body().getStatus())) {
+                    List<MenuResponse.MenuItem> menuItems = response.body().getData();
+                    Log.d("HOME", "Nhận được " + menuItems.size() + " sản phẩm từ server");
+
+                    allProducts.clear();
+                    for (MenuResponse.MenuItem item : menuItems) {
+                        Product p = Product.fromMenuItem(item);
+                        allProducts.add(p);
+                        Log.d("HOME", "Thêm: " + p.getName() + " | Color: " + String.format("#%08X", p.getColor()));
+                    }
+
+                    // Cập nhật Best Seller
+                    bestSellerList.clear();
+                    bestSellerList.addAll(allProducts.subList(0, Math.min(10, allProducts.size())));
+                    bestSellerAdapter.notifyDataSetChanged();
+
+                    filterByCategory("cake");
+                    requireView().post(() -> {
+                        resetTabs();
+                        tabCake.setBackgroundResource(R.drawable.tab_selected_bg);
+                        tabCake.setTextColor(0xFFEB4341);
+                    });
+                } else {
+                    Toast.makeText(requireContext(), "Lỗi server: " + response.message(), Toast.LENGTH_LONG).show();
+                    Log.e("HOME", "API thất bại: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MenuResponse> call, Throwable t) {
+                Toast.makeText(requireContext(), "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                Log.e("HOME", "API thất bại", t);
+            }
+        });
+    }
+
+    // FIX FILTER: dùng contains + toLowerCase
+    private void filterByCategory(String category) {
+        currentCategory = category.toLowerCase();
+        currentProductList.clear();
+
+        for (Product p : allProducts) {
+            String cat = Product.normalizeCategory(p.getCategory()); // ← CHUẨN HÓA LẠI
+
+            if (currentCategory.equals(cat)) {
+                currentProductList.add(p);
+            }
+        }
+
+        productAdapter.updateList(currentProductList);
+        Log.d("HOME", "HIỆN MENU: " + currentProductList.size() + " món | Loại: " + currentCategory);
     }
 
     private void setupTabs() {
@@ -89,18 +151,17 @@ public class FragmentHome extends Fragment {
             tab.setBackgroundResource(R.drawable.tab_selected_bg);
             tab.setTextColor(0xFFEB4341);
 
-            if (v.getId() == R.id.tab_drink) currentCategory = "drink";
-            else if (v.getId() == R.id.tab_food) currentCategory = "food";
-            else currentCategory = "cake";
-
-            currentProductList = ProductData.getProductsByCategory(currentCategory);
-            productAdapter.updateList(currentProductList);
+            if (v.getId() == R.id.tab_drink) filterByCategory("drink");
+            else if (v.getId() == R.id.tab_food) filterByCategory("food");
+            else filterByCategory("cake");
         };
+
         tabCake.setOnClickListener(listener);
         tabDrink.setOnClickListener(listener);
         tabFood.setOnClickListener(listener);
 
-        tabCake.performClick(); // default
+        // XÓA DÒNG NÀY → ĐỂ loadAllProducts() GỌI SAU KHI CÓ DATA!
+        // tabCake.performClick();
     }
 
     private void resetTabs() {
@@ -113,27 +174,44 @@ public class FragmentHome extends Fragment {
         tabFood.setTextColor(gray);
     }
 
+    private void setupSearch(SearchView searchView) {
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override public boolean onQueryTextSubmit(String query) { filter(query); return true; }
+            @Override public boolean onQueryTextChange(String newText) { filter(newText); return true; }
+        });
+    }
+
     private void filter(String text) {
         List<Product> filtered = new ArrayList<>();
-        for (Product p : ProductData.getProductsByCategory(currentCategory)) {
-            if (p.getName().toLowerCase().contains(text.toLowerCase())) filtered.add(p);
+        String query = text.toLowerCase().trim();
+
+        if (query.isEmpty()) {
+            filterByCategory(currentCategory);
+            return;
+        }
+
+        for (Product p : allProducts) {
+            String normalizedCat = Product.normalizeCategory(p.getCategory());
+
+            boolean matchCategory = currentCategory.equals(normalizedCat);
+            boolean matchName = p.getName().toLowerCase().contains(query);
+
+            if (matchCategory && matchName) {
+                filtered.add(p);
+            }
         }
         productAdapter.updateList(filtered);
     }
 
     private void updateUserInfo() {
         String userName = SessionManager.getUserName(requireContext());
-
-        if (userName != null && !userName.isEmpty()) {
-            tvUsername.setText(userName);
-        } else {
-            tvUsername.setText("Khách");
-        }
+        tvUsername.setText(userName != null && !userName.isEmpty() ? userName : "Khách");
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        updateUserInfo(); // Đảm bảo cập nhật lại nếu vừa đăng ký xong
+        updateUserInfo();
+        //loadAllProducts(); // ĐẢM BẢO DỮ LIỆU MỚI NHẤT TỪ SERVER
     }
 }

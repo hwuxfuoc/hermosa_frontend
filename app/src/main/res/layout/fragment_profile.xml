@@ -117,6 +117,7 @@
 
             <!-- Ví voucher -->
             <LinearLayout
+                android:id="@+id/layout_voucher"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -144,6 +145,7 @@
 
             <!-- Địa chỉ -->
             <LinearLayout
+                android:id="@+id/layout_address"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -170,6 +172,7 @@
 
             <!-- Sản phẩm yêu thích -->
             <LinearLayout
+                android:id="@+id/layout_favorite"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -197,6 +200,7 @@
 
             <!-- Lịch sử đơn hàng -->
             <LinearLayout
+                android:id="@+id/layout_history"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -235,6 +239,7 @@
 
             <!-- Đăng xuất -->
             <LinearLayout
+                android:id="@+id/layout_logout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -262,6 +267,7 @@
 
             <!-- Xóa tài khoản -->
             <LinearLayout
+                android:id="@+id/layout_delete_account"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -289,6 +295,7 @@
 
             <!-- Quên mật khẩu -->
             <LinearLayout
+                android:id="@+id/layout_forgot_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"

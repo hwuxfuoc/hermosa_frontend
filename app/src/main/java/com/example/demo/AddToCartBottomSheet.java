@@ -58,6 +58,13 @@ public class AddToCartBottomSheet extends BottomSheetDialogFragment {
         if (getArguments() != null) {
             product = (Product) getArguments().getSerializable(ARG_PRODUCT);
         }
+        if (product == null) {
+            Log.e("CART_BS", "LỖI: Product null khi mở BottomSheet!");
+            Toast.makeText(getContext(), "Lỗi sản phẩm", Toast.LENGTH_SHORT).show();
+            dismiss();
+            return;
+        }
+        Log.d("CART_BS", "Nhận product: " + product.getName() + " | ID: " + product.getProductID());
         setCancelable(true);
         setStyle(STYLE_NORMAL, R.style.BottomSheetDialogTheme);
     }
@@ -171,8 +178,8 @@ public class AddToCartBottomSheet extends BottomSheetDialogFragment {
 
         String productID = product.getProductID();
         if (productID == null || productID.isEmpty() || "UNKNOWN".equals(productID)) {
-            Log.e("CART_ADD", "LỖI: productID không hợp lệ! ID = " + productID);
-            Toast.makeText(getContext(), "Lỗi: Sản phẩm không có ID", Toast.LENGTH_SHORT).show();
+            Log.e("CART_ADD", "LỖI: productID không hợp lệ! ID = " + productID + " | Name: " + product.getName());
+            Toast.makeText(getContext(), "Lỗi: Không tìm thấy mã sản phẩm!", Toast.LENGTH_LONG).show();
             dismiss();
             return;
         }

@@ -1,28 +1,37 @@
 package com.example.demo.description;
 
+import android.util.Log;
 import android.widget.Button;
 
 import com.example.demo.AddToCartBottomSheet;
 import com.example.demo.R;
 
 public class DescriptionDrink extends BaseDescriptionActivity {
+
     @Override
     protected int getLayoutResId() { return R.layout.description_drink; }
+
     @Override
-    protected int getImageViewId() { return R.id.drink_image; }
+    protected int getImageViewId() { return R.id.imgProduct; }
+
     @Override
-    protected int getNameTextViewId() { return R.id.drink_name; }
+    protected int getNameTextViewId() { return R.id.tvName; }
+
     @Override
-    protected int getPriceTextViewId() { return R.id.drink_price; }
+    protected int getPriceTextViewId() { return R.id.tvPrice; }
+
     @Override
-    protected int getDescriptionTextViewId() { return R.id.drink_description; }
+    protected int getDescriptionTextViewId() { return R.id.tvDescription; }
 
     @Override
     protected void setupAddToCart() {
-        Button btnAdd = findViewById(R.id.button_add_to_cart);
-        btnAdd.setOnClickListener(v -> {
-            AddToCartBottomSheet sheet = AddToCartBottomSheet.newInstance(product);
-            sheet.show(getSupportFragmentManager(), "AddToCart");
-        });
+        Button btn = findViewById(R.id.btn_add_to_cart);
+        if (btn != null && product != null) {
+            btn.setOnClickListener(v -> {
+                Log.d("DESCRIPTION", "Mở BottomSheet từ Description | ProductID: " + product.getProductID());
+                AddToCartBottomSheet bottomSheet = AddToCartBottomSheet.newInstance(product);
+                bottomSheet.show(getSupportFragmentManager(), "AddToCart");
+            });
+        }
     }
 }

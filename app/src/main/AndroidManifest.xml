@@ -15,15 +15,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Demo">
+
         <activity
             android:name=".ActivitySplash"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name=".ActivityLogin" />
         <activity android:name=".ActivityRegister" />
         <activity android:name=".ActivityForgotPassword" />
@@ -31,8 +32,19 @@
         <activity android:name=".description.DescriptionCake" />
         <activity android:name=".description.DescriptionDrink" />
         <activity android:name=".description.DescriptionFood" />
-        <activity android:name=".ConfirmOrderActivity"/>
+
+        <activity
+            android:name=".ConfirmOrderActivity"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="hermosaapp" />
+            </intent-filter>
+
+        </activity>
 
     </application>
-
 </manifest>

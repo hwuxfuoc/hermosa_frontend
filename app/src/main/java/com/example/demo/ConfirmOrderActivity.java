@@ -78,6 +78,7 @@ public class ConfirmOrderActivity extends AppCompatActivity
         initViews();
         loadData();
         setupClickListeners();
+        handleDeepLink(getIntent());
     }
 
     private void registerAddressLauncher() {
@@ -223,8 +224,10 @@ public class ConfirmOrderActivity extends AppCompatActivity
         currentPaymentMethod = method;
         int red = 0xFFA71317;
         int gray = 0xFFADABAB;
+
         btnCash.setBackgroundResource(method.equals("cash") ? R.drawable.payment_option_selected : R.drawable.payment_option_default);
         btnCash.setTextColor(method.equals("cash") ? red : gray);
+
         btnMomo.setBackgroundResource(method.equals("momo") || method.equals("vnpay") ? R.drawable.payment_option_selected : R.drawable.payment_option_default);
         btnMomo.setTextColor(method.equals("momo") || method.equals("vnpay") ? red : gray);
         btnMomo.setText(method.equals("vnpay") ? "VNPay" : "Momo");
@@ -314,37 +317,36 @@ public class ConfirmOrderActivity extends AppCompatActivity
     }
 
     private void requestVnpayPayment(String orderID, String userID) {
-        Log.d("VNPAY", "Bắt đầu tạo thanh toán VNPAY - orderID: " + orderID);
+        Log.d("VNPAY", "Tạo thanh toán VNPay - orderID: " + orderID);
 
         CreateVnpayRequest request = new CreateVnpayRequest(orderID, userID);
 
-        // DÙNG LẠI CALL CHUẨN - NHẬN JSON ĐẸP
-        apiService.createPaymentVnpay(request).enqueue(new Callback<CreateVnpayResponse>() {
+        // ĐỔI Call<CreateVnpayResponse> → Call<String>
+        apiService.createPaymentVnpayString(request).enqueue(new Callback<String>() {
             @Override
-            public void onResponse(Call<CreateVnpayResponse> call, Response<CreateVnpayResponse> response) {
+            public void onResponse(Call<String> call, Response<String> response) {
                 Log.d("VNPAY", "Response code: " + response.code());
 
                 if (response.isSuccessful() && response.body() != null) {
-                    String payUrl = response.body().getUrl();
+                    String payUrl = response.body().trim().replace("\"", ""); // Xóa dấu " ở đầu/cuối
                     Log.d("VNPAY", "URL nhận được: " + payUrl);
 
-                    if (payUrl != null && payUrl.startsWith("http")) {
+                    if (payUrl.startsWith("http")) {
                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(payUrl));
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intent);
-                        Toast.makeText(ConfirmOrderActivity.this, "Đang mở VNPAY...", Toast.LENGTH_LONG).show();
+                        Toast.makeText(ConfirmOrderActivity.this, "Đang mở VNPay...", Toast.LENGTH_LONG).show();
                     } else {
-                        Toast.makeText(ConfirmOrderActivity.this, "Link thanh toán không hợp lệ", Toast.LENGTH_LONG).show();
+                        Toast.makeText(ConfirmOrderActivity.this, "Link không hợp lệ", Toast.LENGTH_LONG).show();
                     }
                 } else {
-                    Toast.makeText(ConfirmOrderActivity.this, "Lỗi server VNPAY", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ConfirmOrderActivity.this, "Lỗi server VNPay: " + response.message(), Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
-            public void onFailure(Call<CreateVnpayResponse> call, Throwable t) {
+            public void onFailure(Call<String> call, Throwable t) {
                 Log.e("VNPAY", "Lỗi mạng: " + t.getMessage());
-                Toast.makeText(ConfirmOrderActivity.this, "Lỗi kết nối VNPAY", Toast.LENGTH_LONG).show();
+                Toast.makeText(ConfirmOrderActivity.this, "Lỗi kết nối VNPay", Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -380,9 +382,6 @@ public class ConfirmOrderActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        if (lastOrderID != null) {
-            confirmPaymentStatus(lastOrderID);
-        }
     }
 
     private void confirmPaymentStatus(String orderID) {
@@ -406,4 +405,27 @@ public class ConfirmOrderActivity extends AppCompatActivity
             }
         });
     }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleDeepLink(intent);
+    }
+
+    private void handleDeepLink(Intent intent) {
+        if (intent == null || intent.getData() == null) return;
+
+        Uri data = intent.getData();
+        String host = data.getHost(); // "payment-success" hoặc "payment-failed"
+
+        if ("payment-success".equals(host)) {
+            Toast.makeText(this, "Thanh toán VNPay thành công!", Toast.LENGTH_LONG).show();
+            finish();
+        } else if ("payment-failed".equals(host)) {
+            Toast.makeText(this, "Thanh toán VNPay thất bại!", Toast.LENGTH_LONG).show();
+            // Có thể gọi API hủy đơn nếu cần
+        }
+    }
+
 }

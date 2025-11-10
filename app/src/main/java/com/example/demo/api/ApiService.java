@@ -112,8 +112,12 @@ public interface ApiService {
     Call<ConfirmPaymentResponse> confirmPaymentStatus(@Query("orderID") String orderID);
 
 
+    // Thêm hàm này
     @POST("payment-vnpay/create-payment-vnpay")
-    Call<CreateVnpayResponse> createPaymentVnpay(@Body CreateVnpayRequest body);
+    Call<String> createPaymentVnpayString(@Body CreateVnpayRequest body);
+
+    @GET("payment-vnpay/check-payment-status")
+    Call<ConfirmPaymentResponse> confirmVnpayStatus(@Query("vnp_TxnRef") String orderID);
 
     // MENU - LẤY TẤT CẢ SẢN PHẨM ĐỂ GỢI Ý
     @GET("menu/all-product")

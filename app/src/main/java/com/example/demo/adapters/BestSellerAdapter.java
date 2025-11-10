@@ -50,24 +50,14 @@ public class BestSellerAdapter extends RecyclerView.Adapter<BestSellerAdapter.Vi
 
         // Bấm itemView (hình + nội dung) → mở Description
         holder.itemView.setOnClickListener(v -> {
-            Class<?> cls;
-            switch (product.getCategory()) {
-                case "drink":
-                    cls = DescriptionDrink.class;
-                    break;
-                case "food":
-                    cls = DescriptionFood.class;
-                    break;
-                default:
-                    cls = DescriptionCake.class;
-                    break;
-            }
+            Class<?> cls = switch (product.getCategory()) {
+                case "drink" -> DescriptionDrink.class;
+                case "food" -> DescriptionFood.class;
+                default -> DescriptionCake.class;
+            };
+
             Intent i = new Intent(context, cls);
-            i.putExtra("name", product.getName());
-            i.putExtra("price", product.getPrice());
-            i.putExtra("imageResId", product.getImageResId());
-            i.putExtra("description", product.getDescription());
-            i.putExtra("category", product.getCategory());
+            i.putExtra("product", product); // TRUYỀN TOÀN BỘ → SIÊU ỔN ĐỊNH
             context.startActivity(i);
         });
 
