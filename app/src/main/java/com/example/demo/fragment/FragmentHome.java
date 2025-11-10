@@ -1,7 +1,6 @@
 package com.example.demo.fragment;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,7 +67,9 @@ public class FragmentHome extends Fragment {
         setupSearch(searchView);
 
         // GỌI API LẤY TẤT CẢ SẢN PHẨM
-        loadAllProducts();
+        if (allProducts.isEmpty()) {
+            loadAllProducts();
+        }
 
         return view;
     }
@@ -89,17 +90,13 @@ public class FragmentHome extends Fragment {
         apiService.getAllProducts().enqueue(new Callback<MenuResponse>() {
             @Override
             public void onResponse(Call<MenuResponse> call, Response<MenuResponse> response) {
-                Log.d("HOME", "API Response: " + response.isSuccessful() + " | Body: " + (response.body() != null));
-
                 if (response.isSuccessful() && response.body() != null && "Success".equals(response.body().getStatus())) {
                     List<MenuResponse.MenuItem> menuItems = response.body().getData();
-                    Log.d("HOME", "Nhận được " + menuItems.size() + " sản phẩm từ server");
 
                     allProducts.clear();
                     for (MenuResponse.MenuItem item : menuItems) {
                         Product p = Product.fromMenuItem(item);
                         allProducts.add(p);
-                        Log.d("HOME", "Thêm: " + p.getName() + " | Color: " + String.format("#%08X", p.getColor()));
                     }
 
                     // Cập nhật Best Seller
@@ -115,33 +112,28 @@ public class FragmentHome extends Fragment {
                     });
                 } else {
                     Toast.makeText(requireContext(), "Lỗi server: " + response.message(), Toast.LENGTH_LONG).show();
-                    Log.e("HOME", "API thất bại: " + response.message());
                 }
             }
 
             @Override
             public void onFailure(Call<MenuResponse> call, Throwable t) {
                 Toast.makeText(requireContext(), "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_LONG).show();
-                Log.e("HOME", "API thất bại", t);
             }
         });
     }
 
-    // FIX FILTER: dùng contains + toLowerCase
     private void filterByCategory(String category) {
         currentCategory = category.toLowerCase();
         currentProductList.clear();
 
         for (Product p : allProducts) {
-            String cat = Product.normalizeCategory(p.getCategory()); // ← CHUẨN HÓA LẠI
-
-            if (currentCategory.equals(cat)) {
+            String normalizedCat = Product.normalizeCategory(p.getCategory());
+            if (currentCategory.equals(normalizedCat)) {
                 currentProductList.add(p);
             }
         }
 
         productAdapter.updateList(currentProductList);
-        Log.d("HOME", "HIỆN MENU: " + currentProductList.size() + " món | Loại: " + currentCategory);
     }
 
     private void setupTabs() {
@@ -159,9 +151,6 @@ public class FragmentHome extends Fragment {
         tabCake.setOnClickListener(listener);
         tabDrink.setOnClickListener(listener);
         tabFood.setOnClickListener(listener);
-
-        // XÓA DÒNG NÀY → ĐỂ loadAllProducts() GỌI SAU KHI CÓ DATA!
-        // tabCake.performClick();
     }
 
     private void resetTabs() {
@@ -176,8 +165,17 @@ public class FragmentHome extends Fragment {
 
     private void setupSearch(SearchView searchView) {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override public boolean onQueryTextSubmit(String query) { filter(query); return true; }
-            @Override public boolean onQueryTextChange(String newText) { filter(newText); return true; }
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                filter(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filter(newText);
+                return true;
+            }
         });
     }
 
@@ -192,7 +190,6 @@ public class FragmentHome extends Fragment {
 
         for (Product p : allProducts) {
             String normalizedCat = Product.normalizeCategory(p.getCategory());
-
             boolean matchCategory = currentCategory.equals(normalizedCat);
             boolean matchName = p.getName().toLowerCase().contains(query);
 
@@ -212,6 +209,8 @@ public class FragmentHome extends Fragment {
     public void onResume() {
         super.onResume();
         updateUserInfo();
-        //loadAllProducts(); // ĐẢM BẢO DỮ LIỆU MỚI NHẤT TỪ SERVER
+        if (allProducts.isEmpty()) {
+            loadAllProducts();
+        }
     }
 }

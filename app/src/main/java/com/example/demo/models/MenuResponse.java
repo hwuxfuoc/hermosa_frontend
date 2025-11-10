@@ -17,32 +17,22 @@ public class MenuResponse {
     public static class MenuItem {
         @SerializedName("_id")
         private String id;
-
-        @SerializedName("productID")
-        private String productID;
-
         @SerializedName("name")
         private String name;
-
+        @SerializedName("productID")
+        private String productID;
         @SerializedName("price")
         private long price;
-
         @SerializedName("picture")
         private String picture;
-
         @SerializedName("description")
         private String description;
-
         @SerializedName("category")
         private String category;
-
         @SerializedName("sumofFavorites")
         private int sumofFavorites;
-
         @SerializedName("sumofRatings")
         private int sumofRatings;
-
-        // THÊM DÒNG NÀY – BẮT BUỘC!
         @SerializedName("backgroundHexacode")
         private String backgroundHexacode;
 
@@ -56,8 +46,6 @@ public class MenuResponse {
         public String getCategory() { return category; }
         public int getSumofFavorites() { return sumofFavorites; }
         public int getSumofRatings() { return sumofRatings; }
-
-        // THÊM GETTER NÀY – FIX LỖI NGAY LẬP TỨC!
         public String getBackgroundHexacode() {
             return backgroundHexacode;
         }

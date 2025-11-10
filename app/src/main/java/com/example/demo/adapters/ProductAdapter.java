@@ -3,6 +3,7 @@ package com.example.demo.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import com.example.demo.description.DescriptionDrink;
 import com.example.demo.description.DescriptionFood;
 import com.example.demo.models.Product;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder> {
@@ -30,16 +32,20 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     public ProductAdapter(Context context, List<Product> productList) {
         this.context = context;
-        this.productList = productList;
+        this.productList = new ArrayList<>(productList != null ? productList : new ArrayList<>()); // Tạo bản sao, tránh tham chiếu sai
+        Log.d("HOME", "Adapter khởi tạo, kích thước ban đầu: " + this.productList.size());
     }
 
     @Override
     public int getItemViewType(int position) {
         Product product = productList.get(position);
         switch (product.getCategory()) {
-            case "drink": return 1;
-            case "food": return 2;
-            default: return 0; // cake
+            case "drink":
+                return 1;
+            case "food":
+                return 2;
+            default:
+                return 0; // cake
         }
     }
 
@@ -48,9 +54,15 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         int layoutId;
         switch (viewType) {
-            case 1: layoutId = R.layout.item_product_drink; break;
-            case 2: layoutId = R.layout.item_product_food; break;
-            default: layoutId = R.layout.item_product_cake; break;
+            case 1:
+                layoutId = R.layout.item_product_drink;
+                break;
+            case 2:
+                layoutId = R.layout.item_product_food;
+                break;
+            default:
+                layoutId = R.layout.item_product_cake;
+                break;
         }
         View view = LayoutInflater.from(context).inflate(layoutId, parent, false);
         return new ProductViewHolder(view);
@@ -65,13 +77,21 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         holder.viewTopBar.setBackgroundColor(product.getColor());
         holder.buttonPlus.setBackgroundTintList(ColorStateList.valueOf(product.getColor()));
 
-        // GLIDE + URL + PLACEHOLDER ĐẸP
-        Glide.with(context)
-                .load(product.getImageUrl())
-                .placeholder(getPlaceholderDrawable(product.getCategory())) // ảnh chờ đẹp
-                .error(R.drawable.placeholder_cake)
-                .fallback(R.drawable.placeholder_cake)
-                .into(holder.imageProduct);
+        // Sửa Glide để đảm bảo URL hợp lệ
+        String imageUrl = product.getImageUrl();
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            Glide.with(context)
+                    .load(imageUrl)
+                    .placeholder(getPlaceholderDrawable(product.getCategory()))
+                    .error(R.drawable.placeholder_cake)
+                    .fallback(R.drawable.placeholder_cake)
+                    .into(holder.imageProduct);
+        } else {
+            Glide.with(context)
+                    .load(R.drawable.placeholder_cake) // Hiển thị placeholder nếu URL null
+                    .into(holder.imageProduct);
+            Log.w("HOME", "URL hình ảnh null hoặc rỗng cho sản phẩm: " + product.getName());
+        }
 
         // Bấm item → mở chi tiết
         holder.itemView.setOnClickListener(v -> {
@@ -113,13 +133,18 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     @Override
     public int getItemCount() {
-        return productList.size();
+        return productList != null ? productList.size() : 0; // Tránh trả về âm hoặc null
     }
 
-    public void updateList(List<Product> newList){
-        productList.clear();
-        productList.addAll(newList);
-        notifyDataSetChanged();
+    public void updateList(List<Product> newList) {
+        if (newList != null) {
+            productList.clear();
+            productList.addAll(newList); // Cập nhật danh sách
+            Log.d("HOME", "Adapter cập nhật, kích thước mới: " + productList.size());
+            notifyDataSetChanged(); // Cập nhật giao diện
+        } else {
+            Log.w("HOME", "Danh sách mới null, không cập nhật");
+        }
     }
 
     public static class ProductViewHolder extends RecyclerView.ViewHolder {

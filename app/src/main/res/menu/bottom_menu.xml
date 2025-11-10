@@ -7,11 +7,6 @@
         android:title="Home" />
 
     <item
-        android:id="@+id/menu_favorite"
-        android:icon="@drawable/favorite_icon_fill"
-        android:title="Favorite" />
-
-    <item
         android:id="@+id/menu_cart"
         android:icon="@drawable/cart_icon"
         android:title="Giỏ hàng" />

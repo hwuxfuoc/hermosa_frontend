@@ -19,7 +19,7 @@ import com.example.demo.description.DescriptionCake;
 import com.example.demo.description.DescriptionDrink;
 import com.example.demo.description.DescriptionFood;
 import com.example.demo.models.Product;
-
+import com.bumptech.glide.Glide;
 import java.util.List;
 
 public class BestSellerAdapter extends RecyclerView.Adapter<BestSellerAdapter.ViewHolder> {
@@ -43,30 +43,44 @@ public class BestSellerAdapter extends RecyclerView.Adapter<BestSellerAdapter.Vi
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Product product = list.get(position);
 
-        holder.imgProduct.setImageResource(product.getImageResId());
+        // SỬA TẠI ĐÂY: DÙNG GLIDE + URL THAY VÌ setImageResource
+        Glide.with(context)
+                .load(product.getImageUrl())
+                .placeholder(R.drawable.placeholder_cake)
+                .error(R.drawable.placeholder_cake)
+                .into(holder.imgProduct);
+
         holder.tvName.setText(product.getName());
-        holder.tvPrice.setText(product.getPrice());
-        // holder.tvSold.setText("Đã bán 18K+"); // Nếu có ID text_sold trong XML, thêm vào
+        holder.tvPrice.setText("₫" + formatPrice(product.getPrice()));
 
-        // Bấm itemView (hình + nội dung) → mở Description
+        // Bấm item → mở Description đúng loại
         holder.itemView.setOnClickListener(v -> {
-            Class<?> cls = switch (product.getCategory()) {
+            String cat = Product.normalizeCategory(product.getCategory());
+            Class<?> cls = switch (cat) {
                 case "drink" -> DescriptionDrink.class;
-                case "food" -> DescriptionFood.class;
-                default -> DescriptionCake.class;
+                case "food"  -> DescriptionFood.class;
+                default      -> DescriptionCake.class;
             };
-
             Intent i = new Intent(context, cls);
-            i.putExtra("product", product); // TRUYỀN TOÀN BỘ → SIÊU ỔN ĐỊNH
+            i.putExtra("product", product);
             context.startActivity(i);
         });
 
-        // Bấm btn + → mở BottomSheet
+        // Bấm +
         holder.btnPlus.setOnClickListener(v -> {
             AddToCartBottomSheet sheet = AddToCartBottomSheet.newInstance(product);
             sheet.show(((AppCompatActivity) context).getSupportFragmentManager(), "AddToCart");
         });
     }
+    private String formatPrice(String price) {
+        try {
+            long p = Long.parseLong(price.replaceAll("[^0-9]", ""));
+            return String.format("%,d", p);
+        } catch (Exception e) {
+            return price;
+        }
+    }
+
 
     @Override
     public int getItemCount() {
