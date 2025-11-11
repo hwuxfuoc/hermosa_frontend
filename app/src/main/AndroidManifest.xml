@@ -32,6 +32,8 @@
         <activity android:name=".description.DescriptionCake" />
         <activity android:name=".description.DescriptionDrink" />
         <activity android:name=".description.DescriptionFood" />
+        <activity android:name=".SelectAddressActivity" />
+        <activity android:name=".SuccessActivity"/>
 
         <activity
             android:name=".ConfirmOrderActivity"
