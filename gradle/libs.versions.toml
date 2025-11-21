@@ -16,6 +16,7 @@ glide = "5.0.5"
 recyclerview = "1.4.0"
 palette = "1.0.0"
 playServicesAnalyticsImpl = "18.2.0"
+playServicesMaps = "19.2.0"
 
 
 
@@ -38,6 +39,7 @@ glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", versi
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 palette = { group = "androidx.palette", name = "palette", version.ref = "palette" }
 play-services-analytics-impl = { group = "com.google.android.gms", name = "play-services-analytics-impl", version.ref = "playServicesAnalyticsImpl" }
+play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
 
 
 [plugins]

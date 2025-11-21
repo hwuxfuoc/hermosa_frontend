@@ -11,4 +11,11 @@
     <style name="BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
         <item name="android:background">@android:color/transparent</item>
     </style>
+    <style name="RoundedImage" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
+
+    <style name="RatingBarGold" parent="Widget.AppCompat.RatingBar.Small">
+        <item name="colorControlNormal">#CCCCCC</item> <item name="colorControlActivated">#FFD700</item> </style>
 </resources>

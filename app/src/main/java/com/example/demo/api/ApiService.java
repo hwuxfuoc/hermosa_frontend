@@ -1,6 +1,7 @@
 package com.example.demo.api;
 
 import com.example.demo.models.AuthResponse;
+import com.example.demo.models.CancelOrderRequest;
 import com.example.demo.models.CartResponse;
 import com.example.demo.models.CommonResponse;
 import com.example.demo.models.ConfirmPaymentResponse;
@@ -81,13 +82,13 @@ public interface ApiService {
     @HTTP(method = "DELETE", path = "order/cancel", hasBody = true)
     Call<CommonResponse> cancelOrder(@Body Map<String, Object> body);
 
-    @GET("order/view")
-    Call<CommonResponse> viewOrder(@Query("orderID") String orderID);
+    /*@GET("order/view")
+    Call<CommonResponse> viewOrder(@Query("orderID") String orderID);*/
 
     @GET("order/view-all")
     Call<OrderListResponse> viewAllOrders();
-    @GET("order/order-history")
-    Call<OrderListResponse> getOrderHistory(@Query("userID") String userID);
+    /*@GET("order/order-history")
+    Call<OrderListResponse> getOrderHistory(@Query("userID") String userID);*/
     @GET("order/list")
     Call<CommonResponse> getOrdersByDate(@Query("startDate") String startDate, @Query("endDate") String endDate);
 
@@ -127,4 +128,13 @@ public interface ApiService {
     @GET("menu/product")
     Call<MenuResponse.SingleProductResponse> getProductDetail(@Query("productID") String productID);
 
+    // 1. Lấy chi tiết 1 đơn hàng (Dùng OrderResponse)
+    @GET("order/view")
+    Call<OrderResponse> viewOrder(@Query("orderID") String orderID);
+
+    // 2. Lấy danh sách đơn hàng (Dùng OrderListResponse)
+    @GET("order/order-history")
+    Call<OrderListResponse> getOrderHistory(@Query("userID") String userID);
+    @HTTP(method = "DELETE", path = "order/cancel", hasBody = true)
+    Call<CommonResponse> cancelOrder(@Body CancelOrderRequest body);//ktra
 }

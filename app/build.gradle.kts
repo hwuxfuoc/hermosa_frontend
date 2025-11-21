@@ -46,6 +46,7 @@ dependencies {
     implementation(libs.recyclerview)
     implementation(libs.palette)
     implementation(libs.play.services.analytics.impl)
+    implementation(libs.play.services.maps)
     // 2. Bộ xử lý chú thích (Annotation Processor) - Rất quan trọng
     annotationProcessor(libs.glide.compiler)
     testImplementation(libs.junit)

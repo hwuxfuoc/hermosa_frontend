@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="8dp"> <com.google.android.material.card.MaterialCardView
+    android:id="@+id/cardContainer"
+    android:layout_width="match_parent"
+    android:layout_height="100dp"
+    android:layout_marginHorizontal="16dp"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="0dp"
+    app:strokeColor="#B71C1C"
+    app:strokeWidth="1dp"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:weightSum="10">
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2.8"
+            android:background="#B71C1C"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/imgVoucherIcon"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:src="@drawable/ic_percent"
+                app:tint="#FFFFFF"
+                tools:ignore="ContentDescription" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="7.2"
+            android:background="#FFFFFF"
+            android:padding="8dp"> <TextView
+            android:id="@+id/tvVoucherTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Discount 20% for order over 500.000 VND"
+            android:textColor="#000000"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            android:maxLines="2"
+            android:ellipsize="end"/>
+            <TextView
+                android:id="@+id/tvVoucherDesc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tvVoucherTitle"
+                android:layout_marginTop="2dp"
+                android:text="Order from 500.000 VND"
+                android:textSize="10sp"
+                android:textColor="#666666"/>
+
+            <TextView
+                android:id="@+id/tvExpireTag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tvVoucherDesc"
+                android:layout_marginTop="2dp"
+                android:text="Voucher expires soon"
+                android:textColor="#B71C1C"
+                android:textSize="8sp"
+                android:paddingHorizontal="4dp"
+                android:paddingVertical="1dp"
+                android:background="@drawable/bg_button_outline_red"/>
+
+            <TextView
+                android:id="@+id/tvExpiry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:text="E.X.P: 31/12/2025"
+                android:textSize="9sp"
+                android:textColor="#999999"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnUseVoucher"
+                android:layout_width="70dp"
+                android:layout_height="28dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:text="Use"
+                android:textColor="#B71C1C"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="0dp"
+                app:backgroundTint="#FFFFFF"
+                app:strokeColor="#B71C1C"
+                app:strokeWidth="1dp"
+                app:cornerRadius="14dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"/>
+
+        </RelativeLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
+
+    <View
+        android:layout_width="1dp"
+        android:layout_height="0dp"
+        android:background="@drawable/bg_dashed_line_vertical"
+        android:layerType="software"
+        android:layout_marginStart="103dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintTop_toTopOf="@id/cardContainer"
+        app:layout_constraintBottom_toBottomOf="@id/cardContainer"
+        app:layout_constraintStart_toStartOf="@id/cardContainer"/>
+    <androidx.cardview.widget.CardView
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="#F5F5F5"
+        android:layout_marginTop="-8dp"
+        app:layout_constraintTop_toTopOf="@id/cardContainer"
+        app:layout_constraintStart_toStartOf="@id/cardContainer"
+        android:layout_marginStart="95dp"/>
+    <androidx.cardview.widget.CardView
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginStart="95dp"
+        android:layout_marginBottom="-8dp"
+        app:cardBackgroundColor="#F5F5F5"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/cardContainer"
+        app:layout_constraintStart_toStartOf="@id/cardContainer" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

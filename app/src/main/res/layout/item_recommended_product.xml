@@ -13,8 +13,6 @@
         android:padding="2dp">
 
         <!-- Hình sản phẩm -->
-
-        <!-- Nội dung bên phải -->
         <LinearLayout
             android:id="@+id/left_color_layout"
             android:layout_width="0dp"
@@ -34,6 +32,7 @@
                 android:src="@drawable/cake_strawberry_cheese" />
         </LinearLayout>
 
+        <!-- Nội dung bên phải -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -88,9 +87,9 @@
                     android:orientation="horizontal"
                     android:gravity="end">
 
-
                 </LinearLayout>
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -131,5 +130,3 @@
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
-
-    <!--android:src="@drawable/ic_add"-->
