@@ -8,9 +8,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.example.demo.R;
+import com.example.demo.fragment.FragmentFavorite;
 import com.example.demo.models.Product;
 
 public abstract class BaseDescriptionActivity extends AppCompatActivity {
@@ -70,30 +72,43 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
         btnBack.setOnClickListener(v -> finish());
 
         // === FAVORITE SIÊU ỔN ĐỊNH – KHÔNG LỖI FINAL ===
+        // === SỬA ĐOẠN FAVORITE ===
         SharedPreferences prefs = getSharedPreferences("favorites", MODE_PRIVATE);
-        String productId = product.getProductID();
 
-// Khởi tạo trạng thái ban đầu
+        String productId = product.getId();
+        if (productId == null || productId.isEmpty()) {
+            productId = product.getProductID();
+        }
+        final String favoriteKey = productId; // ← CHUẨN, KHÔNG ĐỔI NỮA
+
+// Khởi tạo icon
         btnFav.setImageResource(
-                prefs.getBoolean(productId, false)
+                prefs.getBoolean(favoriteKey, false)
                         ? R.drawable.icon_favorite_fill
                         : R.drawable.icon_favorite_empty
         );
 
+// Click
         btnFav.setOnClickListener(v -> {
             SharedPreferences.Editor editor = prefs.edit();
-            boolean isFav = prefs.getBoolean(productId, false);
+            boolean isFav = prefs.getBoolean(favoriteKey, false);
 
             if (isFav) {
-                editor.remove(productId);
+                editor.remove(favoriteKey);
                 btnFav.setImageResource(R.drawable.icon_favorite_empty);
                 Toast.makeText(this, product.getName() + " đã bỏ yêu thích", Toast.LENGTH_SHORT).show();
             } else {
-                editor.putBoolean(productId, true);
+                editor.putBoolean(favoriteKey, true);
                 btnFav.setImageResource(R.drawable.icon_favorite_fill);
                 Toast.makeText(this, product.getName() + " đã thêm vào yêu thích", Toast.LENGTH_SHORT).show();
             }
             editor.apply();
+
+            // RELOAD TAB YÊU THÍCH NẾU ĐANG MỞ
+            Fragment frag = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+            if (frag instanceof FragmentFavorite) {
+                ((FragmentFavorite) frag).reloadFavorites();
+            }
         });
 
         setupAddToCart();

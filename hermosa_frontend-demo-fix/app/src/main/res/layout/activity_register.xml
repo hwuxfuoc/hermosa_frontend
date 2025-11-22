@@ -1,0 +1,23 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_register"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.demo.ActivityRegister">
+
+    <include
+        android:id="@+id/layoutEmail"
+        layout="@layout/layout_register_email"
+        android:visibility="visible" />
+
+    <include
+        android:id="@+id/layoutOtp"
+        layout="@layout/layout_register_otp"
+        android:visibility="gone" />
+
+    <include
+        android:id="@+id/layoutForm"
+        layout="@layout/layout_register_form"
+        android:visibility="gone" />
+</LinearLayout>

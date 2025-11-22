@@ -75,7 +75,11 @@ public class FragmentProfile extends Fragment {
         });
 
         layoutForgotPassword.setOnClickListener(v -> {
-            startActivity(new Intent(requireContext(), ActivityForgotPassword.class));
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, new FragmentForgotPassword())
+                    .addToBackStack(null)  // Để bấm back về được
+                    .commit();
         });
 
         return view;

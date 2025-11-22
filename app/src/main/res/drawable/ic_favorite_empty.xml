@@ -1,0 +1,28 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Vòng tròn dạng ring -->
+    <path
+        android:strokeWidth="2"
+        android:strokeColor="#DDDDDD"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M12,2
+                          A10,10 0 1,1 12,22
+                          A10,10 0 1,1 12,2" />
+
+    <!-- Trái tim nhích lên 1 -->
+    <path
+        android:fillColor="#DDDDDD"
+        android:pathData="M12,19
+                          L10.3,17.4
+                          C6.4,14.2 4.5,12.1 4.5,9.8
+                          C4.5,7.7 6.2,6 8.3,6
+                          C9.7,6 11,6.7 12,7.9
+                          C13,6.7 14.3,6 15.7,6
+                          C17.8,6 19.5,7.7 19.5,9.8
+                          C19.5,12.1 17.6,14.2 13.7,17.4
+                          L12,19z" />
+</vector>
