@@ -51,7 +51,7 @@ public class BestSellerAdapter extends RecyclerView.Adapter<BestSellerAdapter.Vi
                 .into(holder.imgProduct);
 
         holder.tvName.setText(product.getName());
-        holder.tvPrice.setText("₫" + formatPrice(product.getPrice()));
+        holder.tvPrice.setText(formatPrice(product.getPrice()) + " ₫");
 
         // Bấm item → mở Description đúng loại
         holder.itemView.setOnClickListener(v -> {

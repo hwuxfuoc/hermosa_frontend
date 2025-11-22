@@ -59,7 +59,7 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
 
         // Gán dữ liệu
         tvName.setText(product.getName());
-        tvPrice.setText("₫" + formatPrice(product.getPrice()));
+        tvPrice.setText(formatPrice(product.getPrice()) + " ₫");
         tvDesc.setText(product.getDescription() != null ? product.getDescription() : "Đang cập nhật...");
 
         // Load ảnh

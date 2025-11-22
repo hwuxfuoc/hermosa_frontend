@@ -309,7 +309,7 @@ public class RecommendedAdapter extends RecyclerView.Adapter<RecommendedAdapter.
             }
         }
         NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
-        holder.tvPrice.setText(formatter.format(price) + " VND/pc");
+        holder.tvPrice.setText(formatter.format(price) + " ₫");
 
         // Set listener cho nút "+"
         holder.btnAdd.setOnClickListener(v -> {

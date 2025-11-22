@@ -127,7 +127,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             long p = Long.parseLong(price.replaceAll("[^0-9]", ""));
             return String.format("₫%,d", p);
         } catch (Exception e) {
-            return "₫" + price;
+            return price + " ₫";
         }
     }
 
