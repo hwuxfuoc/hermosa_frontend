@@ -15,7 +15,6 @@ import com.example.demo.models.OrderResponse;
 import retrofit2.Call;
 import retrofit2.http.*;
 
-
 import java.util.Map;
 
 import retrofit2.http.Body;
@@ -50,8 +49,10 @@ public interface ApiService {
     @HTTP(method = "DELETE", path = "api/user/delete", hasBody = true)
     Call<CommonResponse> deleteAccount(@Body Map<String, String> body);
 
-    // ---- CART ----
+    @POST("user/social-login")
+    Call<AuthResponse> socialLogin(@Body Map<String, String> body);
 
+    // ---- CART ----
     @GET("cart/view-and-caculate-total-money")
     Call<CartResponse> viewCart(@Query("userID") String userID);
     @POST("cart/add")
@@ -71,7 +72,6 @@ public interface ApiService {
     Call<CommonResponse> deleteAll(@Body Map<String, Object> body);
 
     // ---- ORDER ----
-
     @POST("order/create")
     Call<OrderResponse> createOrder(@Body Map<String, Object> body);
 

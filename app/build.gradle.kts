@@ -45,7 +45,11 @@ dependencies {
     implementation(libs.glide)
     implementation(libs.recyclerview)
     implementation(libs.palette)
-    implementation(libs.play.services.analytics.impl)
+    //implementation(libs.play.services.analytics.impl)
+    implementation("com.google.android.gms:play-services-analytics:18.0.1")
+    implementation("com.google.android.gms:play-services-auth:21.0.0")
+    //implementation("com.facebook.android:facebook-login:latest.release")
+    implementation("com.facebook.android:facebook-login:16.0.1")
     // 2. Bộ xử lý chú thích (Annotation Processor) - Rất quan trọng
     annotationProcessor(libs.glide.compiler)
     testImplementation(libs.junit)

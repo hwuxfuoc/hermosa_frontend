@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Demo</string>
+    <string name="facebook_app_id">2066764037428327</string>
+    <string name="fb_login_protocol_scheme">fb2066764037428327</string>
+
+    <string name="facebook_client_token">06b8b46497ffc56afee0f1d869881b37</string>
 </resources>
