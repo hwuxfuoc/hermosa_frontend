@@ -47,6 +47,9 @@ dependencies {
     implementation(libs.palette)
     implementation(libs.play.services.analytics.impl)
     implementation(libs.play.services.maps)
+    implementation(libs.mapbox.android)
+    implementation(libs.mapbox.search)
+    implementation(libs.places)
     // 2. Bộ xử lý chú thích (Annotation Processor) - Rất quan trọng
     annotationProcessor(libs.glide.compiler)
     testImplementation(libs.junit)

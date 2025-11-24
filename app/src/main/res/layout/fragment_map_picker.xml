@@ -3,13 +3,15 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#F2F2F2">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@android:color/white"
+        android:elevation="4dp"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
@@ -30,20 +32,70 @@
             android:textColor="#000"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:fontFamily="serif"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
+    <LinearLayout
+        android:id="@+id/bottomSheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="@android:color/white"
+        android:elevation="10dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:text="Địa chỉ gợi ý"
+            android:textStyle="bold"
+            android:textColor="#333"
+            android:layout_marginBottom="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvSuggestions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="50dp"
+            android:maxHeight="150dp"
+            android:layout_marginBottom="16dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSaveAddress"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="Lưu"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            app:backgroundTint="#B71C1C"
+            app:cornerRadius="8dp"/>
+    </LinearLayout>
+
+    <com.mapbox.maps.MapView
+        android:id="@+id/mapView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        app:mapbox_cameraTargetLat="10.8231"
+        app:mapbox_cameraTargetLng="106.6297"
+        app:mapbox_cameraZoom="15.0"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintBottom_toTopOf="@id/bottomSheet"/>
+    <ImageView
+        android:id="@+id/ivMapPin"
+        android:layout_width="48dp"
+        android:layout_height="68dp"
+        android:src="@drawable/ic_map_pin_red"
+        android:contentDescription="Ghim vị trí"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="100dp" />
+
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardSearch"
         android:layout_width="match_parent"
@@ -59,16 +111,13 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
-            >
-
+            android:gravity="center_vertical">
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_search"
                 android:layout_marginStart="12dp"
                 app:tint="#666666"/>
-
             <EditText
                 android:id="@+id/etSearchAddress"
                 android:layout_width="0dp"
@@ -80,7 +129,6 @@
                 android:textSize="14sp"
                 android:paddingHorizontal="12dp"
                 android:singleLine="true"/>
-
             <Button
                 android:id="@+id/button"
                 android:layout_width="wrap_content"
@@ -88,52 +136,18 @@
                 android:layout_marginRight="0dp"
                 android:backgroundTint="#A71317"
                 android:text="Tìm" />
-
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <ImageView
-        android:id="@+id/ivPinCenter"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@drawable/ic_pin_red"
-        android:layout_marginBottom="100dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/map"
-        app:layout_constraintBottom_toBottomOf="@id/map"/>
-
-    <LinearLayout
-        android:id="@+id/bottomSheet"
-        android:layout_width="match_parent"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabMyLocation"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        app:layout_constraintBottom_toBottomOf="parent">
-        <TextView
-            android:text="Địa chỉ gợi ý"
-            android:textStyle="bold"
-            android:textColor="#333"
-            android:layout_marginBottom="12dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvSuggestions"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="100dp"
-            android:layout_marginBottom="16dp"/>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSaveAddress"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:text="Lưu"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            app:backgroundTint="#B71C1C"
-            app:cornerRadius="8dp"/>
-    </LinearLayout>
+        android:layout_margin="16dp"
+        android:src="@android:drawable/ic_menu_mylocation"
+        app:backgroundTint="@android:color/white"
+        app:tint="#000000"
+        app:layout_constraintBottom_toTopOf="@id/bottomSheet"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

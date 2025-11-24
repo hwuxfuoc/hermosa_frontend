@@ -221,6 +221,7 @@ public class SelectAddressActivity extends AppCompatActivity {
 
     // Các view cần thao tác
     private MaterialCardView cardDeliveryOption;
+    private View containerDelivery;
     private View sectionPickup; // Là LinearLayout con trong cardDeliveryOption
     private MaterialButton btnConfirm;
     private View btnBack;
@@ -246,6 +247,7 @@ public class SelectAddressActivity extends AppCompatActivity {
 
         // Ánh xạ các view chính
         cardDeliveryOption = findViewById(R.id.cardDeliveryOption);
+        containerDelivery=findViewById(R.id.containerDelivery);
         sectionPickup = findViewById(R.id.sectionPickup);
         btnConfirm = findViewById(R.id.btnConfirm);
         btnBack = findViewById(R.id.btnBack);
@@ -259,13 +261,16 @@ public class SelectAddressActivity extends AppCompatActivity {
         updateConfirmButton(false);
 
         // Sự kiện: Chọn GIAO TẬN NƠI (toàn bộ card)
-        cardDeliveryOption.setOnClickListener(v -> selectMethod("delivery"));
+        cardDeliveryOption.setOnClickListener(null);
+        cardDeliveryOption.setStrokeWidth(0);
 
         // Sự kiện: Chọn NHẬN TẠI QUÁN (chỉ phần dưới)
         if (sectionPickup != null) {
             sectionPickup.setOnClickListener(v -> selectMethod("pickup"));
         }
-
+        if(containerDelivery!=null){
+            containerDelivery.setOnClickListener(v->selectMethod("delivery"));
+        }
         // Nút Xác nhận
         btnConfirm.setOnClickListener(v -> {
             if (selectedMethod != null) {
@@ -337,17 +342,24 @@ public class SelectAddressActivity extends AppCompatActivity {
 
         selectedMethod = method;
 
-        // Reset border
-        cardDeliveryOption.setStrokeWidth(0);
-        cardDeliveryOption.setStrokeColor(ContextCompat.getColor(this, android.R.color.transparent));
+        if(containerDelivery!=null){
+            containerDelivery.setBackgroundResource(android.R.color.white);
+        }
+        if(sectionPickup!=null){
+            sectionPickup.setBackgroundResource(android.R.color.white);
+        }
 
-        // Tô đỏ toàn card
-        int redColor = ContextCompat.getColor(this, R.color.smoothie_strawberry); // #B71C1C hoặc màu đỏ bạn có
-        cardDeliveryOption.setStrokeWidth(2);
-        cardDeliveryOption.setStrokeColor(redColor);
-
-        Log.d(TAG, "ĐÃ CHỌN: " + method + " → bo đỏ toàn card");
-
+        if("delivery".equals(method)){
+            Log.d(TAG,"ĐÃ CHỌN: GIAO TẬN NƠI");
+            if(containerDelivery!=null){
+                containerDelivery.setBackgroundResource(R.drawable.bg_btn_selected);
+            }
+        } else if ("pickup".equals(method)) {
+            Log.d(TAG, "ĐÃ CHỌN: ĐẶT TẠI QUÁN");
+            if(sectionPickup!=null){
+                sectionPickup.setBackgroundResource(R.drawable.bg_btn_selected);
+            }
+        }
         updateConfirmButton(true);
     }
 

@@ -13,9 +13,11 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.demo.adapters.CheckboxAdapter;
 import com.example.demo.api.ApiClient;
 import com.example.demo.api.ApiService;
@@ -98,8 +100,18 @@ public class AddToCartBottomSheet extends BottomSheetDialogFragment {
 
         // === HIỂN THỊ SẢN PHẨM ===
         tvTitle.setText("Thêm " + product.getName());
-        if (product.getImageResId() != 0) {
+        /*if (product.getImageResId() != 0) {
             imgProduct.setImageResource(product.getImageResId());
+        }*/
+        Glide.with(this)
+                .load(product.getImageUrl())
+                .placeholder(R.drawable.placeholder_food)
+                .error(R.drawable.placeholder_food)
+                .into(imgProduct);
+
+        CardView cardBackground = view.findViewById(R.id.item_background);
+        if (cardBackground != null) {
+            cardBackground.setCardBackgroundColor(product.getColor());
         }
         tvName.setText(product.getName());
 
