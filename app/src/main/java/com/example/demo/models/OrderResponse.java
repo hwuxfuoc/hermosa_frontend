@@ -1,21 +1,18 @@
-package com.example.demo.models; // (Package cho file này)
+package com.example.demo.models;
 
-import com.example.demo.models.Order;
+import com.google.gson.annotations.SerializedName;
 
 public class OrderResponse {
+    @SerializedName("status")
     private String status;
+
+    @SerializedName("message")
     private String message;
-    private Order data; // "data" là một ĐỐI TƯỢNG (Order)
+
+    @SerializedName("data")
+    private Order data; // Trả về 1 đối tượng Order
 
     public String getStatus() { return status; }
     public String getMessage() { return message; }
     public Order getData() { return data; }
-
-    public String getOrderID() {
-
-        if (data != null) {
-            return data.getOrderID();
-        }
-        return null;
-    }
 }

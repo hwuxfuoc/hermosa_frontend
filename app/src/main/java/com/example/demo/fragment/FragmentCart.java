@@ -153,16 +153,20 @@ public class FragmentCart extends Fragment implements CartAdapter.OnCartUpdateLi
     }
 
     private void gotoConfirm() {
-        List<CartResponse.CartItem> selected = new ArrayList<>();
+        List<CartResponse.CartItem> selectedItems = new ArrayList<>();
         for (CartResponse.CartItem item : cartItems) {
-            if (item.isSelected()) selected.add(item);
+            if (item.isSelected()) {
+                selectedItems.add(item);
+            }
         }
-        if (selected.isEmpty()) {
-            Toast.makeText(requireContext(), "Chọn ít nhất 1 món", Toast.LENGTH_SHORT).show();
+
+        if (selectedItems.isEmpty()) {
+            Toast.makeText(requireContext(), "Vui chọn ít nhất 1 món", Toast.LENGTH_SHORT).show();
             return;
         }
 
         Intent intent = new Intent(requireActivity(), ConfirmOrderActivity.class);
+        intent.putParcelableArrayListExtra("SELECTED_CART_ITEMS", new ArrayList<>(selectedItems));
         startActivity(intent);
     }
 

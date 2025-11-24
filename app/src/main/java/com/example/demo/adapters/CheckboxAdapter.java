@@ -13,7 +13,6 @@ import com.example.demo.models.CheckboxItem;
 
 import java.util.List;
 
-
 public class CheckboxAdapter extends RecyclerView.Adapter<CheckboxAdapter.ViewHolder> {
 
     private List<CheckboxItem> items;

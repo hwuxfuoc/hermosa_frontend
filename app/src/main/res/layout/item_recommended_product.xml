@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="350dp"
-    android:layout_height="100dp"
+    android:layout_width="320dp"
+    android:layout_height="85dp"
+    app:cardCornerRadius="20dp"
     android:layout_marginEnd="0dp">
 
     <LinearLayout
@@ -46,7 +47,7 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp">
+                android:layout_marginTop="2dp">
 
                 <TextView
                     android:id="@+id/text_name_cart"
@@ -54,7 +55,7 @@
                     android:layout_height="wrap_content"
                     android:text="Strawberry Cheese"
                     android:textColor="#000"
-                    android:textSize="18sp"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
 
             </RelativeLayout>
@@ -63,9 +64,9 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="4dp"
-                android:gravity="center_vertical">
+                android:layout_marginTop="0dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
                 <!-- Giá -->
                 <TextView
@@ -75,7 +76,7 @@
                     android:layout_weight="1"
                     android:text="85.000 VND/pc"
                     android:textColor="#EB4341"
-                    android:textSize="14sp"
+                    android:textSize="13sp"
                     android:layout_gravity="top"
                     android:textStyle="bold"/>
 

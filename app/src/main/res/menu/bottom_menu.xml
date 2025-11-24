@@ -12,6 +12,11 @@
         android:title="Giỏ hàng" />
 
     <item
+        android:id="@+id/menu_order"
+        android:icon="@drawable/icon_order"
+        android:title="Đơn hàng" />
+
+    <item
         android:id="@+id/menu_notification"
         android:icon="@drawable/notification_icon"
         android:title="Thông báo" />
