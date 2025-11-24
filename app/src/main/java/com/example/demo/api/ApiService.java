@@ -108,10 +108,12 @@ public interface ApiService {
     Call<CreateMomoResponse> createPaymentMomo(@Body CreateMomoRequest body);*/
     @POST("payment-momo/create-payment-momo")
     Call<CreateMomoResponse> createPaymentMomo(@Body CreateMomoRequest body);
-
+    @GET("payment-momo/confirm")
+    Call<Map<String, Object>> confirmMomoPayment(@Query("orderID") String orderID);
     @GET("payment-momo/confirm")
     Call<ConfirmPaymentResponse> confirmPaymentStatus(@Query("orderID") String orderID);
-
+    @POST("payment-momo/momo-notify") // Hoặc đường dẫn tương ứng router của bạn
+    Call<Object> notifyMomoPayment(@Body Map<String, Object> body);
 
     // Thêm hàm này
     @POST("payment-vnpay/create-payment-vnpay")

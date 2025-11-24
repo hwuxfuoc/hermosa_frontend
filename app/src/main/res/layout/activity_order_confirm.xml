@@ -137,7 +137,7 @@
                     android:layout_marginBottom="12dp"
                     android:background="@drawable/bg_cart_item_template"
                     android:orientation="vertical"
-                    android:padding="12dp">
+                    android:padding="2dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -148,6 +148,7 @@
                             android:id="@+id/imageButton5"
                             android:layout_width="25dp"
                             android:layout_height="25dp"
+                            android:layout_marginTop="8dp"
                             android:background="@null"
                             app:srcCompat="@drawable/icon_cart_2" />
 
@@ -159,6 +160,7 @@
                             android:text="Thông tin đơn hàng"
                             android:textColor="#000"
                             android:textSize="10sp"
+                            android:layout_marginTop="6dp"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -198,7 +200,7 @@
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/recyclerRecommended"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_marginTop="8dp"
                         android:nestedScrollingEnabled="false"
                         android:orientation="horizontal" />

@@ -1,4 +1,3 @@
-/*
 package com.example.demo.models; // (Package cho file này)
 
 import com.example.demo.models.Order;
@@ -19,7 +18,8 @@ public class OrderResponse {
         }
         return null;
     }
-}*/
+}
+/*
 package com.example.demo.models;
 
 import com.google.gson.annotations.SerializedName;
@@ -37,4 +37,4 @@ public class OrderResponse {
     public String getStatus() { return status; }
     public String getMessage() { return message; }
     public Order getData() { return data; }
-}
+}*/

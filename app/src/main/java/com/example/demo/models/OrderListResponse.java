@@ -1,4 +1,3 @@
-/*
 package com.example.demo.models; // (Hoặc package của bạn)
 
 // Import List (quan trọng)
@@ -22,7 +21,8 @@ public class OrderListResponse {
     public List<Order> getData() {
         return data;
     }
-}*/
+}
+/*
 package com.example.demo.models;
 
 import com.google.gson.annotations.SerializedName;
@@ -41,4 +41,4 @@ public class OrderListResponse {
     public String getStatus() { return status; }
     public String getMessage() { return message; }
     public List<Order> getData() { return data; }
-}
+}*/

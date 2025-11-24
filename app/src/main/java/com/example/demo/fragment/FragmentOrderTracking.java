@@ -198,6 +198,7 @@ public class FragmentOrderTracking extends Fragment {
     }
 }
 */
+/*
 package com.example.demo.fragment;
 
 import android.app.Dialog;
@@ -228,11 +229,15 @@ import com.example.demo.R; // Nhớ đổi package R
 import com.example.demo.adapters.OrderDetailAdapter;
 import com.example.demo.api.ApiClient;
 import com.example.demo.api.ApiService;
-/*import com.example.demo.models.CancelOrderRequest;*/
+*/
+/*import com.example.demo.models.CancelOrderRequest;*//*
+
 import com.example.demo.models.CancelOrderRequest;
 import com.example.demo.models.CommonResponse;
 import com.example.demo.models.Order;
-/*import com.example.demo.models.OrderDetailResponse;*/
+*/
+/*import com.example.demo.models.OrderDetailResponse;*//*
+
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 
@@ -294,9 +299,13 @@ public class FragmentOrderTracking extends Fragment {
         setupWarningText();
 
         // Gọi API lấy dữ liệu
-        /*fetchOrderData(currentOrderID);*/
+        */
+/*fetchOrderData(currentOrderID);*//*
 
-        /*handleEvents();*/
+
+        */
+/*handleEvents();*//*
+
     }
 
     private void initViews(View view) {
@@ -344,7 +353,8 @@ public class FragmentOrderTracking extends Fragment {
     // ============================================================
     // 1. GỌI API VÀ CẬP NHẬT UI
     // ============================================================
-    /*private void fetchOrderData(String orderId) {
+    */
+/*private void fetchOrderData(String orderId) {
         ApiService api = ApiClient.getClient().create(ApiService.class);
         api.getOrderDetail(orderId).enqueue(new Callback<OrderDetailResponse>() {
             @Override
@@ -361,7 +371,8 @@ public class FragmentOrderTracking extends Fragment {
                 Toast.makeText(getContext(), "Lỗi kết nối", Toast.LENGTH_SHORT).show();
             }
         });
-    }*/
+    }*//*
+
 
     private void updateFullUI(Order order) {
         // 1. Format Tiền
@@ -574,4 +585,4 @@ public class FragmentOrderTracking extends Fragment {
         s.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 0, 7, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         tvCancelNote.setText(s);
     }
-}
+}*/

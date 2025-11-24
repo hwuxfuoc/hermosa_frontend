@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="350dp"
-    android:layout_height="100dp"
+    android:layout_width="320dp"
+    android:layout_height="75dp"
+    app:cardCornerRadius="20dp"
     android:layout_marginEnd="0dp">
 
     <LinearLayout
@@ -46,7 +47,7 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp">
+                android:layout_marginTop="2dp">
 
                 <TextView
                     android:id="@+id/text_name_cart"
@@ -54,7 +55,7 @@
                     android:layout_height="wrap_content"
                     android:text="Strawberry Cheese"
                     android:textColor="#000"
-                    android:textSize="18sp"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
 
             </RelativeLayout>
@@ -63,31 +64,33 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="4dp"
-                android:gravity="center_vertical">
+                android:layout_marginTop="0dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
                 <!-- Giá -->
                 <TextView
                     android:id="@+id/text_price_cart"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="top"
                     android:layout_weight="1"
                     android:text="85.000 VND/pc"
                     android:textColor="#EB4341"
-                    android:textSize="14sp"
-                    android:layout_gravity="top"
-                    android:textStyle="bold"/>
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
 
-                <!-- Ô số lượng -->
-                <LinearLayout
+                <!-- Ô số lượng
+                 <LinearLayout
                     android:id="@+id/quantity_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="30dp"
-                    android:orientation="horizontal"
-                    android:gravity="end">
+                    android:gravity="end"
+                    android:orientation="horizontal">
 
                 </LinearLayout>
+                 -->
+
             </LinearLayout>
 
             <LinearLayout
@@ -101,6 +104,7 @@
                     android:layout_height="wrap_content"
                     android:text="Đã bán 18K+"
                     android:textSize="12sp"
+                    android:layout_gravity="bottom"
                     android:textColor="#C0C0C0"/>
 
                 <TextView
@@ -108,6 +112,7 @@
                     android:layout_height="wrap_content"
                     android:text="5.0 ⭐"
                     android:layout_marginStart="10dp"
+                    android:layout_gravity="bottom"
                     android:textSize="12sp"
                     android:textColor="#FFC107" />
 
@@ -122,6 +127,7 @@
                     android:backgroundTint="#A71317"
                     android:minWidth="0dp"
                     android:minHeight="0dp"
+                    android:layout_gravity="center"
                     android:padding="0dp"
                     android:gravity="center"
                     android:layout_marginStart="50dp"

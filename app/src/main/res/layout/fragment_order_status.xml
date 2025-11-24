@@ -7,6 +7,12 @@
     android:layout_height="match_parent"
     android:background="#F5F5F5">
 
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="fragment_order_status.xml" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"

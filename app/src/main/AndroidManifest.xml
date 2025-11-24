@@ -32,7 +32,11 @@
         <activity android:name=".description.DescriptionCake" />
         <activity android:name=".description.DescriptionDrink" />
         <activity android:name=".description.DescriptionFood" />
-        <activity android:name=".SelectAddressActivity" />
+        <!--<activity android:name=".SelectAddressActivity" />-->
+        <activity
+            android:name=".SelectAddressActivity"
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"
+            android:exported="false" />
 
         <activity
             android:name=".ConfirmOrderActivity"
@@ -43,6 +47,12 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="hermosaapp" />
+
+                <data android:scheme="http" />
+                <data android:host="localhost" />
+                <data android:host="10.0.2.2" />
+                <data android:host="13.250.179.85" />
+                <data android:pathPrefix="/payment-momo/callback" />
             </intent-filter>
 
         </activity>

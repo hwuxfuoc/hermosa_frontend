@@ -64,6 +64,7 @@ android:background="#F2F2F2">
                 android:orientation="vertical">
 
                 <EditText
+                    android:id="@+id/etCustomerName"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
                     android:text="Tên khách hàng"
@@ -76,6 +77,7 @@ android:background="#F2F2F2">
                     android:background="#E0E0E0" />
 
                 <EditText
+                    android:id="@+id/etPhone"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
                     android:hint="Số điện thoại"
@@ -117,6 +119,7 @@ android:background="#F2F2F2">
                     android:background="#E0E0E0" />
 
                 <EditText
+                    android:id="@+id/etBuilding"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
                     android:hint="Tòa nhà, Số tầng (không bắt buộc)"
@@ -128,6 +131,7 @@ android:background="#F2F2F2">
                     android:background="#E0E0E0" />
 
                 <EditText
+                    android:id="@+id/etGate"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
                     android:hint="Cổng (không bắt buộc)"
@@ -190,6 +194,7 @@ android:background="#F2F2F2">
             app:strokeWidth="0dp">
 
             <EditText
+                android:id="@+id/etNote"
                 android:layout_width="match_parent"
                 android:layout_height="150dp"
                 android:hint="Ghi chú tại đây"

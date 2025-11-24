@@ -32,18 +32,22 @@ public class MainActivity extends AppCompatActivity {
             String tag = null;
 
             int itemId = item.getItemId();
-            if (itemId == R.id.menu_home) {
+            if (itemId == R.id.nav_home) {
                 selectedFragment = new FragmentHome();
                 tag = "FragmentHome";
-            } else if (itemId == R.id.menu_cart) {
+            } else if (itemId == R.id.nav_cart) {
                 selectedFragment = new FragmentCart();
                 tag = "FragmentCart";
-            } else if (itemId == R.id.menu_notification) {
+            } else if (itemId == R.id.nav_noti) {
                 selectedFragment = new FragmentNotification();
                 tag = "FragmentNotification";
             } else if (itemId == R.id.menu_profile) {
                 selectedFragment = new FragmentProfile();
                 tag = "FragmentProfile";
+            }
+            else if (itemId == R.id.nav_order) {
+                selectedFragment = new FragmentProfile();
+                tag = "FragmentOrder";
             }
 
             if (selectedFragment != null) {

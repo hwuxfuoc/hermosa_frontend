@@ -312,6 +312,12 @@ public class CartResponse {
 
     @SerializedName("data")
     private Data data;
+    @SerializedName("price")
+    private Long price; // giá gốc của sản phẩm (không tính size/topping)
+
+    public Long getPrice() {
+        return price != null ? price : 0L;
+    }
 
     // --- GETTER ---
     public String getStatus() { return status; }

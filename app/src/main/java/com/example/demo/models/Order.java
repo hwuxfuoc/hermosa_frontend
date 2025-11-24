@@ -1,4 +1,3 @@
-/*
 package com.example.demo.models;
 import java.util.List;
 public class Order {
@@ -24,8 +23,7 @@ public class Order {
     public String getDeliverAddress(){return deliverAddress;}
     public String getNote(){return note;}
 }
-*/
-package com.example.demo.models;
+/*package com.example.demo.models;
 
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
@@ -76,7 +74,7 @@ public class Order {
 
     public String getDeliverAddress() { return deliverAddress; }
     public String getNote() { return note; }
-}
+}*/
 /*
 package com.example.demo.models;
 import com.google.gson.annotations.SerializedName;
