@@ -12,6 +12,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.demo.api.ApiClient;
 import com.example.demo.api.ApiService;
 import com.example.demo.models.AuthResponse;
+import com.example.demo.models.CommonResponse;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -70,6 +72,41 @@ public class ActivityLogin extends AppCompatActivity {
         textViewRegister.setOnClickListener(v -> startActivity(new Intent(this, ActivityRegister.class)));
         textViewForgotPassword.setOnClickListener(v -> startActivity(new Intent(this, ActivityForgotPassword.class)));
     }
+    private void getFCMTokenAndSendToServer(String userId) {
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
+            if (!task.isSuccessful()) {
+                Log.w("FCM", "Lấy token thất bại", task.getException());
+                return;
+            }
+
+            // 1. Lấy Token
+            String token = task.getResult();
+            Log.d("FCM", "Token: " + token);
+
+            // 2. Gửi lên Server (Bạn cần thêm API này vào ApiService)
+            sendTokenToBackend(userId, token);
+        });
+    }
+
+    private void sendTokenToBackend(String userId, String token) {
+        Map<String, String> body = new HashMap<>();
+        body.put("userID", userId);
+        body.put("fcmToken", token);
+        // body.put("os", "Android"); // Nếu backend cần biết hệ điều hành
+
+        // Gọi API (Giả sử bạn đã thêm hàm saveFcmToken vào ApiService)
+        apiService.saveFcmToken(body).enqueue(new Callback<CommonResponse>() {
+            @Override
+            public void onResponse(Call<CommonResponse> call, Response<CommonResponse> response) {
+                Log.d("FCM", "Gửi token lên server thành công");
+            }
+
+            @Override
+            public void onFailure(Call<CommonResponse> call, Throwable t) {
+                Log.e("FCM", "Lỗi gửi token: " + t.getMessage());
+            }
+        });
+    }
 
     private void login() {
         String email = editTextEmail.getText().toString().trim();
@@ -120,6 +157,7 @@ public class ActivityLogin extends AppCompatActivity {
                             editor.putBoolean("REMEMBER_ME", true);
                         }
                         editor.apply();
+                        getFCMTokenAndSendToServer(userId);
 
                         Toast.makeText(ActivityLogin.this, "Đăng nhập thành công!", Toast.LENGTH_LONG).show();
                         startActivity(new Intent(ActivityLogin.this, MainActivity.class));

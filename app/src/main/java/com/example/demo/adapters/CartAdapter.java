@@ -399,17 +399,16 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
                                     .placeholder(R.drawable.cake_strawberry_cheese)
                                     .into(holder.imgProduct);
 
-                            // LẤY MÀU NỀN TỪ backgroundHexacode (backend)
                             String hex = product.getBackgroundHexacode();
                             if (hex != null && !hex.isEmpty()) {
                                 try {
                                     int color = parseHexColor(hex);
                                     holder.itemBackground.setCardBackgroundColor(color);
                                 } catch (Exception e) {
-                                    holder.itemBackground.setCardBackgroundColor(0xFFF0BCBC); // fallback
+                                    holder.itemBackground.setCardBackgroundColor(0xFFF0BCBC);
                                 }
                             } else {
-                                holder.itemBackground.setCardBackgroundColor(0xFFF0BCBC); // fallback
+                                holder.itemBackground.setCardBackgroundColor(0xFFF0BCBC);
                             }
                         } else {
                             // Nếu API lỗi → fallback
@@ -419,7 +418,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
 
                     @Override
                     public void onFailure(Call<MenuResponse.SingleProductResponse> call, Throwable t) {
-                        // Lỗi mạng → fallback
                         holder.itemBackground.setCardBackgroundColor(0xFFF0BCBC);
                     }
                 });

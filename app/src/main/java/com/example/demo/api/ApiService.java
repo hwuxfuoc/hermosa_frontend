@@ -1,5 +1,8 @@
 package com.example.demo.api;
 
+import com.example.demo.models.AddUpdateResponse;
+import com.example.demo.models.AddressRequest;
+import com.example.demo.models.AddressResponse;
 import com.example.demo.models.AuthResponse;
 import com.example.demo.models.CancelOrderRequest;
 import com.example.demo.models.CartResponse;
@@ -9,9 +12,11 @@ import com.example.demo.models.CreateMomoRequest;
 import com.example.demo.models.CreateMomoResponse;
 import com.example.demo.models.CreateVnpayRequest;
 import com.example.demo.models.CreateVnpayResponse;
+import com.example.demo.models.MapboxSuggestionResponse;
 import com.example.demo.models.MenuResponse;
 import com.example.demo.models.OrderListResponse;
 import com.example.demo.models.OrderResponse;
+import com.example.demo.models.VoucherResponse;
 
 import retrofit2.Call;
 import retrofit2.http.*;
@@ -82,13 +87,10 @@ public interface ApiService {
     @HTTP(method = "DELETE", path = "order/cancel", hasBody = true)
     Call<CommonResponse> cancelOrder(@Body Map<String, Object> body);
 
-    /*@GET("order/view")
-    Call<CommonResponse> viewOrder(@Query("orderID") String orderID);*/
+
 
     @GET("order/view-all")
     Call<OrderListResponse> viewAllOrders();
-    /*@GET("order/order-history")
-    Call<OrderListResponse> getOrderHistory(@Query("userID") String userID);*/
     @GET("order/list")
     Call<CommonResponse> getOrdersByDate(@Query("startDate") String startDate, @Query("endDate") String endDate);
 
@@ -104,39 +106,67 @@ public interface ApiService {
             @Query("orderID") String orderID,
             @Body Map<String, Object> body
     );
-    /*@POST("create-payment-momo")
-    Call<CreateMomoResponse> createPaymentMomo(@Body CreateMomoRequest body);*/
     @POST("payment-momo/create-payment-momo")
     Call<CreateMomoResponse> createPaymentMomo(@Body CreateMomoRequest body);
     @GET("payment-momo/confirm")
     Call<Map<String, Object>> confirmMomoPayment(@Query("orderID") String orderID);
     @GET("payment-momo/confirm")
     Call<ConfirmPaymentResponse> confirmPaymentStatus(@Query("orderID") String orderID);
-    @POST("payment-momo/momo-notify") // Hoặc đường dẫn tương ứng router của bạn
+    @POST("payment-momo/momo-notify")
     Call<Object> notifyMomoPayment(@Body Map<String, Object> body);
-
-    // Thêm hàm này
     @POST("payment-vnpay/create-payment-vnpay")
     Call<String> createPaymentVnpayString(@Body CreateVnpayRequest body);
 
     @GET("payment-vnpay/check-payment-status")
     Call<ConfirmPaymentResponse> confirmVnpayStatus(@Query("vnp_TxnRef") String orderID);
-
-    // MENU - LẤY TẤT CẢ SẢN PHẨM ĐỂ GỢI Ý
     @GET("menu/all-product")
     Call<MenuResponse> getAllProducts();
-
-    // LẤY CHI TIẾT SẢN PHẨM ĐỂ LẤY ẢNH
     @GET("menu/product")
     Call<MenuResponse.SingleProductResponse> getProductDetail(@Query("productID") String productID);
-
-    // 1. Lấy chi tiết 1 đơn hàng (Dùng OrderResponse)
     @GET("order/view")
     Call<OrderResponse> viewOrder(@Query("orderID") String orderID);
-
-    // 2. Lấy danh sách đơn hàng (Dùng OrderListResponse)
     @GET("order/order-history")
     Call<OrderListResponse> getOrderHistory(@Query("userID") String userID);
     @HTTP(method = "DELETE", path = "order/cancel", hasBody = true)
-    Call<CommonResponse> cancelOrder(@Body CancelOrderRequest body);//ktra
+    Call<CommonResponse> cancelOrder(@Body CancelOrderRequest body);
+    @POST("address/add")
+    Call<AddUpdateResponse> addAddress(@Body AddressRequest request);
+    @GET("address/show")
+    Call<AddressResponse> getListAddress(@Query("userID") String userID);
+
+    @POST("address/delete")
+    Call<AddressResponse> deleteAddress(@Body AddressRequest request);
+
+    @PUT("address/update")
+    Call<AddUpdateResponse> updateAddress(@Body AddressRequest request);
+
+    @GET("address/suggestion")
+    Call<MapboxSuggestionResponse> getSuggestion(@Query("input") String input);
+    // 1. Gợi ý voucher khả dụng cho user (POST /voucher/suggestion)
+    // Body cần: userID
+    @POST("voucher/suggestion")
+    Call<VoucherResponse> getVoucherSuggestion(@Body Map<String, String> body);
+
+    // 2. Lấy danh sách voucher khả dụng của user (GET /voucher/available-user)
+    @GET("voucher/available-user")
+    Call<VoucherResponse> getAvailableVouchers(@Query("userID") String userID);
+
+    // 3. Áp dụng voucher thủ công (PUT /voucher/apply)
+    // Body cần: voucherCode, orderID
+    // Trả về OrderResponse (vì BE trả về data là Order đã update giá)
+    @PUT("voucher/apply")
+    Call<OrderResponse> applyVoucher(@Body Map<String, String> body);
+
+    // 4. Tự động áp dụng voucher tốt nhất (PUT /voucher/auto-apply)
+    // Body cần: orderID
+    // Trả về VoucherResponse (để lấy discountAmount và bestVoucher) hoặc OrderResponse tùy cách bạn dùng
+    @PUT("voucher/auto-apply")
+    Call<VoucherResponse> autoApplyVoucher(@Body Map<String, String> body);
+
+    // 5. Xác nhận đã sử dụng voucher (Gọi sau khi thanh toán thành công)
+    // Body cần: voucherCode, orderID
+    @PUT("voucher/confirm-use")
+    Call<CommonResponse> confirmVoucherUse(@Body Map<String, String> body);
+    @POST("user/save-token") // Thay bằng endpoint thật của Backend bạn
+    Call<CommonResponse> saveFcmToken(@Body Map<String, String> body);
 }

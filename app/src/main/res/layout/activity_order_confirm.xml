@@ -263,12 +263,32 @@
                             android:text="50.000 VND"
                             android:textSize="12sp"
                             android:textColor="#333" />
+                        <TextView
+                            android:id="@+id/tvDiscountLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/tvShippingLabel"
+                            android:layout_marginTop="4dp"
+                            android:text="Mã giảm giá"
+                            android:textSize="12sp"
+                            android:textColor="#333" />
+
+                        <TextView
+                            android:id="@+id/tvDiscount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/tvShippingLabel"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginTop="4dp"
+                            android:text="0 VND"
+                            android:textSize="12sp"
+                            android:textColor="#4CAF50" />
 
                         <TextView
                             android:id="@+id/tvFeeLabel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_below="@id/tvShippingLabel"
+                            android:layout_below="@id/tvDiscount"
                             android:layout_marginTop="4dp"
                             android:text="Phí áp dụng"
                             android:textSize="12sp"
@@ -278,7 +298,7 @@
                             android:id="@+id/tvFee"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_below="@id/tvShippingLabel"
+                            android:layout_below="@id/tvDiscount"
                             android:layout_alignParentEnd="true"
                             android:layout_marginTop="4dp"
                             android:text="10.000 VND"

@@ -24,7 +24,6 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
 
-        // Load Home mặc định
         replaceFragment(new FragmentHome(), "FragmentHome");
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
@@ -45,10 +44,10 @@ public class MainActivity extends AppCompatActivity {
                 selectedFragment = new FragmentProfile();
                 tag = "FragmentProfile";
             }
-            else if (itemId == R.id.nav_order) {
+            /*else if (itemId == R.id.nav_order) {
                 selectedFragment = new FragmentProfile();
                 tag = "FragmentOrder";
-            }
+            }*/
 
             if (selectedFragment != null) {
                 replaceFragment(selectedFragment, tag);
@@ -62,6 +61,13 @@ public class MainActivity extends AppCompatActivity {
             view.setPadding(0, 0, 0, bottomInset);
             return insets;
         });
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            if (androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
+                    != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                androidx.core.app.ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 101);
+            }
+        }
     }
 
     private void replaceFragment(Fragment fragment, String tag) {
@@ -71,12 +77,12 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
 
-    // BỔ SUNG: Hàm reload giỏ hàng từ BottomSheet
     public void reloadCartFragment() {
         FragmentCart fragment = (FragmentCart) getSupportFragmentManager()
                 .findFragmentByTag("FragmentCart");
         if (fragment != null && fragment.isVisible()) {
-            fragment.onCartUpdated(); // Gọi reload
+            fragment.onCartUpdated();
         }
     }
+
 }

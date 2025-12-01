@@ -7,12 +7,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.demo.AddToCartBottomSheet;
 import com.example.demo.R;
 import com.example.demo.description.DescriptionCake;
@@ -45,10 +48,19 @@ public class BestSellerAdapter extends RecyclerView.Adapter<BestSellerAdapter.Vi
 
         holder.imgProduct.setImageResource(product.getImageResId());
         holder.tvName.setText(product.getName());
-        holder.tvPrice.setText(product.getPrice());
+        /*holder.tvPrice.setText(product.getPrice());*/
+        String url=product.getImageUrl();
+        Glide.with(context)
+                .load(url)
+                .placeholder(R.drawable.placeholder_food)
+                .error(R.drawable.ic_launcher_foreground)
+                .into(holder.imgProduct);
         // holder.tvSold.setText("Đã bán 18K+"); // Nếu có ID text_sold trong XML, thêm vào
+        int colorHex=product.getColor();
+        if(colorHex!=0){
+            holder.bg_item_color.setBackgroundColor(colorHex);
+        }
 
-        // Bấm itemView (hình + nội dung) → mở Description
         holder.itemView.setOnClickListener(v -> {
             Class<?> cls = switch (product.getCategory()) {
                 case "drink" -> DescriptionDrink.class;
@@ -57,7 +69,7 @@ public class BestSellerAdapter extends RecyclerView.Adapter<BestSellerAdapter.Vi
             };
 
             Intent i = new Intent(context, cls);
-            i.putExtra("product", product); // TRUYỀN TOÀN BỘ → SIÊU ỔN ĐỊNH
+            i.putExtra("product", product);
             context.startActivity(i);
         });
 
@@ -77,14 +89,16 @@ public class BestSellerAdapter extends RecyclerView.Adapter<BestSellerAdapter.Vi
         ImageView imgProduct;
         TextView tvName, tvPrice; // tvSold nếu có
         Button btnPlus;
+        LinearLayout bg_item_color;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             imgProduct = itemView.findViewById(R.id.image_product_cart);
             tvName = itemView.findViewById(R.id.text_name_cart);
             tvPrice = itemView.findViewById(R.id.text_price_cart);
-            // tvSold = itemView.findViewById(R.id.text_sold); // Thêm nếu có
+            bg_item_color=itemView.findViewById(R.id.bg_item_color);
             btnPlus = itemView.findViewById(R.id.button_plus);
+
         }
     }
 }

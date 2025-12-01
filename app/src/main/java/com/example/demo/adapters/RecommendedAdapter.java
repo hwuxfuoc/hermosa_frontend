@@ -318,10 +318,8 @@ public class RecommendedAdapter extends RecyclerView.Adapter<RecommendedAdapter.
             }
         });
 
-        // LOG: Kiểm tra productID trước khi gọi API
         Log.d("RecommendedAdapter", "Vị trí: " + position + ", ProductID: " + (p.getProductID() != null ? p.getProductID() : "null"));
 
-        // Gọi API nếu productID hợp lệ
         if (p.getProductID() != null && !p.getProductID().isEmpty()) {
             ApiClient.getClient().create(ApiService.class)
                     .getProductDetail(p.getProductID())
@@ -330,20 +328,16 @@ public class RecommendedAdapter extends RecyclerView.Adapter<RecommendedAdapter.
                         public void onResponse(Call<MenuResponse.SingleProductResponse> call, Response<MenuResponse.SingleProductResponse> res) {
                             if (res.isSuccessful() && res.body() != null && res.body().getData() != null) {
                                 MenuResponse.MenuItem detail = res.body().getData();
-
-                                // LOG: Kiểm tra data từ backend
                                 Log.d("RecommendedAdapter", "API thành công - Ảnh: " + detail.getPicture() + ", Màu hex: " + detail.getBackgroundHexacode());
 
-                                // LẤY ẢNH TỪ BACKEND
-                                String pictureUrl = detail.getPicture();
-                                if (pictureUrl != null && !pictureUrl.isEmpty()) {
+
+                                if (p.getImageUrl() != null && !p.getImageUrl().isEmpty()) {
                                     Glide.with(context)
-                                            .load(pictureUrl)
-                                            .diskCacheStrategy(DiskCacheStrategy.ALL)  // Cache ảnh để load nhanh hơn
-                                            /*.placeholder(R.drawable.placeholder_image)  // Ảnh placeholder nếu load chậm
-                                            .error(R.drawable.error_image) */ // Ảnh lỗi nếu load fail
+                                            .load(p.getImageUrl())
+                                            .placeholder(R.drawable.placeholder_food)
+                                            .error(R.drawable.placeholder_food)
                                             .into(holder.img);
-                                    Log.d("RecommendedAdapter", "Load ảnh từ backend: " + pictureUrl);
+                                    Log.d("RecommendedAdapter", "Load ảnh từ backend: " + p.getImageUrl());
                                 } else {
                                     Log.w("RecommendedAdapter", "URL ảnh backend null/empty, dùng fallback");
                                     loadFallbackImage(holder.img, p);
@@ -395,13 +389,11 @@ public class RecommendedAdapter extends RecyclerView.Adapter<RecommendedAdapter.
         }
     }
 
-    // Helper: Load ảnh fallback
     private void loadFallbackImage(ImageView img, Product p) {
         Glide.with(context).load(p.getImageUrl()).into(img);
         Log.d("RecommendedAdapter", "Load ảnh fallback: " + p.getImageUrl());
     }
 
-    // Helper: Set màu fallback
     private void setFallbackColor(LinearLayout layout, Product p) {
         layout.setBackgroundColor(p.getColor());
         Log.d("RecommendedAdapter", "Set màu fallback: " + Integer.toHexString(p.getColor()));

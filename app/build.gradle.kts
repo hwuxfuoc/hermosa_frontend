@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -55,4 +56,11 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    implementation(platform(libs.firebase.bom))
+
+    // 3. Import Firebase Messaging (Không cần version)
+    implementation(libs.firebase.messaging)
+
+    // (Tùy chọn) Nếu muốn dùng Analytics
+    //implementation(libs.firebase.analytics)
 }
