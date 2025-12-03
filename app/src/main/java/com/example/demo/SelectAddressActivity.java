@@ -5,18 +5,18 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast; // Bổ sung Toast
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager; // Bổ sung
-import androidx.recyclerview.widget.RecyclerView; // Bổ sung
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.demo.adapters.AddressAdapter; // Bổ sung Adapter
-import com.example.demo.api.ApiClient; // Bổ sung API
-import com.example.demo.api.ApiService; // Bổ sung API
-import com.example.demo.models.AddressResponse; // Bổ sung Model
-import com.example.demo.utils.SessionManager; // Bổ sung Session để lấy UserID
+import com.example.demo.adapters.AddressAdapter;
+import com.example.demo.api.ApiClient;
+import com.example.demo.api.ApiService;
+import com.example.demo.models.AddressResponse;
+import com.example.demo.utils.SessionManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 
@@ -54,6 +54,14 @@ public class SelectAddressActivity extends AppCompatActivity {
     private String selectedMethod = null; // "delivery" hoặc "pickup"
     private String selectedAddressStr = "";
     private String selectedCustomerStr = "";
+
+    //them
+    private List<AddressResponse.AddressData> homeList = new ArrayList<>();
+    private List<AddressResponse.AddressData> workList = new ArrayList<>();
+    private List<AddressResponse.AddressData> otherList = new ArrayList<>();
+
+    // Giữ adapter để gọi notifyDataSetChanged
+    private AddressAdapter adapterHome, adapterWork, adapterOther;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,17 +173,23 @@ public class SelectAddressActivity extends AppCompatActivity {
             }
         });
     }
-
-    // --- BỔ SUNG: HÀM LỌC VÀ HIỂN THỊ DỮ LIỆU ---
     private void filterAndDisplayAddresses(List<AddressResponse.AddressData> list) {
         if (list == null) return;
 
-        List<AddressResponse.AddressData> homeList = new ArrayList<>();
-        List<AddressResponse.AddressData> workList = new ArrayList<>();
-        List<AddressResponse.AddressData> otherList = new ArrayList<>();
+        // 1. Xóa dữ liệu cũ
+        homeList.clear();
+        workList.clear();
+        otherList.clear();
 
-        // Logic chia list theo Type
+        // 2. Chia dữ liệu vào 3 list
         for (AddressResponse.AddressData item : list) {
+            item.isSelected = false; // Reset trạng thái chọn khi mới load
+
+            // (Tuỳ chọn) Giữ lại trạng thái đã chọn trước đó nếu có
+            if (!selectedAddressStr.isEmpty() && item.getFullAddress().equals(selectedAddressStr)) {
+                item.isSelected = true;
+            }
+
             if (item.type == null) {
                 otherList.add(item);
             } else if (item.type.equalsIgnoreCase("Home")) {
@@ -187,27 +201,39 @@ public class SelectAddressActivity extends AppCompatActivity {
             }
         }
 
-        // Gán Adapter cho RecyclerView
-        // Khi Click vào 1 item -> Gọi hàm onAddressItemClicked
-        rvHomeAddress.setAdapter(new AddressAdapter(homeList, this::onAddressItemClicked));
-        rvWorkAddress.setAdapter(new AddressAdapter(workList, this::onAddressItemClicked));
-        rvOtherAddress.setAdapter(new AddressAdapter(otherList, this::onAddressItemClicked));
+        // 3. Khởi tạo Adapter và lưu vào biến toàn cục
+        adapterHome = new AddressAdapter(homeList, this::onAddressItemClicked);
+        rvHomeAddress.setAdapter(adapterHome);
+
+        adapterWork = new AddressAdapter(workList, this::onAddressItemClicked);
+        rvWorkAddress.setAdapter(adapterWork);
+
+        adapterOther = new AddressAdapter(otherList, this::onAddressItemClicked);
+        rvOtherAddress.setAdapter(adapterOther);
     }
+    private void onAddressItemClicked(AddressResponse.AddressData clickedItem) {
+        deselectAll(homeList);
+        deselectAll(workList);
+        deselectAll(otherList);
 
-    // --- BỔ SUNG: XỬ LÝ KHI CLICK VÀO 1 ĐỊA CHỈ CỤ THỂ ---
-    private void onAddressItemClicked(AddressResponse.AddressData data) {
-        // 1. Lưu thông tin địa chỉ vừa chọn
-        selectedAddressStr = data.getFullAddress();
-        selectedCustomerStr = data.name + " | " + data.phone;
-
-        // 2. Tự động chuyển UI sang chế độ "Giao hàng tận nơi"
+        clickedItem.isSelected = true;
+        selectedAddressStr = clickedItem.getFullAddress();
+        selectedCustomerStr = clickedItem.name + " | " + clickedItem.phone;
         selectMethod("delivery");
-
-        // 3. Thông báo nhẹ cho người dùng biết
-        Toast.makeText(this, "Đã chọn: " + data.name, Toast.LENGTH_SHORT).show();
+        if (adapterHome != null) adapterHome.notifyDataSetChanged();
+        if (adapterWork != null) adapterWork.notifyDataSetChanged();
+        if (adapterOther != null) adapterOther.notifyDataSetChanged();
+        // Toast.makeText(this, "Đã chọn: " + clickedItem.name, Toast.LENGTH_SHORT).show();
     }
 
-    // --- CÁC HÀM CŨ GIỮ NGUYÊN (Logic UI) ---
+    // Hàm phụ trợ để reset list
+    private void deselectAll(List<AddressResponse.AddressData> list) {
+        if (list == null) return;
+        for (AddressResponse.AddressData data : list) {
+            data.isSelected = false;
+        }
+    }
+
     private void openAddAddress(String type) {
         Intent intent = new Intent(this, AddAddressActivity.class);
         intent.putExtra("type", type);

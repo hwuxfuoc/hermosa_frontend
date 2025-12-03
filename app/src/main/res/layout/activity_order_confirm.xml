@@ -267,7 +267,7 @@
                             android:id="@+id/tvDiscountLabel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_below="@id/tvShippingLabel"
+                            android:layout_below="@id/tvShipping"
                             android:layout_marginTop="4dp"
                             android:text="Mã giảm giá"
                             android:textSize="12sp"
@@ -277,7 +277,7 @@
                             android:id="@+id/tvDiscount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_below="@id/tvShippingLabel"
+                            android:layout_below="@id/tvShipping"
                             android:layout_alignParentEnd="true"
                             android:layout_marginTop="4dp"
                             android:text="0 VND"
@@ -304,6 +304,27 @@
                             android:text="10.000 VND"
                             android:textSize="12sp"
                             android:textColor="#333" />
+                        <TextView
+                            android:id="@+id/tvTipLable"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/tvFee"
+                            android:layout_marginTop="4dp"
+                            android:text="Tip cho tài xế"
+                            android:textSize="12sp"
+                            android:visibility="gone"
+                            android:textColor="@color/black"/>
+                        <TextView
+                            android:id="@+id/tvTip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/tvFee"
+                            android:layout_marginTop="4dp"
+                            android:layout_alignParentEnd="true"
+                            android:text="0 VND"
+                            android:textColor="@color/black"
+                            android:textSize="12sp"
+                            android:visibility="gone"/>
                     </RelativeLayout>
 
                     <View
@@ -427,7 +448,7 @@
                             android:text="Không" />
 
                         <TextView
-                            android:id="@+id/textView5"
+                            android:id="@+id/btnTip"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
@@ -456,6 +477,7 @@
                         android:layout_marginBottom="3dp"
                     >
                         <TextView
+                            android:id="@+id/tvnotecontent"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -465,6 +487,7 @@
                             android:textStyle="bold"
                             />
                         <TextView
+                            android:id="@+id/tvaddnote"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Thêm"

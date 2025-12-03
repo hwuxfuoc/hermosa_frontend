@@ -1722,11 +1722,13 @@ public class ConfirmOrderActivity extends AppCompatActivity
 }*/
 package com.example.demo;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -1737,6 +1739,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -1782,12 +1785,19 @@ public class ConfirmOrderActivity extends AppCompatActivity
     private View layoutAddressBlock;
     private TextView tvEditAddress;
     private TextView tvaddvoucher;
+    private TextView btnTip;
+    private TextView tvTip,tvTipLable,tvDiscountLable;
+    private TextView tvaddnote;
+    private TextView tvnotecontent;
+    private TextView btnTipNone;
 
     private CartAdapter cartAdapter;
     private RecommendedAdapter recommendedAdapter;
     private ApiService apiService;
 
     private String userID, currentAddress = "", apiCustomer = "";
+    private String currentNote="";
+    private long currentTipAmount=0;
     private String currentPaymentMethod = PAYMENT_METHOD_CASH;
     private String currentDeliveryMethod = "pickup";
     private String lastOrderID = "";
@@ -1814,9 +1824,8 @@ public class ConfirmOrderActivity extends AppCompatActivity
         t.printStackTrace(new PrintWriter(sw));
         L(msg + "\n" + sw.toString());
     }
-    // ====================================================
 
-    // Polling
+
     private Handler pollingHandler = new Handler(Looper.getMainLooper());
     private Runnable pollingRunnable;
 
@@ -1983,22 +1992,32 @@ public class ConfirmOrderActivity extends AppCompatActivity
         long shipping = "delivery".equals(currentDeliveryMethod) ? 50000L : 0L;
         long fee = 10000L;
 
-        // Tổng tiền cuối cùng
-        long total = subtotal + shipping + fee - discount;
+        long total = subtotal + shipping + fee + currentTipAmount - discount;
         if (total < 0) total = 0;
 
         // Hiển thị
         tvSubtotal.setText(String.format("%,d VND", subtotal));
         tvShipping.setText(String.format("%,d VND", shipping));
         tvFee.setText(String.format("%,d VND", fee));
+        if(currentTipAmount!=0){
+            tvTip.setText(String.format("%,d VND",currentTipAmount));
+            tvTip.setVisibility(View.VISIBLE);
+            tvTipLable.setVisibility(View.VISIBLE);
+        }if(currentTipAmount==0) {
+            tvTip.setVisibility(View.GONE);
+            tvTipLable.setVisibility(View.GONE);
+        }
 
         if (discount > 0) {
             tvDiscount.setText(String.format("- %,d VND", discount));
             tvDiscount.setVisibility(View.VISIBLE);
+            tvDiscountLable.setVisibility(View.VISIBLE);
         } else {
+            tvDiscountLable.setVisibility(View.GONE);
             tvDiscount.setText("0 VND");
-            tvDiscount.setVisibility(View.GONE); // Ẩn đi nếu không có giảm giá
+            tvDiscount.setVisibility(View.GONE);
         }
+
 
         tvTotalPayment.setText(String.format("%,d VND", total));
 
@@ -2026,6 +2045,13 @@ public class ConfirmOrderActivity extends AppCompatActivity
         layoutAddressBlock = findViewById(R.id.layoutAddressBlock);
         tvEditAddress = findViewById(R.id.tvEditAddress);
         tvaddvoucher=findViewById(R.id.tvaddvoucher);
+        btnTip=findViewById(R.id.btnTip);
+        tvaddnote=findViewById(R.id.tvaddnote);
+        btnTipNone=findViewById(R.id.btnTipNone);
+        tvnotecontent=findViewById(R.id.tvnotecontent);
+        tvTip=findViewById(R.id.tvTip);
+        tvTipLable=findViewById(R.id.tvTipLable);
+        tvDiscountLable=findViewById(R.id.tvDiscountLabel);
         recyclerOrderItems.setLayoutManager(new LinearLayoutManager(this));
         recyclerRecommended.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         recyclerRecommended.addItemDecoration(new SpaceItemDecoration(dpToPx(6)));
@@ -2065,7 +2091,6 @@ public class ConfirmOrderActivity extends AppCompatActivity
                         finish();
                         return;
                     }
-
                     cartAdapter = new CartAdapter(cartItemsLocal, userID, ConfirmOrderActivity.this);
                     cartAdapter.setConfirmMode(true);
                     recyclerOrderItems.setAdapter(cartAdapter);
@@ -2129,7 +2154,64 @@ public class ConfirmOrderActivity extends AppCompatActivity
         });
         tvaddvoucher.setOnClickListener(v->selectVoucherLauncher.launch(new Intent(this,VoucherSelectionActivity.class)));
         tvEditAddress.setOnClickListener(v -> selectAddressLauncher.launch(new Intent(this, SelectAddressActivity.class)));
+        btnTipNone.setOnClickListener(v->{updateTipSelection(0);});
+        btnTip.setOnClickListener(v->{showCustomTipDialog();});
+        tvaddnote.setOnClickListener(v->{showNoteDialog();});
         btnPlaceOrder.setOnClickListener(v -> placeOrder());
+    }
+    private void updateTipSelection(long amount){
+        int red = 0xFFA71317;
+        int gray = 0xFFADABAB;
+        this.currentTipAmount=amount;
+        if(amount==0){
+            btnTipNone.setBackgroundResource(R.drawable.payment_option_selected);
+            btnTipNone.setTextColor(red);
+            btnTip.setBackgroundResource(R.drawable.payment_option_default);
+            btnTip.setTextColor(gray);
+        }
+        else{
+            btnTip.setBackgroundResource(R.drawable.payment_option_selected);
+            btnTipNone.setBackgroundResource(R.drawable.payment_option_default);
+            btnTip.setTextColor(red);
+            btnTipNone.setTextColor(gray);
+        }
+        long subtotal = cartItemsLocal.stream().mapToLong(CartResponse.CartItem::getSubtotal).sum();
+        updateTotalsWithDiscount(subtotal, (long) currentDiscountAmount);
+    }
+    private void showCustomTipDialog(){
+        android.app.AlertDialog.Builder builder=new android.app.AlertDialog.Builder(this);
+        builder.setTitle("Nhập số tiền tip cho tài xế");
+        final android.widget.EditText input= new android.widget.EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        builder.setView(input);
+        builder.setPositiveButton("Đồng ý",(dialog,which)->{
+            String tipstr=input.getText().toString();
+            if(!tipstr.isEmpty()){
+                long tip= Long.parseLong(tipstr);
+                updateTipSelection(tip);
+            }
+        });
+        builder.setNegativeButton("Hủy",(dialog,which)->{dialog.cancel();});
+        builder.show();
+    }
+    private void showNoteDialog(){
+        android.app.AlertDialog.Builder builder=new android.app.AlertDialog.Builder(this);
+        builder.setTitle("Ghi chú cho đơn hàng");
+        final android.widget.EditText input=new android.widget.EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+        builder.setPositiveButton("Lưu",(dialog,which)->{
+            currentNote=input.getText().toString();
+            if(currentNote.isEmpty()){
+                tvnotecontent.setText("Ghi chú");
+            }
+            else{
+                String displayNote=currentNote.length()>20 ? currentNote.substring(0,17)+"...":currentNote;
+                tvnotecontent.setText(displayNote);
+            }
+        });
+        builder.setNegativeButton("Hủy", ((dialog, which) -> dialog.cancel()));
+        builder.show();
     }
 
     @Override
@@ -2173,7 +2255,7 @@ public class ConfirmOrderActivity extends AppCompatActivity
         long shippingFee = "delivery".equals(currentDeliveryMethod) ? 50000L : 0L;
         long serviceFee = 10000L;
 
-        totalInvoiceForBE += shippingFee + serviceFee;
+        totalInvoiceForBE += shippingFee + serviceFee+currentTipAmount;
 
         // 5. Tạo Body Request
         Map<String, Object> body = new HashMap<>();
@@ -2182,7 +2264,8 @@ public class ConfirmOrderActivity extends AppCompatActivity
         body.put("paymentStatus", PAYMENT_METHOD_CASH.equals(currentPaymentMethod) ? "done" : "not_done");
         body.put("deliver", "delivery".equals(currentDeliveryMethod));
         body.put("deliverAddress", "delivery".equals(currentDeliveryMethod) ? currentAddress : "Nhận tại quán");
-        body.put("note", "");
+        body.put("note", currentNote);
+        body.put("currentTipAmount",currentTipAmount);
         body.put("totalInvoice", totalInvoiceForBE);
         body.put("tipsforDriver", 0);
 
@@ -2270,13 +2353,10 @@ public class ConfirmOrderActivity extends AppCompatActivity
             // Tiền mặt -> Xong luôn
             Toast.makeText(ConfirmOrderActivity.this, "Đặt hàng thành công!", Toast.LENGTH_LONG).show();
 
-            // Có thể thêm logic gọi API /confirm-voucher-use ở đây nếu BE yêu cầu
-
             setResult(RESULT_OK);
             finish();
         }
         else if (PAYMENT_METHOD_MOMO.equals(currentPaymentMethod)) {
-            // Momo -> Gọi API lấy link
             requestMomoPayment(orderID, userID);
         }
         else {
@@ -2290,123 +2370,7 @@ public class ConfirmOrderActivity extends AppCompatActivity
         long subtotal = cartItemsLocal.stream().mapToLong(CartResponse.CartItem::getSubtotal).sum();
         updateTotalsWithDiscount(subtotal, (long) currentDiscountAmount);
     }
-    /*private void placeOrder() {
-        // 1. Kiểm tra giỏ hàng
-        if (cartItemsLocal.isEmpty()) {
-            Toast.makeText(this, "Giỏ hàng trống!", Toast.LENGTH_LONG).show();
-            return;
-        }
 
-        // 2. --- BỔ SUNG: Kiểm tra địa chỉ (Quan trọng) ---
-        if ("delivery".equals(currentDeliveryMethod) && (currentAddress == null || currentAddress.isEmpty())) {
-            Toast.makeText(this, "Vui lòng chọn địa chỉ giao hàng!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // 3. --- BỔ SUNG: Khóa nút để tránh bấm liên tục ---
-        btnPlaceOrder.setEnabled(false);
-        btnPlaceOrder.setText("Đang xử lý...");
-
-        // 4. Tính toán tiền
-        long totalInvoiceForBE = 0;
-        for (CartResponse.CartItem item : cartItemsLocal) {
-            totalInvoiceForBE += item.getPrice() * item.getQuantity();
-        }
-        totalInvoiceForBE += "delivery".equals(currentDeliveryMethod) ? 50000L : 0L;
-        totalInvoiceForBE += 10000L;
-
-        Map<String, Object> body = new HashMap<>();
-        body.put("userID", userID);
-        body.put("paymentMethod", currentPaymentMethod);
-        body.put("paymentStatus", PAYMENT_METHOD_CASH.equals(currentPaymentMethod) ? "done" : "not_done");
-        body.put("deliver", "delivery".equals(currentDeliveryMethod));
-        body.put("deliverAddress", "delivery".equals(currentDeliveryMethod) ? currentAddress : "Nhận tại quán");
-        body.put("note", "");
-        body.put("totalInvoice", totalInvoiceForBE);
-        body.put("tipsforDriver", 0);
-
-        L("Gửi yêu cầu tạo đơn hàng - totalInvoice: " + totalInvoiceForBE);
-
-        apiService.createOrder(body).enqueue(new Callback<OrderResponse>() {
-            @Override
-            public void onResponse(Call<OrderResponse> call, Response<OrderResponse> r) {
-                if (r.isSuccessful() && r.body() != null && r.body().getData() != null) {
-                    String orderID = r.body().getData().getOrderID();
-                    lastOrderID = orderID;
-                    L("Tạo đơn hàng thành công - OrderID: " + orderID);
-
-                    // --- ĐỊNH NGHĨA HÀNH ĐỘNG THANH TOÁN (Chạy sau khi xử lý voucher) ---
-                    Runnable runPaymentProcess = () -> {
-                        // Mở lại nút trước khi chuyển màn hình hoặc kết thúc
-                        btnPlaceOrder.setEnabled(true);
-                        btnPlaceOrder.setText("Đặt hàng");
-
-                        if (PAYMENT_METHOD_CASH.equals(currentPaymentMethod)) {
-                            Toast.makeText(ConfirmOrderActivity.this, "Đặt hàng thành công!", Toast.LENGTH_LONG).show();
-                            setResult(RESULT_OK);
-                            finish();
-                        } else if (PAYMENT_METHOD_MOMO.equals(currentPaymentMethod)) {
-                            requestMomoPayment(orderID, userID);
-                        } else {
-                            requestVnpayPayment(orderID, userID);
-                        }
-                    };
-
-                    // --- KIỂM TRA VÀ ÁP DỤNG VOUCHER ---
-                    if (selectedVoucherCode != null && !selectedVoucherCode.isEmpty()) {
-                        L("Có voucher, đang gọi API áp dụng...");
-
-                        Map<String, String> voucherBody = new HashMap<>();
-                        voucherBody.put("voucherCode", selectedVoucherCode);
-                        voucherBody.put("orderID", orderID);
-
-                        apiService.applyVoucher(voucherBody).enqueue(new Callback<OrderResponse>() {
-                            @Override
-                            public void onResponse(Call<OrderResponse> call, Response<OrderResponse> response) {
-                                if (response.isSuccessful()) {
-                                    L("Áp dụng voucher thành công trên Server!");
-                                } else {
-                                    L("Lỗi voucher: " + response.message());
-                                    Toast.makeText(ConfirmOrderActivity.this, "Lỗi áp dụng voucher, thanh toán giá gốc", Toast.LENGTH_SHORT).show();
-                                }
-                                // Dù voucher thành công hay thất bại, vẫn chạy thanh toán
-                                runPaymentProcess.run();
-                            }
-
-                            @Override
-                            public void onFailure(Call<OrderResponse> call, Throwable t) {
-                                L("Lỗi mạng khi apply voucher", t);
-                                runPaymentProcess.run();
-                            }
-                        });
-
-                    } else {
-                        // KHÔNG CÓ VOUCHER -> CHẠY THANH TOÁN NGAY
-                        runPaymentProcess.run();
-                    }
-
-                } else {
-                    // Tạo đơn thất bại
-                    L("Tạo đơn hàng thất bại: " + r.message());
-                    Toast.makeText(ConfirmOrderActivity.this, "Tạo đơn thất bại", Toast.LENGTH_LONG).show();
-
-                    // --- BỔ SUNG: Mở lại nút để người dùng thử lại ---
-                    btnPlaceOrder.setEnabled(true);
-                    btnPlaceOrder.setText("Đặt hàng");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<OrderResponse> call, Throwable t) {
-                L("Lỗi mạng khi tạo đơn", t);
-                Toast.makeText(ConfirmOrderActivity.this, "Lỗi kết nối mạng", Toast.LENGTH_SHORT).show();
-
-                // --- BỔ SUNG: Mở lại nút để người dùng thử lại ---
-                btnPlaceOrder.setEnabled(true);
-                btnPlaceOrder.setText("Đặt hàng");
-            }
-        });
-    }*/
     private void requestMomoPayment(String orderID, String userID) {
         L("Bắt đầu tạo link MoMo cho đơn: " + orderID);
         CreateMomoRequest request = new CreateMomoRequest(orderID, userID);

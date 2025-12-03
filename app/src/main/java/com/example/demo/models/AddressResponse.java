@@ -59,6 +59,7 @@ public class AddressResponse {
         public String name;
         public String phone;
         public String type;
+        public boolean isSelected = false;
 
         // --- SỬA QUAN TRỌNG: Đổi thành List để hứng mảng [] từ Server ---
         public List<AddressDetail> addressDetail;

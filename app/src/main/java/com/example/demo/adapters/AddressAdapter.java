@@ -33,6 +33,17 @@ public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.AddressV
         AddressResponse.AddressData item = addressList.get(position);
         holder.tvContactInfo.setText(item.name + " | " + item.phone);
         holder.tvAddressDetail.setText(item.getFullAddress());
+
+        // Trong AddressAdapter.java > onBindViewHolder
+        if (item.isSelected) {
+            // Load file CÓ viền đỏ
+            holder.itemView.setBackgroundResource(R.drawable.bg_btn_selected);
+        }
+        else {
+        // Nếu không chọn -> Dùng file bình thường
+        holder.itemView.setBackgroundResource(0);
+        }
+
         holder.itemView.setOnClickListener(v -> listener.onAddressClick(item));
     }
 
