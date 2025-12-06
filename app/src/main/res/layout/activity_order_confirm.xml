@@ -137,7 +137,7 @@
                     android:layout_marginBottom="12dp"
                     android:background="@drawable/bg_cart_item_template"
                     android:orientation="vertical"
-                    android:padding="12dp">
+                    android:padding="2dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -148,6 +148,7 @@
                             android:id="@+id/imageButton5"
                             android:layout_width="25dp"
                             android:layout_height="25dp"
+                            android:layout_marginTop="8dp"
                             android:background="@null"
                             app:srcCompat="@drawable/icon_cart_2" />
 
@@ -159,6 +160,7 @@
                             android:text="Thông tin đơn hàng"
                             android:textColor="#000"
                             android:textSize="10sp"
+                            android:layout_marginTop="6dp"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -198,7 +200,7 @@
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/recyclerRecommended"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_marginTop="8dp"
                         android:nestedScrollingEnabled="false"
                         android:orientation="horizontal" />
@@ -261,12 +263,32 @@
                             android:text="50.000 VND"
                             android:textSize="12sp"
                             android:textColor="#333" />
+                        <TextView
+                            android:id="@+id/tvDiscountLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/tvShipping"
+                            android:layout_marginTop="4dp"
+                            android:text="Mã giảm giá"
+                            android:textSize="12sp"
+                            android:textColor="#333" />
+
+                        <TextView
+                            android:id="@+id/tvDiscount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/tvShipping"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginTop="4dp"
+                            android:text="0 VND"
+                            android:textSize="12sp"
+                            android:textColor="#4CAF50" />
 
                         <TextView
                             android:id="@+id/tvFeeLabel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_below="@id/tvShippingLabel"
+                            android:layout_below="@id/tvDiscount"
                             android:layout_marginTop="4dp"
                             android:text="Phí áp dụng"
                             android:textSize="12sp"
@@ -276,12 +298,33 @@
                             android:id="@+id/tvFee"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_below="@id/tvShippingLabel"
+                            android:layout_below="@id/tvDiscount"
                             android:layout_alignParentEnd="true"
                             android:layout_marginTop="4dp"
                             android:text="10.000 VND"
                             android:textSize="12sp"
                             android:textColor="#333" />
+                        <TextView
+                            android:id="@+id/tvTipLable"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/tvFee"
+                            android:layout_marginTop="4dp"
+                            android:text="Tip cho tài xế"
+                            android:textSize="12sp"
+                            android:visibility="gone"
+                            android:textColor="@color/black"/>
+                        <TextView
+                            android:id="@+id/tvTip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/tvFee"
+                            android:layout_marginTop="4dp"
+                            android:layout_alignParentEnd="true"
+                            android:text="0 VND"
+                            android:textColor="@color/black"
+                            android:textSize="12sp"
+                            android:visibility="gone"/>
                     </RelativeLayout>
 
                     <View
@@ -405,7 +448,7 @@
                             android:text="Không" />
 
                         <TextView
-                            android:id="@+id/textView5"
+                            android:id="@+id/btnTip"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
@@ -432,8 +475,9 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:layout_marginBottom="3dp"
-                    >
+                        >
                         <TextView
+                            android:id="@+id/tvnotecontent"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -443,6 +487,7 @@
                             android:textStyle="bold"
                             />
                         <TextView
+                            android:id="@+id/tvaddnote"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Thêm"

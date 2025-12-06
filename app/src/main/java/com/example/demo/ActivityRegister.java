@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.demo.api.ApiClient;
 import com.example.demo.api.ApiService;
+import com.example.demo.models.AuthResponse;
 import com.example.demo.models.CommonResponse;
 import com.example.demo.utils.SessionManager;
 
@@ -154,15 +155,49 @@ public class ActivityRegister extends AppCompatActivity {
 
     // GỬI OTP
     private void sendOtp() {
-        String email = edtEmail.getText().toString().trim();
+        String email = edtEmail.getText().toString().trim().toLowerCase();
         if (TextUtils.isEmpty(email) || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             edtEmail.setError("Email không hợp lệ");
             return;
         }
 
         btnSendOTP.setEnabled(false);
-        btnSendOTP.setText("Đang gửi...");
+        btnSendOTP.setText("Đang kiểm tra...");
 
+        // BƯỚC 1: KIỂM TRA EMAIL ĐÃ TỒN TẠI CHƯA
+        Map<String, String> loginBody = new HashMap<>();
+        loginBody.put("email", email);
+        loginBody.put("password", "dummy_password_for_check");
+
+        apiService.login(loginBody).enqueue(new Callback<AuthResponse>() {
+            @Override
+            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+                // Nếu login thành công → email đã tồn tại → CHẶN
+                if (response.isSuccessful() && response.body() != null
+                        && "Success".equals(response.body().getStatus())) {
+
+                    btnSendOTP.setEnabled(true);
+                    btnSendOTP.setText("Nhận mã OTP");
+                    Toast.makeText(ActivityRegister.this,
+                            "Email này đã được đăng ký! Vui lòng đăng nhập.",
+                            Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                // Nếu login thất bại → email chưa tồn tại → CHO PHÉP GỬI OTP
+                sendOtpRequest(email);
+            }
+
+            @Override
+            public void onFailure(Call<AuthResponse> call, Throwable t) {
+                // Nếu mạng lỗi hoặc login fail → coi như email chưa tồn tại → CHO PHÉP GỬI OTP
+                sendOtpRequest(email);
+            }
+        });
+    }
+
+    // HÀM RIÊNG ĐỂ GỬI OTP – TRÁNH LẶP CODE
+    private void sendOtpRequest(String email) {
         Map<String, Object> body = new HashMap<>();
         body.put("email", email);
 
@@ -172,12 +207,12 @@ public class ActivityRegister extends AppCompatActivity {
                 btnSendOTP.setEnabled(true);
                 btnSendOTP.setText("Nhận mã OTP");
 
-                String status = response.body() != null ? response.body().getStatus() : null;
+                if (response.isSuccessful() && response.body() != null
+                        && response.body().getStatus() != null
+                        && response.body().getStatus().toLowerCase().contains("success")) {
 
-                if (response.isSuccessful() && status != null && status.toLowerCase().contains("success")) {
                     verifiedEmail = email;
                     Toast.makeText(ActivityRegister.this, "Đã gửi mã OTP!", Toast.LENGTH_SHORT).show();
-
                     layoutEmail.setVisibility(View.GONE);
                     layoutOtp.setVisibility(View.VISIBLE);
                     startOtpTimer();

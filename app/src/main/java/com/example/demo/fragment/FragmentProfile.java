@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.demo.ActivityForgotPassword;
 import com.example.demo.R;
+import com.example.demo.VoucherWalletActivity;
 import com.example.demo.utils.SessionManager;
 
 public class FragmentProfile extends Fragment {
@@ -80,6 +81,11 @@ public class FragmentProfile extends Fragment {
                     .replace(R.id.fragment_container, new FragmentForgotPassword())
                     .addToBackStack(null)  // Để bấm back về được
                     .commit();
+        });
+
+        layoutVoucher.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), VoucherWalletActivity.class);
+            startActivity(intent);
         });
 
         return view;

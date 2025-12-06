@@ -41,13 +41,8 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
     private boolean isEditMode = false;
     private boolean isConfirmMode = false;
 
-    public interface OnCartUpdateListener {
-        void onCartUpdated();
-    }
-
-    public interface OnItemCheckListener {
-        void onUpdateTotal();
-    }
+    public interface OnCartUpdateListener { void onCartUpdated(); }
+    public interface OnItemCheckListener { void onUpdateTotal(); }
 
     // Constructor cho CartFragment
     public CartAdapter(List<CartResponse.CartItem> items, Context context, OnCartUpdateListener listener) {
@@ -65,10 +60,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
         this.listener = listener;
     }
 
-    public boolean isEditMode() {
-        return isEditMode;
-    }
-
+    public boolean isEditMode() { return isEditMode; }
     public void setEditMode(boolean editMode) {
         isEditMode = editMode;
         notifyDataSetChanged();
@@ -83,8 +75,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
         this.checkListener = checkListener;
     }
 
-    @NonNull
-    @Override
+    @NonNull @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Context ctx = parent.getContext();
         View v = LayoutInflater.from(ctx).inflate(R.layout.cart_item, parent, false);
@@ -123,17 +114,16 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
                                     .placeholder(R.drawable.cake_strawberry_cheese)
                                     .into(holder.imgProduct);
 
-                            // LẤY MÀU NỀN TỪ backgroundHexacode (backend)
                             String hex = product.getBackgroundHexacode();
                             if (hex != null && !hex.isEmpty()) {
                                 try {
                                     int color = parseHexColor(hex);
                                     holder.itemBackground.setCardBackgroundColor(color);
                                 } catch (Exception e) {
-                                    holder.itemBackground.setCardBackgroundColor(0xFFF0BCBC); // fallback
+                                    holder.itemBackground.setCardBackgroundColor(0xFFF0BCBC);
                                 }
                             } else {
-                                holder.itemBackground.setCardBackgroundColor(0xFFF0BCBC); // fallback
+                                holder.itemBackground.setCardBackgroundColor(0xFFF0BCBC);
                             }
                         } else {
                             // Nếu API lỗi → fallback
@@ -143,7 +133,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
 
                     @Override
                     public void onFailure(Call<MenuResponse.SingleProductResponse> call, Throwable t) {
-                        // Lỗi mạng → fallback
                         holder.itemBackground.setCardBackgroundColor(0xFFF0BCBC);
                     }
                 });
@@ -207,14 +196,10 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
                 ApiClient.getClient().create(ApiService.class).decreaseItem(body);
 
         call.enqueue(new Callback<CommonResponse>() {
-            @Override
-            public void onResponse(Call<CommonResponse> call, Response<CommonResponse> r) {
+            @Override public void onResponse(Call<CommonResponse> call, Response<CommonResponse> r) {
                 if (r.isSuccessful() && listener != null) listener.onCartUpdated();
             }
-
-            @Override
-            public void onFailure(Call<CommonResponse> call, Throwable t) {
-            }
+            @Override public void onFailure(Call<CommonResponse> call, Throwable t) {}
         });
     }
 

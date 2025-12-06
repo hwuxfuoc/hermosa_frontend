@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 public class ApiClient {
     private static Retrofit retrofit = null;
-    private static final String BASE_URL = "http://13.250.179.85/";
+    private static final String BASE_URL = "http://10.0.2.2:8000/";
 
     public static Retrofit getClient() {
         if (retrofit == null) {

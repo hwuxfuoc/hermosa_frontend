@@ -1,10 +1,13 @@
 package com.example.demo.models;
 
+import com.google.gson.annotations.SerializedName;
+
 public class AuthResponse {
     private String status;
     private String message;
     private int statuscode;     // có thể có trong 1 số API
-    private String token;       // nếu backend có JWT token
+    private String token;
+    @SerializedName("data")// nếu backend có JWT token
     private User data;          // đối tượng user chính
 
     public String getStatus() { return status; }
@@ -15,7 +18,9 @@ public class AuthResponse {
 
     // lớp con User ánh xạ với "foundUser" hoặc "newUser" trong backend
     public static class User {
+        @SerializedName("_id")
         private String _id;
+        @SerializedName("userID")
         private String userID;
         private String name;
         private String email;
@@ -26,7 +31,7 @@ public class AuthResponse {
         private String address;
         // getter
         public String getId() { return _id; }
-        public String getUserID() { return userID; }
+        public String getUserID() { return userID != null ? userID : _id; }
         public String getName() { return name; }
         public String getEmail() { return email; }
         public String getPassword() { return password; }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "946081988458",
+    "project_id": "hermosaapp-eb75d",
+    "storage_bucket": "hermosaapp-eb75d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:946081988458:android:a634c301a0c2a8a021ef13",
+        "android_client_info": {
+          "package_name": "com.example.demo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDvQfIRhnrSjU_fwx1W4KltBUGjAh6muI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

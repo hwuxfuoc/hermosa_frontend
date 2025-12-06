@@ -40,12 +40,9 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     public int getItemViewType(int position) {
         Product product = productList.get(position);
         switch (product.getCategory()) {
-            case "drink":
-                return 1;
-            case "food":
-                return 2;
-            default:
-                return 0; // cake
+            case "drink": return 1;
+            case "food": return 2;
+            default: return 0;
         }
     }
 
@@ -54,15 +51,9 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         int layoutId;
         switch (viewType) {
-            case 1:
-                layoutId = R.layout.item_product_drink;
-                break;
-            case 2:
-                layoutId = R.layout.item_product_food;
-                break;
-            default:
-                layoutId = R.layout.item_product_cake;
-                break;
+            case 1: layoutId = R.layout.item_product_drink; break;
+            case 2: layoutId = R.layout.item_product_food; break;
+            default: layoutId = R.layout.item_product_cake; break;
         }
         View view = LayoutInflater.from(context).inflate(layoutId, parent, false);
         return new ProductViewHolder(view);
@@ -88,7 +79,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                     .into(holder.imageProduct);
         } else {
             Glide.with(context)
-                    .load(R.drawable.placeholder_cake) // Hiển thị placeholder nếu URL null
+                    .load(R.drawable.placeholder_cake)
                     .into(holder.imageProduct);
             Log.w("HOME", "URL hình ảnh null hoặc rỗng cho sản phẩm: " + product.getName());
         }
@@ -112,8 +103,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             bottomSheet.show(((AppCompatActivity) context).getSupportFragmentManager(), "AddToCart");
         });
     }
-
-    // HÀM TRẢ PLACEHOLDER THEO LOẠI
     private int getPlaceholderDrawable(String category) {
         return switch (category.toLowerCase()) {
             case "drink" -> R.drawable.placeholder_drink;
@@ -127,21 +116,21 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             long p = Long.parseLong(price.replaceAll("[^0-9]", ""));
             return String.format("₫%,d", p);
         } catch (Exception e) {
-            return price + " ₫";
+            return "₫" + price;
         }
     }
 
     @Override
     public int getItemCount() {
-        return productList != null ? productList.size() : 0; // Tránh trả về âm hoặc null
+        return productList != null ? productList.size() : 0;
     }
 
     public void updateList(List<Product> newList) {
         if (newList != null) {
             productList.clear();
-            productList.addAll(newList); // Cập nhật danh sách
+            productList.addAll(newList);
             Log.d("HOME", "Adapter cập nhật, kích thước mới: " + productList.size());
-            notifyDataSetChanged(); // Cập nhật giao diện
+            notifyDataSetChanged();
         } else {
             Log.w("HOME", "Danh sách mới null, không cập nhật");
         }

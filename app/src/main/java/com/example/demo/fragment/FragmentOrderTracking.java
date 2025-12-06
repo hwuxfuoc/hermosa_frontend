@@ -1,3 +1,204 @@
+/*
+package com.example.demo.fragment; // Đổi package theo project của bạn
+
+import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.Group; // Quan trọng cho Timeline
+import androidx.fragment.app.Fragment;
+
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
+import com.example.demo.R; // Import R của project bạn
+
+public class FragmentOrderTracking extends Fragment {
+
+    // --- 1. KHAI BÁO BIẾN VIEW ---
+    private Group groupStepShipping;        // Nhóm timeline xe máy
+    private MaterialCardView cardAddressShip; // Thẻ địa chỉ giao hàng
+    private MaterialCardView cardPickupNote;  // Thẻ thông báo tại quán
+    private ImageView ivStep4;              // Icon đích (Pin hoặc Túi)
+
+    private TextView tvStatusTitle, tvStatusDesc, tvTotalPrice, tvCancelNote;
+    private MaterialButton btnCancelOrder;
+    private ImageView btnBack;
+
+    // --- CẤU HÌNH TEST ---
+    // Đổi thành TRUE để xem giao diện SHIP
+    // Đổi thành FALSE để xem giao diện TẠI QUÁN
+    private boolean IS_DELIVERY_MODE = false;
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_order_status, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // 2. Ánh xạ (Binding)
+        initViews(view);
+
+        // 3. Thiết lập giao diện dựa trên loại đơn (Ship/Pickup)
+        setupHybridUI(IS_DELIVERY_MODE);
+
+        // 4. Đổ dữ liệu giả lập (Mock Data)
+        fillData();
+
+        // 5. Xử lý sự kiện Click
+        handleEvents();
+    }
+
+    private void initViews(View view) {
+        // Timeline & Logic Views
+        groupStepShipping = view.findViewById(R.id.groupStepShipping);
+        cardAddressShip = view.findViewById(R.id.cardAddressShip);
+        cardPickupNote = view.findViewById(R.id.cardPickupNote);
+        ivStep4 = view.findViewById(R.id.ivStep4);
+
+        // Info Views
+        tvStatusTitle = view.findViewById(R.id.tvStatusTitle);
+        tvStatusDesc = view.findViewById(R.id.tvStatusDesc);
+        tvTotalPrice = view.findViewById(R.id.tvTotalPrice);
+        tvCancelNote = view.findViewById(R.id.tvCancelNote);
+
+        // Buttons
+        btnCancelOrder = view.findViewById(R.id.btnCancelOrder);
+        btnBack = view.findViewById(R.id.btnBack);
+    }
+
+*/
+/**
+ * LOGIC QUAN TRỌNG NHẤT: ĐIỀU KHIỂN UI THEO LOẠI ĐƠN*//*
+
+
+
+    private void setupHybridUI(boolean isDelivery) {
+        if (isDelivery) {
+            // --- CHẾ ĐỘ GIAO HÀNG (SHIP) ---
+
+            // 1. Hiện timeline đầy đủ (4 bước)
+            groupStepShipping.setVisibility(View.VISIBLE);
+
+            // 2. Icon đích là Ghim vị trí
+            ivStep4.setImageResource(R.drawable.ic_location_outline);
+
+            // 3. Hiện thẻ địa chỉ, Ẩn thông báo quán
+            cardAddressShip.setVisibility(View.VISIBLE);
+            cardPickupNote.setVisibility(View.GONE);
+
+        } else {
+            // --- CHẾ ĐỘ TẠI QUÁN (PICKUP) ---
+
+            // 1. Ẩn timeline xe máy (Tự co lại còn 3 bước)
+            groupStepShipping.setVisibility(View.GONE);
+
+            // 2. Icon đích là Túi mua hàng
+            ivStep4.setImageResource(R.drawable.ic_shopping_bag);
+
+            // 3. Ẩn thẻ địa chỉ, Hiện thông báo quán
+            cardAddressShip.setVisibility(View.GONE);
+            cardPickupNote.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void fillData() {
+        // Set các text cơ bản
+        tvTotalPrice.setText("660.000 VND");
+
+        if (IS_DELIVERY_MODE) {
+            tvStatusTitle.setText("Đang xử lý");
+            tvStatusDesc.setText("Đang gửi đơn đặt hàng của bạn...");
+        } else {
+            tvStatusTitle.setText("Chờ xác nhận");
+            tvStatusDesc.setText("Vui lòng đợi quán xác nhận đơn...");
+        }
+
+        // --- XỬ LÝ TEXT MÀU ĐỎ CHO DÒNG "Lưu ý:" ---
+        String noteText = "Lưu ý: Bạn chỉ có thể hủy đơn trong quá trình xác nhận";
+        SpannableString spannable = new SpannableString(noteText);
+        // Tô đỏ 7 ký tự đầu (Lưu ý:)
+        spannable.setSpan(new ForegroundColorSpan(Color.parseColor("#B71C1C")),
+                0, 7, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        // Set font đậm cho chữ Lưu ý (Optional)
+        spannable.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
+                0, 7, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        tvCancelNote.setText(spannable);
+    }
+
+    private void handleEvents() {
+        // Nút Back
+        btnBack.setOnClickListener(v -> {
+            if (getActivity() != null) getActivity().onBackPressed();
+        });
+
+        // Nút Hủy Đơn -> Hiện Popup
+        btnCancelOrder.setOnClickListener(v -> showCancelConfirmDialog());
+    }
+
+*/
+/**
+ * HIỂN THỊ POPUP HỦY ĐƠN (Custom Dialog)*//*
+
+
+
+    private void showCancelConfirmDialog() {
+        if (getContext() == null) return;
+
+        final Dialog dialog = new Dialog(getContext());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        // Liên kết với file XML popup bạn đã tạo
+        dialog.setContentView(R.layout.fragment_order_cancel_confirm);
+
+        Window window = dialog.getWindow();
+        if (window == null) return;
+
+        // Làm nền trong suốt để bo góc đẹp
+        window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        WindowManager.LayoutParams windowAttributes = window.getAttributes();
+        windowAttributes.gravity = Gravity.CENTER;
+        window.setAttributes(windowAttributes);
+
+        // Ánh xạ nút trong Dialog
+        MaterialButton btnAgree = dialog.findViewById(R.id.btnAgree);
+        MaterialButton btnCancelAction = dialog.findViewById(R.id.btnCancelAction);
+
+        // Xử lý nút Đồng ý hủy
+        btnAgree.setOnClickListener(v -> {
+            dialog.dismiss();
+            Toast.makeText(getContext(), "Đã hủy đơn hàng thành công!", Toast.LENGTH_SHORT).show();
+            // Thực hiện logic hủy API ở đây...
+            // Sau đó quay về màn hình Home
+        });
+
+        // Xử lý nút Không hủy (Đóng popup)
+        btnCancelAction.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+    }
+}
+*/
+/*
 package com.example.demo.fragment;
 
 import android.app.Dialog;
@@ -28,11 +229,15 @@ import com.example.demo.R; // Nhớ đổi package R
 import com.example.demo.adapters.OrderDetailAdapter;
 import com.example.demo.api.ApiClient;
 import com.example.demo.api.ApiService;
-/*import com.example.demo.models.CancelOrderRequest;*/
+*/
+/*import com.example.demo.models.CancelOrderRequest;*//*
+
 import com.example.demo.models.CancelOrderRequest;
 import com.example.demo.models.CommonResponse;
 import com.example.demo.models.Order;
-/*import com.example.demo.models.OrderDetailResponse;*/
+*/
+/*import com.example.demo.models.OrderDetailResponse;*//*
+
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 
@@ -94,9 +299,13 @@ public class FragmentOrderTracking extends Fragment {
         setupWarningText();
 
         // Gọi API lấy dữ liệu
-        /*fetchOrderData(currentOrderID);*/
+        */
+/*fetchOrderData(currentOrderID);*//*
 
-        /*handleEvents();*/
+
+ */
+/*handleEvents();*//*
+
     }
 
     private void initViews(View view) {
@@ -144,6 +353,26 @@ public class FragmentOrderTracking extends Fragment {
     // ============================================================
     // 1. GỌI API VÀ CẬP NHẬT UI
     // ============================================================
+    */
+/*private void fetchOrderData(String orderId) {
+        ApiService api = ApiClient.getClient().create(ApiService.class);
+        api.getOrderDetail(orderId).enqueue(new Callback<OrderDetailResponse>() {
+            @Override
+            public void onResponse(Call<OrderDetailResponse> call, Response<OrderDetailResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Order order = response.body().getData();
+                    if (order != null) {
+                        updateFullUI(order);
+                    }
+                }
+            }
+            @Override
+            public void onFailure(Call<OrderDetailResponse> call, Throwable t) {
+                Toast.makeText(getContext(), "Lỗi kết nối", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }*//*
+
 
     private void updateFullUI(Order order) {
         // 1. Format Tiền
@@ -356,4 +585,4 @@ public class FragmentOrderTracking extends Fragment {
         s.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 0, 7, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         tvCancelNote.setText(s);
     }
-}
+}*/

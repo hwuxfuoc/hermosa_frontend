@@ -1,11 +1,26 @@
 package com.example.demo;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.demo.api.ApiClient;
+import com.example.demo.api.ApiService;
+import com.example.demo.models.AddUpdateResponse;
+import com.example.demo.models.AddressDetail;
+import com.example.demo.models.AddressRequest;
+import com.example.demo.utils.SessionManager;
 import com.google.android.material.button.MaterialButton;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class AddAddressActivity extends AppCompatActivity {
 
@@ -13,62 +28,159 @@ public class AddAddressActivity extends AppCompatActivity {
 
     private EditText etCustomerName, etPhone, etBuilding, etGate, etNote;
     private TextView tvPickAddress;
+    private MaterialButton btnSave;
+    private android.widget.Button btnTypeHome, btnTypeWork, btnTypeOther;
+
+    private String addressType = "Home";
+
+    private String selectedStreet = "";
+    private String selectedWard = "";
+    private String selectedDistrict = "";
+    private String selectedCity = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_add_address);
 
+        initViews();
+
+        if (getIntent().hasExtra("type")) {
+            updateTypeSelection(getIntent().getStringExtra("type"));
+        }else {
+            updateTypeSelection("home");
+        }
+
+        preFillUserData();
+        //xu ly su kien chon nut
+        btnTypeHome.setOnClickListener(v->updateTypeSelection("home"));
+        btnTypeWork.setOnClickListener(v->updateTypeSelection("work"));
+        btnTypeOther.setOnClickListener(v->updateTypeSelection("other"));
+
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+
+        tvPickAddress.setOnClickListener(v -> {
+            startActivityForResult(new Intent(this, PickLocationActivity.class), REQUEST_PICK_LOCATION);
+        });
+
+        btnSave.setOnClickListener(v -> saveAddressToApi());
+    }
+    private void updateTypeSelection(String type){
+        this.addressType=type;
+        if(btnTypeHome!=null){
+            btnTypeHome.setSelected("home".equals(type));
+        }
+        if(btnTypeWork!=null){
+            btnTypeWork.setSelected("work".equals(type));
+        }
+        if(btnTypeOther!=null){
+            btnTypeOther.setSelected("other".equals(type));
+        }
+    }
+
+    private void initViews() {
         etCustomerName = findViewById(R.id.etCustomerName);
         etPhone = findViewById(R.id.etPhone);
         tvPickAddress = findViewById(R.id.tvPickAddress);
         etBuilding = findViewById(R.id.etBuilding);
         etGate = findViewById(R.id.etGate);
         etNote = findViewById(R.id.etNote);
-
-        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
-
-        // Bấm vào "Chọn địa chỉ" → mở bản đồ
-        tvPickAddress.setOnClickListener(v -> {
-            startActivityForResult(new Intent(this, PickLocationActivity.class), REQUEST_PICK_LOCATION);
-        });
-
-        MaterialButton btnSave = findViewById(R.id.btnSave);
-        btnSave.setOnClickListener(v -> saveAddress());
+        btnSave = findViewById(R.id.btnSave);
+        btnTypeHome=findViewById(R.id.btnTypeHome);
+        btnTypeWork=findViewById(R.id.btnTypeWork);
+        btnTypeOther=findViewById(R.id.btnTypeOther);
     }
 
-    private void saveAddress() {
+    private void preFillUserData() {
+        String name = SessionManager.getUserName(this);
+        String phone = SessionManager.getUserPhone(this);
+        if (name != null) etCustomerName.setText(name);
+        if (phone != null) etPhone.setText(phone);
+    }
+
+    private void saveAddressToApi() {
         String name = etCustomerName.getText().toString().trim();
         String phone = etPhone.getText().toString().trim();
-        String address = tvPickAddress.getText().toString().trim();
+        String building = etBuilding.getText().toString().trim();
+        String gate = etGate.getText().toString().trim();
+        String note = etNote.getText().toString().trim();
 
-        if (name.isEmpty() || phone.isEmpty() || address.equals("Chọn địa chỉ")) {
-            return; // Có thể thêm Toast
+        if (name.isEmpty() || phone.isEmpty() || selectedStreet.isEmpty()) {
+            Toast.makeText(this, "Vui lòng nhập tên, sđt và chọn địa chỉ", Toast.LENGTH_SHORT).show();
+            return;
         }
 
-        String fullAddress = address;
-        if (!etBuilding.getText().toString().trim().isEmpty())
-            fullAddress += ", " + etBuilding.getText().toString().trim();
-        if (!etGate.getText().toString().trim().isEmpty())
-            fullAddress += ", Cổng " + etGate.getText().toString().trim();
-        if (!etNote.getText().toString().trim().isEmpty())
-            fullAddress += " | " + etNote.getText().toString().trim();
+        String tempAddress = selectedStreet;
+        if (!building.isEmpty()) tempAddress += ", " + building;
+        if (!gate.isEmpty()) tempAddress += ", Cổng " + gate;
+        if (!note.isEmpty()) tempAddress += " (" + note + ")";
+        final String finalAddressStr = tempAddress;
+        String userID = SessionManager.getUserID(this);
+        if (userID == null || userID.isEmpty()) {
+            Toast.makeText(this, "Phiên đăng nhập hết hạn", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        Intent result = new Intent();
-        result.putExtra("newAddress", fullAddress);
-        result.putExtra("newCustomer", name + " | " + phone);
-        result.putExtra("type", getIntent().getStringExtra("type"));
-        setResult(RESULT_OK, result);
-        finish();
+        AddressDetail detail = new AddressDetail(
+                finalAddressStr,
+                selectedWard,
+                selectedDistrict,
+                selectedCity,
+                "Việt Nam"
+        );
+
+        AddressRequest request = new AddressRequest(userID, name, phone, addressType, detail);
+
+        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+
+        apiService.addAddress(request).enqueue(new Callback<AddUpdateResponse>() {
+            @Override
+            public void onResponse(Call<AddUpdateResponse> call, Response<AddUpdateResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Toast.makeText(AddAddressActivity.this, "Thêm thành công!", Toast.LENGTH_SHORT).show();
+
+                    Intent result = new Intent();
+                    result.putExtra("newAddress", finalAddressStr); // Dùng biến final
+                    result.putExtra("newCustomer", name + " | " + phone);
+                    result.putExtra("type", addressType);
+                    setResult(RESULT_OK, result);
+                    finish();
+                } else {
+                    Toast.makeText(AddAddressActivity.this, "Lỗi server: " + response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<AddUpdateResponse> call, Throwable t) {
+                Toast.makeText(AddAddressActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_PICK_LOCATION && resultCode == RESULT_OK && data != null) {
-            String address = data.getStringExtra("selectedAddress");
-            tvPickAddress.setText(address);
-            tvPickAddress.setTextColor(getResources().getColor(android.R.color.black));
+
+            String fullAddress = data.getStringExtra("fullAddress");
+            String oldKeyAddress = data.getStringExtra("selectedAddress");
+
+            String displayAddress = (fullAddress != null && !fullAddress.isEmpty()) ? fullAddress : oldKeyAddress;
+
+            String street = data.getStringExtra("street");
+            String ward = data.getStringExtra("ward");
+            String district = data.getStringExtra("district");
+            String city = data.getStringExtra("city");
+
+            selectedStreet = (street != null && !street.isEmpty()) ? street : displayAddress;
+            selectedWard = (ward != null) ? ward : "";
+            selectedDistrict = (district != null) ? district : "";
+            selectedCity = (city != null) ? city : "";
+
+            if (displayAddress != null) {
+                tvPickAddress.setText(displayAddress);
+                tvPickAddress.setTextColor(Color.BLACK);
+            }
         }
     }
 }

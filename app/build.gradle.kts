@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -14,6 +15,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders += mapOf(
+            "appAuthRedirectScheme" to "com.example.demo"
+        )
     }
 
     buildTypes {
@@ -50,11 +54,13 @@ dependencies {
     implementation(libs.mapbox.android)
     implementation(libs.mapbox.search)
     implementation(libs.places)
-    implementation("com.google.android.gms:play-services-auth:21.0.0")
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
     implementation("com.facebook.android:facebook-login:16.0.1")
     // 2. Bộ xử lý chú thích (Annotation Processor) - Rất quan trọng
     annotationProcessor(libs.glide.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
 }

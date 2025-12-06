@@ -7,19 +7,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.demo.AddToCartBottomSheet;
 import com.example.demo.R;
 import com.example.demo.description.DescriptionCake;
 import com.example.demo.description.DescriptionDrink;
 import com.example.demo.description.DescriptionFood;
 import com.example.demo.models.Product;
-import com.bumptech.glide.Glide;
+
 import java.util.List;
 
 public class BestSellerAdapter extends RecyclerView.Adapter<BestSellerAdapter.ViewHolder> {
@@ -43,44 +46,39 @@ public class BestSellerAdapter extends RecyclerView.Adapter<BestSellerAdapter.Vi
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Product product = list.get(position);
 
-        // SỬA TẠI ĐÂY: DÙNG GLIDE + URL THAY VÌ setImageResource
-        Glide.with(context)
-                .load(product.getImageUrl())
-                .placeholder(R.drawable.placeholder_cake)
-                .error(R.drawable.placeholder_cake)
-                .into(holder.imgProduct);
-
+        holder.imgProduct.setImageResource(product.getImageResId());
         holder.tvName.setText(product.getName());
-        holder.tvPrice.setText(formatPrice(product.getPrice()) + " ₫");
+        /*holder.tvPrice.setText(product.getPrice());*/
+        String url=product.getImageUrl();
+        Glide.with(context)
+                .load(url)
+                .placeholder(R.drawable.placeholder_food)
+                .error(R.drawable.ic_launcher_foreground)
+                .into(holder.imgProduct);
+        // holder.tvSold.setText("Đã bán 18K+"); // Nếu có ID text_sold trong XML, thêm vào
+        int colorHex=product.getColor();
+        if(colorHex!=0){
+            holder.bg_item_color.setBackgroundColor(colorHex);
+        }
 
-        // Bấm item → mở Description đúng loại
         holder.itemView.setOnClickListener(v -> {
-            String cat = Product.normalizeCategory(product.getCategory());
-            Class<?> cls = switch (cat) {
+            Class<?> cls = switch (product.getCategory()) {
                 case "drink" -> DescriptionDrink.class;
-                case "food"  -> DescriptionFood.class;
-                default      -> DescriptionCake.class;
+                case "food" -> DescriptionFood.class;
+                default -> DescriptionCake.class;
             };
+
             Intent i = new Intent(context, cls);
             i.putExtra("product", product);
             context.startActivity(i);
         });
 
-        // Bấm +
+        // Bấm btn + → mở BottomSheet
         holder.btnPlus.setOnClickListener(v -> {
             AddToCartBottomSheet sheet = AddToCartBottomSheet.newInstance(product);
             sheet.show(((AppCompatActivity) context).getSupportFragmentManager(), "AddToCart");
         });
     }
-    private String formatPrice(String price) {
-        try {
-            long p = Long.parseLong(price.replaceAll("[^0-9]", ""));
-            return String.format("%,d", p);
-        } catch (Exception e) {
-            return price;
-        }
-    }
-
 
     @Override
     public int getItemCount() {
@@ -91,14 +89,16 @@ public class BestSellerAdapter extends RecyclerView.Adapter<BestSellerAdapter.Vi
         ImageView imgProduct;
         TextView tvName, tvPrice; // tvSold nếu có
         Button btnPlus;
+        LinearLayout bg_item_color;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             imgProduct = itemView.findViewById(R.id.image_product_cart);
             tvName = itemView.findViewById(R.id.text_name_cart);
             tvPrice = itemView.findViewById(R.id.text_price_cart);
-            // tvSold = itemView.findViewById(R.id.text_sold); // Thêm nếu có
+            bg_item_color=itemView.findViewById(R.id.bg_item_color);
             btnPlus = itemView.findViewById(R.id.button_plus);
+
         }
     }
 }
