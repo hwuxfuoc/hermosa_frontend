@@ -11,10 +11,22 @@ public class Order {
     private String deliver;
     private String deliverAddress;
     private String note;
+    /*private long totalInvoice;*/ // Nên dùng long cho tiền tệ
+
+    // --- Bổ sung các trường thiếu ---
+    private long finalTotal;
+    private long deliveryFee;
+    private long tipsforDriver;
+    private long discountAmount;
+    private String voucherCodeApply;
 
     public String getOrderID(){return orderID;}
     public String getUserID(){return userID;}
     public String getStatus(){return status;}
+    public long getFinalTotal() { return finalTotal; }
+    public long getDeliveryFee() { return deliveryFee; }
+    public long getTipsforDriver() { return tipsforDriver; }
+    public long getDiscountAmount() { return discountAmount; }
     public int getTotalInvoice(){return totalInvoice;}
     public List<CartItem> getProducts(){return products;}
     public String getPaymentMethod(){return paymentMethod;}

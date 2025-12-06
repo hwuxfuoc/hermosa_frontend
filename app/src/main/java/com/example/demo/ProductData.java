@@ -139,11 +139,8 @@ public class ProductData {
         return allProducts; // trả về tất cả sản phẩm
     }
 
-    // Lấy sản phẩm theo danh mục (cake / drink / food)
     public static List<Product> getProductsByCategory(String category) {
         List<Product> filteredList = new ArrayList<>();
-
-        // FIX: Kiểm tra null trước khi so sánh
         for (Product p : allProducts) {
             if (p.getCategory() != null &&
                     p.getCategory().equalsIgnoreCase(category != null ? category : "")) {
