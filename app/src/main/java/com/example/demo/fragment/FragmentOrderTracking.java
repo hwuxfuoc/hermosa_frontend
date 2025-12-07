@@ -1,3 +1,4 @@
+/*
 package com.example.demo.fragment;
 
 import android.graphics.Color;
@@ -174,8 +175,12 @@ public class FragmentOrderTracking extends Fragment {
         updateUI(mockOrder);
     }
 
-    // --- 6. HÀM CẬP NHẬT UI CHÍNH ---
-    private void updateUI(Order order) {
+    */
+/*//*
+/ --- 6. HÀM CẬP NHẬT UI CHÍNH ---
+    *//*
+*/
+/*private void updateUI(Order order) {
         if (getContext() == null) return;
 
         // 1. Hiển thị thông tin chung (Format tiền tệ)
@@ -199,9 +204,9 @@ public class FragmentOrderTracking extends Fragment {
 
         // 3. Xử lý Logic Trạng thái (Quan trọng nhất)
         updateStatusTimeline(order.getStatus());
-    }
+    }*//*
 
-    // --- 7. LOGIC TIMELINE & STATUS ---
+        // --- 7. LOGIC TIMELINE & STATUS ---
     private void updateStatusTimeline(String status) {
         if (status == null) status = "pending";
 
@@ -360,4 +365,4 @@ public class FragmentOrderTracking extends Fragment {
             }
         }
     }
-}
+}*/

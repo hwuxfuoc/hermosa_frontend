@@ -272,6 +272,7 @@ import com.example.demo.api.ApiClient;
 import com.example.demo.api.ApiService;
 import com.example.demo.models.CartResponse;
 import com.example.demo.ConfirmOrderActivity;
+import com.example.demo.models.Order;
 import com.example.demo.models.OrderResponse;
 import com.example.demo.utils.SessionManager;
 
@@ -279,6 +280,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -495,12 +497,21 @@ private void gotoConfirm() {
             btnCheckout.setText("Mua hàng");
 
             if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                Order orderData = response.body().getData();
                 String orderID = response.body().getData().getOrderID();
+                double autoDiscount = orderData.getDiscountAmount();
+                String autoVoucherCode = orderData.getVoucherCodeApply();
                 Log.d("CART_DEBUG", "TẠO ĐƠN THÀNH CÔNG: " + orderID);
+                Log.d("CART_DEBUG", "Voucher tự động: " + autoVoucherCode + " - Giảm: " + autoDiscount);
+
+
 
                 // 5. CHUYỂN MÀN HÌNH VÀ GỬI ORDER_ID
                 Intent intent = new Intent(requireActivity(), ConfirmOrderActivity.class);
                 intent.putExtra("ORDER_ID", orderID);
+                intent.putExtra("SELECTED_ITEMS", (Serializable) selectedItems);
+                intent.putExtra("AUTO_DISCOUNT", autoDiscount);
+                intent.putExtra("AUTO_VOUCHER_CODE", autoVoucherCode);
                 startActivity(intent);
             } else {
                 Toast.makeText(requireContext(), "Tạo đơn thất bại", Toast.LENGTH_SHORT).show();

@@ -207,5 +207,7 @@ public interface ApiService {
     Call<ConfirmPaymentResponse> confirmPaymentStatus(@Query("orderID") String orderID);
     @POST("vnpay/create")
     Call<String> createPaymentVnpay(@Body Map<String, String> body);
+    @POST("user/social-login")
+    Call<AuthResponse> socialLogin(@Body Map<String, String> body);
 }
 

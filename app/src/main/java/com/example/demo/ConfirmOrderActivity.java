@@ -14,6 +14,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
@@ -96,6 +97,8 @@ public class ConfirmOrderActivity extends AppCompatActivity
     private Runnable pollingRunnable;
     private boolean isPolling = false; // Cờ kiểm soát việc polling
     private static final long POLL_DELAY_MS = 3000;
+    private double autoDiscountAmount = 0;
+    private String autoVoucherCode = null;
     private static final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS", Locale.US);
 
     private void L(String msg) {
@@ -146,9 +149,41 @@ public class ConfirmOrderActivity extends AppCompatActivity
             Toast.makeText(this, "Thiếu mã đơn hàng!", Toast.LENGTH_SHORT).show();
             // Có thể finish() nếu bắt buộc phải có ID
         }
+        if (getIntent().hasExtra("AUTO_DISCOUNT")) {
+            autoDiscountAmount = getIntent().getDoubleExtra("AUTO_DISCOUNT", 0);
+            autoVoucherCode = getIntent().getStringExtra("AUTO_VOUCHER_CODE");
+
+            // Cập nhật biến toàn cục hiện tại của Activity để dùng cho tính toán sau này
+            this.currentDiscountAmount = autoDiscountAmount;
+            this.selectedVoucherCode = autoVoucherCode;
+
+            // Log kiểm tra
+            Log.d(TAG, "Nhận được Voucher tự động: " + autoVoucherCode + " | Giảm: " + autoDiscountAmount);
+        }
+
+
 
         // Xử lý deep link ngay từ đầu (nếu mở từ MoMo)
         handleDeepLink(getIntent());
+        /*getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true *//* enabled *//*) {
+            @Override
+            public void handleOnBackPressed() {
+                // LOGIC XỬ LÝ KHI BẤM NÚT BACK (Áp dụng cho mọi hình thức)
+
+                // 1. Dừng Polling (nếu có)
+                stopPolling();
+
+                // 2. Gọi hàm hủy đơn hàng nháp
+                if (existingOrderID != null) {
+                    L("Người dùng bấm Back (Dispatcher). Tiến hành hủy đơn hàng nháp: " + existingOrderID);
+                    deletePendingOrder(existingOrderID);
+                }
+
+                // 3. Cho phép Activity đóng.
+                // Gọi lệnh này để kết thúc Activity một cách an toàn
+                ConfirmOrderActivity.super.onBackPressed();
+            }
+        });*/
 
     }
     @Override
@@ -157,6 +192,30 @@ public class ConfirmOrderActivity extends AppCompatActivity
         setIntent(intent);
         // Xử lý khi App đang mở mà Web redirect về (VNPay)
         handleDeepLink(intent);
+    }
+    // Thêm hàm này vào trong ConfirmOrderActivity
+    private void updateVoucherUI() {
+        if (selectedVoucherCode != null && !selectedVoucherCode.isEmpty()) {
+            // Nếu có mã, hiện mã và đổi màu đỏ/cam
+            tvaddvoucher.setText(selectedVoucherCode);
+            tvaddvoucher.setTextColor(ContextCompat.getColor(this, R.color.smoothie_strawberry)); // Hoặc R.color.red tùy resource
+
+            // Hiện dòng giảm giá
+            if (tvDiscount != null) {
+                tvDiscount.setVisibility(View.VISIBLE);
+                tvDiscount.setText(String.format("- %,d VND", (long) currentDiscountAmount));
+            }
+            if (tvDiscountLable != null) tvDiscountLable.setVisibility(View.VISIBLE);
+
+        } else {
+            // Nếu không có, hiện chữ "Thêm" màu đen
+            tvaddvoucher.setText("Thêm");
+            tvaddvoucher.setTextColor(ContextCompat.getColor(this, R.color.black));
+
+            // Ẩn dòng giảm giá
+            if (tvDiscount != null) tvDiscount.setVisibility(View.GONE);
+            if (tvDiscountLable != null) tvDiscountLable.setVisibility(View.GONE);
+        }
     }
 
 
@@ -279,28 +338,48 @@ public class ConfirmOrderActivity extends AppCompatActivity
                         Intent data = result.getData();
                         String method = data.getStringExtra("deliveryMethod");
 
+                        // Tính sẵn tổng tiền hàng (Subtotal) từ danh sách hiện có
+                        long subtotal = 0;
+                        for (CartResponse.CartItem item : cartItemsLocal) {
+                            subtotal += item.getSubtotal();
+                        }
+
                         if ("delivery".equals(method)) {
+                            // --- TRƯỜNG HỢP GIAO HÀNG ---
                             currentDeliveryMethod = "delivery";
                             currentAddress = data.getStringExtra("address");
-                            currentAddressID = data.getStringExtra("addressID"); // Quan trọng: Phải lấy được ID
+                            currentAddressID = data.getStringExtra("addressID");
                             apiCustomer = data.getStringExtra("customer");
 
                             updateDeliveryUI();
 
-                            // --- THÊM DÒNG NÀY ---
-                            // Gọi API tính phí ngay khi có địa chỉ
+                            // Reset phí ship tạm thời và hiển thị "Đang tính..."
+                            currentShippingFee = 0;
+                            tvShipping.setText("Đang tính...");
+
+                            // Cập nhật tạm thời (để không bị mất giá trong lúc chờ Server)
+                            updateTotalsWithDiscount(subtotal, (long) currentDiscountAmount);
+
+                            // Gọi API tính phí ship thực tế
                             getFeePreview();
-                            // ---------------------
 
                         } else {
-                            // Nếu chọn Pickup (Tại quán) -> Phí ship = 0
+                            // --- TRƯỜNG HỢP NHẬN TẠI QUÁN (SỬA Ở ĐÂY) ---
                             currentDeliveryMethod = "pickup";
-                            currentShippingFee = 0;
-                            tvShipping.setText("0 VND");
+
+                            // 1. Reset các biến liên quan đến giao hàng
+                            currentShippingFee = 0; // Phí ship về 0
+                            currentAddressID = null; // Xóa ID địa chỉ (quan trọng để không gửi lên server)
+                            currentAddress = "";
+
+                            // 2. Cập nhật giao diện text
                             updateDeliveryUI();
 
-                            // Tính lại tổng tiền (Local)
-                            long subtotal = cartItemsLocal.stream().mapToLong(CartResponse.CartItem::getSubtotal).sum();
+                            // 3. Hiển thị phí ship là 0đ ngay lập tức
+                            tvShipping.setText("0 VND");
+
+                            // 4. QUAN TRỌNG: Gọi hàm tính tổng tiền ngay lập tức
+                            // (Vì không gọi API getFeePreview nên phải tự gọi hàm này để refresh giá)
                             updateTotalsWithDiscount(subtotal, (long) currentDiscountAmount);
                         }
                     }
@@ -327,7 +406,29 @@ public class ConfirmOrderActivity extends AppCompatActivity
                     }
                 });
     }*/
-    private void deletePendingOrder() {
+    private void deletePendingOrder(String orderID) {
+        if (orderID == null || orderID.isEmpty()) return;
+
+        L("Đang dọn dẹp đơn hàng nháp: " + orderID);
+
+        Map<String, String> body = new HashMap<>();
+        // Dùng OrderID cụ thể để xóa (Tùy thuộc vào thiết kế API của bạn)
+        body.put("orderID", orderID);
+        // Nếu API backend vẫn yêu cầu userID: body.put("userID", userID);
+
+        apiService.deleteInterruptOrder(body).enqueue(new Callback<CommonResponse>() {
+            @Override
+            public void onResponse(Call<CommonResponse> call, Response<CommonResponse> response) {
+                L("Dọn dẹp đơn hàng nháp " + orderID + " thành công (hoặc không có đơn để xóa).");
+            }
+
+            @Override
+            public void onFailure(Call<CommonResponse> call, Throwable t) {
+                L("Lỗi dọn dẹp đơn hàng nháp: " + t.getMessage());
+            }
+        });
+    }
+    /*private void deletePendingOrder() {
         // Chỉ xóa nếu có UserID
         if (userID == null) return;
 
@@ -348,7 +449,7 @@ public class ConfirmOrderActivity extends AppCompatActivity
                 L("Lỗi dọn dẹp đơn hàng: " + t.getMessage());
             }
         });
-    }
+    }*/
     private void registerVoucherLauncher() {
         selectVoucherLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -535,7 +636,11 @@ public class ConfirmOrderActivity extends AppCompatActivity
 
                 // Tính tổng tiền ban đầu
                 long subtotal = cartItemsLocal.stream().mapToLong(CartResponse.CartItem::getSubtotal).sum();
-                updateTotalsWithDiscount(subtotal, 0);
+                /*updateTotalsWithDiscount(subtotal, 0);*/
+                updateTotalsWithDiscount(subtotal, (long) currentDiscountAmount);
+
+                // Cập nhật text hiển thị mã voucher
+                updateVoucherUI();
 
                 return; // Xong, không cần gọi API nữa
             }
@@ -610,6 +715,14 @@ public class ConfirmOrderActivity extends AppCompatActivity
 
     private void setupClickListeners() {
         btnBack.setOnClickListener(v -> finish());
+        /*btnBack.setOnClickListener(v -> {
+            stopPolling();
+            if (existingOrderID != null) {
+                L("Người dùng bấm nút Back. Tiến hành hủy đơn hàng nháp: " + existingOrderID);
+                deletePendingOrder(existingOrderID); // <--- Gọi hàm xóa ở đây
+            }
+            finish(); // Thoát Activity
+        });*/
         btnCash.setOnClickListener(v -> onPaymentMethodSelected(PAYMENT_METHOD_CASH));
         btnMomo.setOnClickListener(v -> onPaymentMethodSelected(PAYMENT_METHOD_MOMO));
         btnOtherPayment.setOnClickListener(v -> {
@@ -618,7 +731,15 @@ public class ConfirmOrderActivity extends AppCompatActivity
             f.show(getSupportFragmentManager(), "payment_sheet");
         });
 
-        tvaddvoucher.setOnClickListener(v->selectVoucherLauncher.launch(new Intent(this,VoucherSelectionActivity.class)));
+        /*tvaddvoucher.setOnClickListener(v->selectVoucherLauncher.launch(new Intent(this,VoucherSelectionActivity.class)));*/
+        tvaddvoucher.setOnClickListener(v -> {
+            Intent intent = new Intent(this, VoucherSelectionActivity.class);
+            // Gửi mã đang chọn sang để màn hình kia biết
+            if (selectedVoucherCode != null) {
+                intent.putExtra("CURRENT_VOUCHER_CODE", selectedVoucherCode);
+            }
+            selectVoucherLauncher.launch(intent);
+        });
         tvEditAddress.setOnClickListener(v -> selectAddressLauncher.launch(new Intent(this, SelectAddressActivity.class)));
         btnTipNone.setOnClickListener(v->{updateTipSelection(0);});
         btnTip.setOnClickListener(v->{showCustomTipDialog();});
@@ -1555,13 +1676,43 @@ public class ConfirmOrderActivity extends AppCompatActivity
             pollingRunnable.run();
         }
     }
+    /*@Override
+    public void onBackPressed() {
+        // 1. Dừng Polling (nếu có)
+        stopPolling();
 
+        // 2. Gọi hàm hủy đơn hàng (chỉ hủy nếu chưa thanh toán)
+        // Lấy Order ID từ biến đã được truyền từ màn Cart
+        if (existingOrderID != null) {
+            L("Người dùng bấm Back. Tiến hành hủy đơn hàng nháp: " + existingOrderID);
+            deletePendingOrder(existingOrderID); // <--- Gọi hàm xóa ở đây
+        }
+
+        // 3. Cho phép Activity đóng
+        super.onBackPressed();
+    }*/
     @Override
+    protected void onDestroy() {
+        L("onDestroy() → dọn dẹp polling");
+        stopPolling();
+
+        // Thêm kiểm tra này nếu muốn hủy khi hệ thống kill App
+        // (Nhưng nên ưu tiên hủy ở onBackPressed() vì nó rõ ràng hơn)
+        if (isFinishing() && existingOrderID != null) {
+            L("onDestroy() -> Activity sắp đóng. Hủy đơn nháp: " + existingOrderID);
+            deletePendingOrder(existingOrderID);
+        }
+
+        super.onDestroy();
+    }
+
+
+    /*@Override
     protected void onDestroy() {
         // Nếu người dùng CHƯA đặt hàng thành công mà đã thoát -> Xóa đơn nháp
 
         L("onDestroy() → dọn dẹp polling");
         stopPolling();
         super.onDestroy();
-    }
+    }*/
 }
