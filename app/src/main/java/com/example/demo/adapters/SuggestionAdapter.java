@@ -34,9 +34,7 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Vi
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         MapboxSuggestionResponse.SuggestionItem item = list.get(position);
-        holder.tvName.setText(item.name); // Hiển thị tên địa điểm đầy đủ
-
-        // Bắt sự kiện khi chọn 1 địa chỉ
+        holder.tvName.setText(item.name);
         holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
     }
 
@@ -53,7 +51,6 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Vi
         }
     }
 
-    // Hàm cập nhật dữ liệu mới khi gõ phím
     public void updateData(List<MapboxSuggestionResponse.SuggestionItem> newList) {
         this.list = newList;
         notifyDataSetChanged();

@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 public class ApiClient {
     private static Retrofit retrofit = null;
-    private static final String BASE_URL = "http://10.0.2.2:8000/";
+    private static final String BASE_URL = "https://38d670f12a80.ngrok-free.app";
 
     public static Retrofit getClient() {
         if (retrofit == null) {
@@ -17,8 +17,8 @@ public class ApiClient {
 
             OkHttpClient client = new OkHttpClient.Builder()
                     .addInterceptor(logging)
-                    .connectTimeout(30, TimeUnit.SECONDS)
-                    .readTimeout(30, TimeUnit.SECONDS)
+                    .connectTimeout(90, TimeUnit.SECONDS)
+                    .readTimeout(90, TimeUnit.SECONDS)
                     .build();
 
             retrofit = new Retrofit.Builder()

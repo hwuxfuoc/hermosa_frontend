@@ -58,7 +58,7 @@ public class VoucherWalletActivity extends AppCompatActivity {
     }
 
     private void loadMyVouchers() {
-        apiService.getMyVouchers(userID).enqueue(new Callback<VoucherResponse>() {
+        apiService.getAvailableVouchers(userID).enqueue(new Callback<VoucherResponse>() {
             @Override
             public void onResponse(Call<VoucherResponse> call, Response<VoucherResponse> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {

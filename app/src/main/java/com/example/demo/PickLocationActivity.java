@@ -1,4 +1,5 @@
 package com.example.demo;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -65,6 +66,8 @@ public class PickLocationActivity extends AppCompatActivity {
     private SuggestionAdapter suggestionAdapter;
     private Handler handler = new Handler();
     private Runnable searchRunnable;
+
+    // Khởi tạo chuỗi rỗng để tránh NullPointerException ngay từ đầu
     private String finalAddressName = "";
     private String finalStreet = "";
     private String finalWard = "";
@@ -92,7 +95,9 @@ public class PickLocationActivity extends AppCompatActivity {
         btnSearch = findViewById(R.id.button);
         fabMyLocation = findViewById(R.id.fabMyLocation);
         rvSuggestions = findViewById(R.id.rvSuggestions);
+
         rvSuggestions.setLayoutManager(new LinearLayoutManager(this));
+        // Truyền callback khi chọn item gợi ý
         suggestionAdapter = new SuggestionAdapter(new ArrayList<>(), this::onSuggestionSelected);
         rvSuggestions.setAdapter(suggestionAdapter);
     }
@@ -101,22 +106,24 @@ public class PickLocationActivity extends AppCompatActivity {
         if (mapView != null) {
             mapboxMap = mapView.getMapboxMap();
             mapboxMap.loadStyleUri(Style.MAPBOX_STREETS);
+
             GesturesPlugin gesturesPlugin = GesturesUtils.getGestures(mapView);
             gesturesPlugin.addOnMoveListener(new OnMoveListener() {
                 @Override
                 public void onMoveBegin(@NonNull MoveGestureDetector detector) {
+                    // Khi người dùng di chuyển map -> ẩn gợi ý và bàn phím
                     rvSuggestions.setVisibility(View.GONE);
                     hideKeyboard();
                 }
 
                 @Override
                 public boolean onMove(@NonNull MoveGestureDetector detector) {
-                    // Trả về false để Mapbox vẫn xử lý việc di chuyển map bình thường
                     return false;
                 }
 
                 @Override
                 public void onMoveEnd(@NonNull MoveGestureDetector detector) {
+                    // Khi dừng di chuyển -> Lấy tọa độ tâm và reverse geocoding
                     if (mapboxMap != null) {
                         Point center = mapboxMap.getCameraState().getCenter();
                         if (center != null) {
@@ -127,6 +134,7 @@ public class PickLocationActivity extends AppCompatActivity {
             });
         }
     }
+
     private void setupSearchLogic() {
         etSearchAddress.addTextChangedListener(new TextWatcher() {
             @Override
@@ -136,7 +144,10 @@ public class PickLocationActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
+                // Chỉ gọi API khi người dùng đang tương tác nhập liệu
                 if (!isUserInteracting) return;
+
+                // Debounce: Đợi 500ms sau khi ngừng gõ mới gọi API
                 if (searchRunnable != null) handler.removeCallbacks(searchRunnable);
                 searchRunnable = () -> {
                     String query = s.toString().trim();
@@ -149,6 +160,8 @@ public class PickLocationActivity extends AppCompatActivity {
                 handler.postDelayed(searchRunnable, 500);
             }
         });
+
+        // Đánh dấu người dùng đang tương tác
         etSearchAddress.setOnFocusChangeListener((v, hasFocus) -> isUserInteracting = hasFocus);
         etSearchAddress.setOnClickListener(v -> isUserInteracting = true);
     }
@@ -168,12 +181,14 @@ public class PickLocationActivity extends AppCompatActivity {
                     }
                 }
             }
+
             @Override
             public void onFailure(Call<MapboxSuggestionResponse> call, Throwable t) {
                 Log.e("PickLocation", "Lỗi API: " + t.getMessage());
             }
         });
     }
+
     private void searchAndMoveToFirstResult(String query) {
         hideKeyboard();
         Toast.makeText(this, "Đang tìm kiếm...", Toast.LENGTH_SHORT).show();
@@ -183,11 +198,10 @@ public class PickLocationActivity extends AppCompatActivity {
             public void onResponse(Call<MapboxSuggestionResponse> call, Response<MapboxSuggestionResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     List<MapboxSuggestionResponse.SuggestionItem> list = response.body().getData();
-
                     if (list != null && !list.isEmpty()) {
+                        // Chọn kết quả đầu tiên
                         MapboxSuggestionResponse.SuggestionItem topResult = list.get(0);
                         onSuggestionSelected(topResult);
-
                     } else {
                         Toast.makeText(PickLocationActivity.this, "Không tìm thấy địa điểm này", Toast.LENGTH_SHORT).show();
                     }
@@ -195,25 +209,33 @@ public class PickLocationActivity extends AppCompatActivity {
                     Toast.makeText(PickLocationActivity.this, "Lỗi tìm kiếm", Toast.LENGTH_SHORT).show();
                 }
             }
-
             @Override
             public void onFailure(Call<MapboxSuggestionResponse> call, Throwable t) {
                 Toast.makeText(PickLocationActivity.this, "Lỗi kết nối mạng", Toast.LENGTH_SHORT).show();
             }
         });
     }
+
+    // --- SỬA LẠI HÀM NÀY ĐỂ TRÁNH NULL ---
     private void onSuggestionSelected(MapboxSuggestionResponse.SuggestionItem item) {
         isUserInteracting = false;
         rvSuggestions.setVisibility(View.GONE);
         hideKeyboard();
-        finalAddressName = item.name;
-        finalStreet = item.street;
-        finalWard = item.ward;
-        finalDistrict = item.district;
-        finalCity = item.city;
 
-        etSearchAddress.setText(item.name);
+        // Ưu tiên tên tiếng Việt, nếu không có lấy tên gốc
+        String displayName = item.place_name_vi != null ? item.place_name_vi : item.place_name;
 
+        // Cập nhật UI
+        etSearchAddress.setText(displayName);
+
+        // Lưu dữ liệu vào biến toàn cục (kiểm tra null an toàn)
+        finalAddressName = displayName != null ? displayName : "";
+        finalStreet = item.street != null ? item.street : finalAddressName; // Nếu không có tên đường, lấy full name
+        finalWard = item.ward != null ? item.ward : "";
+        finalDistrict = item.district != null ? item.district : "";
+        finalCity = item.city != null ? item.city : "";
+
+        // Di chuyển camera đến vị trí chọn
         if (mapboxMap != null) {
             CameraOptions options = new CameraOptions.Builder()
                     .center(Point.fromLngLat(item.lon, item.lat))
@@ -222,24 +244,47 @@ public class PickLocationActivity extends AppCompatActivity {
             mapboxMap.setCamera(options);
         }
     }
+
+    // --- SỬA LẠI HÀM NÀY ĐỂ TRÁNH NULL KHI GEOCODER LỖI ---
     private void getAddressFromCoordinates(double lat, double lng) {
         new Thread(() -> {
             Geocoder geocoder = new Geocoder(this, Locale.getDefault());
             try {
+                // Lấy tối đa 1 địa chỉ
                 List<Address> addresses = geocoder.getFromLocation(lat, lng, 1);
+
                 if (addresses != null && !addresses.isEmpty()) {
                     Address addr = addresses.get(0);
+                    // Lấy dòng địa chỉ đầy đủ (thường là chính xác nhất)
                     String fullAddr = addr.getAddressLine(0);
 
                     runOnUiThread(() -> {
                         isUserInteracting = false;
-                        etSearchAddress.setText(fullAddr);
 
-                        finalAddressName = fullAddr;
-                        finalStreet = addr.getThoroughfare() != null ? addr.getThoroughfare() : fullAddr;
-                        finalWard = addr.getSubLocality();
-                        finalDistrict = addr.getSubAdminArea();
-                        finalCity = addr.getAdminArea();
+                        // Cập nhật UI
+                        if (fullAddr != null) {
+                            etSearchAddress.setText(fullAddr);
+                            finalAddressName = fullAddr;
+                        } else {
+                            etSearchAddress.setText("");
+                            finalAddressName = "";
+                        }
+
+                        // Parse các thành phần địa chỉ
+                        if (addr.getThoroughfare() != null) {
+                            finalStreet = addr.getThoroughfare();
+                            if (addr.getSubThoroughfare() != null) {
+                                finalStreet = addr.getSubThoroughfare() + " " + finalStreet;
+                            }
+                        } else {
+                            // Nếu không có tên đường riêng, dùng địa chỉ full
+                            finalStreet = finalAddressName;
+                        }
+
+                        // Kiểm tra null cho các trường khác
+                        finalWard = addr.getSubLocality() != null ? addr.getSubLocality() : "";
+                        finalDistrict = addr.getSubAdminArea() != null ? addr.getSubAdminArea() : "";
+                        finalCity = addr.getAdminArea() != null ? addr.getAdminArea() : "";
                     });
                 }
             } catch (IOException e) {
@@ -250,22 +295,41 @@ public class PickLocationActivity extends AppCompatActivity {
 
     private void setupClickEvents() {
         if (btnBack != null) btnBack.setOnClickListener(v -> finish());
+
+        // --- NÚT LƯU ĐỊA CHỈ (FIX CRASH TẠI ĐÂY) ---
         if (btnSaveAddress != null) btnSaveAddress.setOnClickListener(v -> {
-            if (finalAddressName.isEmpty()) {
-                finalAddressName = etSearchAddress.getText().toString();
+            // Lấy text người dùng đang nhập làm dự phòng
+            String currentText = etSearchAddress.getText().toString().trim();
+
+            // Nếu các biến final đang null hoặc rỗng, dùng text hiện tại
+            if (finalAddressName == null || finalAddressName.isEmpty()) {
+                finalAddressName = currentText;
+            }
+            // Nếu tên đường chưa có, lấy luôn tên địa chỉ full
+            if (finalStreet == null || finalStreet.isEmpty()) {
+                finalStreet = currentText;
+            }
+
+            // Kiểm tra lần cuối, nếu vẫn rỗng thì báo lỗi
+            if (finalAddressName == null || finalAddressName.isEmpty()) {
+                Toast.makeText(this, "Vui lòng chọn một địa chỉ", Toast.LENGTH_SHORT).show();
+                return;
             }
 
             Intent result = new Intent();
+            // Put dữ liệu an toàn (đảm bảo không null)
             result.putExtra("fullAddress", finalAddressName);
-            result.putExtra("street", finalStreet);
-            result.putExtra("ward", finalWard);
-            result.putExtra("district", finalDistrict);
-            result.putExtra("city", finalCity);
-            result.putExtra("selectedAddress", finalAddressName);
+            result.putExtra("selectedAddress", finalAddressName); // Key cũ hỗ trợ tương thích
+
+            result.putExtra("street", finalStreet != null ? finalStreet : "");
+            result.putExtra("ward", finalWard != null ? finalWard : "");
+            result.putExtra("district", finalDistrict != null ? finalDistrict : "");
+            result.putExtra("city", finalCity != null ? finalCity : "");
 
             setResult(RESULT_OK, result);
             finish();
         });
+
         if (fabMyLocation != null) fabMyLocation.setOnClickListener(v -> {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Đang lấy vị trí...", Toast.LENGTH_SHORT).show();
@@ -274,6 +338,7 @@ public class PickLocationActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 111);
             }
         });
+
         if (btnSearch != null) btnSearch.setOnClickListener(v -> {
             String query = etSearchAddress.getText().toString().trim();
             if(!query.isEmpty()) {
@@ -281,12 +346,14 @@ public class PickLocationActivity extends AppCompatActivity {
             }
         });
     }
+
     private void moveToUserLocation() {
         if (mapView == null) return;
         LocationComponentPlugin locationPlugin = LocationComponentUtils.getLocationComponent(mapView);
         if (!locationPlugin.getEnabled()) {
             locationPlugin.setEnabled(true);
         }
+
         OnIndicatorPositionChangedListener onIndicatorPositionChangedListener = new OnIndicatorPositionChangedListener() {
             @Override
             public void onIndicatorPositionChanged(@NonNull Point point) {
@@ -296,15 +363,16 @@ public class PickLocationActivity extends AppCompatActivity {
                                 .zoom(15.0)
                                 .build()
                 );
-
+                // Xóa listener sau khi lấy được vị trí lần đầu
                 locationPlugin.removeOnIndicatorPositionChangedListener(this);
-
+                // Lấy địa chỉ của vị trí hiện tại
                 getAddressFromCoordinates(point.latitude(), point.longitude());
             }
         };
 
         locationPlugin.addOnIndicatorPositionChangedListener(onIndicatorPositionChangedListener);
     }
+
     private void hideKeyboard() {
         View view = this.getCurrentFocus();
         if (view != null) {

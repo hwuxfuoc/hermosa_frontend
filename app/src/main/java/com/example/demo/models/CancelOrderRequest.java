@@ -3,9 +3,10 @@ package com.example.demo.models;
 import com.google.gson.annotations.SerializedName;
 
 public class CancelOrderRequest {
-    // Tên biến này phải trùng khớp với backend: let {orderID} = req.body
+
     @SerializedName("orderID")
     private String orderID;
+    public CancelOrderRequest() {}
 
     // Constructor để tạo nhanh: new CancelOrderRequest("ORD-123")
     public CancelOrderRequest(String orderID) {

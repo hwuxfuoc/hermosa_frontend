@@ -41,6 +41,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
     private boolean isEditMode = false;
     private boolean isConfirmMode = false;
 
+    // Interface để báo cho Fragment biết cần update
     public interface OnCartUpdateListener { void onCartUpdated(); }
     public interface OnItemCheckListener { void onUpdateTotal(); }
 
@@ -93,6 +94,8 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
         // Checkbox
         holder.cbSelect.setVisibility(isConfirmMode ? View.GONE : View.VISIBLE);
         if (!isConfirmMode) {
+            // Gỡ listener trước khi set trạng thái để tránh trigger sai
+            holder.cbSelect.setOnCheckedChangeListener(null);
             holder.cbSelect.setChecked(item.isSelected());
         }
 
@@ -109,10 +112,12 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
                             MenuResponse.MenuItem product = res.body().getData();
 
                             // Load ảnh
-                            Glide.with(holder.itemView.getContext())
-                                    .load(product.getPicture())
-                                    .placeholder(R.drawable.cake_strawberry_cheese)
-                                    .into(holder.imgProduct);
+                            if (holder.itemView.getContext() != null) {
+                                Glide.with(holder.itemView.getContext())
+                                        .load(product.getPicture())
+                                        .placeholder(R.drawable.cake_strawberry_cheese)
+                                        .into(holder.imgProduct);
+                            }
 
                             String hex = product.getBackgroundHexacode();
                             if (hex != null && !hex.isEmpty()) {
@@ -126,7 +131,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
                                 holder.itemBackground.setCardBackgroundColor(0xFFF0BCBC);
                             }
                         } else {
-                            // Nếu API lỗi → fallback
                             holder.itemBackground.setCardBackgroundColor(0xFFF0BCBC);
                         }
                     }
@@ -163,14 +167,19 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
             delete(items.get(pos).getId(), holder.itemView.getContext());
         });
 
-        // Checkbox thay đổi
-        if (!isConfirmMode && checkListener != null) {
-            holder.cbSelect.setOnCheckedChangeListener(null);
+        // Xử lý sự kiện Checkbox
+        if (!isConfirmMode) {
             holder.cbSelect.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 int pos = holder.getAdapterPosition();
-                if (pos == RecyclerView.NO_POSITION) return;
-                items.get(pos).setSelected(isChecked);
-                checkListener.onUpdateTotal();
+                if (pos != RecyclerView.NO_POSITION) {
+                    // 1. Cập nhật model
+                    items.get(pos).setSelected(isChecked);
+
+                    // 2. Báo cho Fragment tính lại tổng tiền
+                    if (checkListener != null) {
+                        checkListener.onUpdateTotal();
+                    }
+                }
             });
         }
     }

@@ -10,9 +10,17 @@ public class OrderResponse {
     private String message;
 
     @SerializedName("data")
-    private Order data; // Trả về 1 đối tượng Order
+    private Order data; // Bây giờ nó sẽ nhận diện được class Order
 
     public String getStatus() { return status; }
     public String getMessage() { return message; }
     public Order getData() { return data; }
+
+    // Helper method
+    public String getOrderID() {
+        if (data != null) {
+            return data.getOrderID();
+        }
+        return null;
+    }
 }

@@ -15,8 +15,11 @@ import androidx.fragment.app.Fragment;
 import androidx.core.content.ContextCompat;
 
 import com.example.demo.ActivityForgotPassword;
+import com.example.demo.AddAddressActivity;
 import com.example.demo.R;
+import com.example.demo.SelectAddressActivity;
 import com.example.demo.VoucherWalletActivity;
+import com.example.demo.models.AddressDetail;
 import com.example.demo.utils.SessionManager;
 
 public class FragmentProfile extends Fragment {
@@ -85,6 +88,11 @@ public class FragmentProfile extends Fragment {
 
         layoutVoucher.setOnClickListener(v -> {
             Intent intent = new Intent(requireContext(), VoucherWalletActivity.class);
+            startActivity(intent);
+        });
+
+        layoutAddress.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), SelectAddressActivity.class);
             startActivity(intent);
         });
 

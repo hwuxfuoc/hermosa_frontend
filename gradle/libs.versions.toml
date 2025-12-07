@@ -23,6 +23,8 @@ places = "5.1.1"
 firebaseBom = "32.8.0"
 googleServices = "4.4.1"
 play-services-auth = "20.7.0"
+navigationFragment = "2.9.6"
+navigationUi = "2.9.6"
 
 
 [libraries]
@@ -51,6 +53,8 @@ places = { group = "com.google.android.libraries.places", name = "places", versi
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
 play-services-auth-lib = { module = "com.google.android.gms:play-services-auth", version.ref = "play-services-auth" }
+navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigationFragment" }
+navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "navigationUi" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

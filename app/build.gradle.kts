@@ -56,6 +56,8 @@ dependencies {
     implementation(libs.places)
     implementation("com.google.android.gms:play-services-auth:20.7.0")
     implementation("com.facebook.android:facebook-login:16.0.1")
+    implementation(libs.navigation.fragment)
+    implementation(libs.navigation.ui)
     // 2. Bộ xử lý chú thích (Annotation Processor) - Rất quan trọng
     annotationProcessor(libs.glide.compiler)
     testImplementation(libs.junit)

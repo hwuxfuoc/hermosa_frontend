@@ -4,7 +4,9 @@ import android.content.Context;
 import com.example.demo.R;
 import com.google.gson.annotations.SerializedName;
 
-public class CartItem {
+import java.io.Serializable;
+
+public class CartItem /*implements Serializable*/ {
 
     @SerializedName("_id")
     private String id;                    // ObjectId từ MongoDB

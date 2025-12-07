@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.demo.adapters.CheckboxAdapter;
 import com.example.demo.models.CheckboxItem;
 import com.example.demo.models.Product;
+import com.example.demo.models.ProductData;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import java.util.ArrayList;

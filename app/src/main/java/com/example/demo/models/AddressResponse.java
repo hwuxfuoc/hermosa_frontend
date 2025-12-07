@@ -9,7 +9,6 @@ public class AddressResponse {
     public List<AddressData> getData() { return data; }
     public String getMessage() { return message; }
 
-    // Class con mô tả 1 địa chỉ trả về từ Server
     public static class AddressData {
         public String addressID;
         public String name;
@@ -17,37 +16,13 @@ public class AddressResponse {
         public String type;
         public boolean isSelected = false;
 
-        // --- SỬA QUAN TRỌNG: Đổi thành List để hứng mảng [] từ Server ---
-        public List<AddressDetail> addressDetail;
-        // ----------------------------------------------------------------
+        // --- SỬA TẠI ĐÂY: Đổi thành String để hứng chuỗi từ Backend ---
+        public String addressDetail;
+        // -------------------------------------------------------------
 
+        // Hàm này đơn giản chỉ trả về chuỗi đó
         public String getFullAddress() {
-            // Kiểm tra null và rỗng vì bây giờ nó là List
-            if (addressDetail == null || addressDetail.isEmpty()) {
-                return "";
-            }
-
-            // Lấy phần tử đầu tiên trong mảng ra để xử lý
-            AddressDetail detail = addressDetail.get(0);
-
-            StringBuilder sb = new StringBuilder();
-            if (detail.getStreet() != null && !detail.getStreet().isEmpty()) {
-                sb.append(detail.getStreet());
-            }
-            if (detail.getWard() != null && !detail.getWard().isEmpty()) {
-                if (sb.length() > 0) sb.append(", ");
-                sb.append(detail.getWard());
-            }
-            if (detail.getDistrict() != null && !detail.getDistrict().isEmpty()) {
-                if (sb.length() > 0) sb.append(", ");
-                sb.append(detail.getDistrict());
-            }
-            if (detail.getCity() != null && !detail.getCity().isEmpty()) {
-                if (sb.length() > 0) sb.append(", ");
-                sb.append(detail.getCity());
-            }
-
-            return sb.toString();
+            return addressDetail != null ? addressDetail : "";
         }
     }
 }
