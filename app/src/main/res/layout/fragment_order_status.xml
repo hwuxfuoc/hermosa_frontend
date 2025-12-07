@@ -269,7 +269,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
-                            android:nestedScrollingEnabled="false"/>
+                            android:nestedScrollingEnabled="false" />
                     </LinearLayout>
 
                     <RelativeLayout
@@ -493,6 +493,7 @@
         app:itemIconTint="#000000"
         app:itemTextColor="#000000"
         app:labelVisibilityMode="labeled"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>

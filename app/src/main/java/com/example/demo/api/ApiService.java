@@ -23,6 +23,7 @@ import retrofit2.Call;
 import retrofit2.http.*;
 
 
+import java.util.HashMap;
 import java.util.Map;
 
 import retrofit2.http.Body;
@@ -209,5 +210,11 @@ public interface ApiService {
     Call<String> createPaymentVnpay(@Body Map<String, String> body);
     @POST("user/social-login")
     Call<AuthResponse> socialLogin(@Body Map<String, String> body);
+    @GET("order/view")
+    Call<OrderResponse> getOrderDetail(@Query("orderID") String orderID);
+    @HTTP(method = "DELETE", path = "order/cancel", hasBody = true)
+    Call<OrderResponse> cancelOrder(@Body HashMap<String, String> body);
+    @GET("notification/list")
+    Call<NotificationListResponse> getNotifications(@Query("userID") String userID);
 }
 
