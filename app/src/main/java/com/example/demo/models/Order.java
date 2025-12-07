@@ -19,10 +19,16 @@ public class Order {
     private long tipsforDriver;
     private long discountAmount;
     private String voucherCodeApply;
+    private String storeName;
+    private String storeAddress;
+    private String orderDate;
+    private String deliverIn;
 
     public String getOrderID(){return orderID;}
     public String getUserID(){return userID;}
     public String getStatus(){return status;}
+    public String getStoreName() { return storeName; }
+    public String getStoreAddress() { return storeAddress; }
     public long getFinalTotal() { return finalTotal; }
     public long getDeliveryFee() { return deliveryFee; }
     public long getTipsforDriver() { return tipsforDriver; }
@@ -34,4 +40,6 @@ public class Order {
     public String getDeliver(){return deliver;}
     public String getDeliverAddress(){return deliverAddress;}
     public String getNote(){return note;}
+    public String getOrderDate() { return orderDate; }
+    public String getDeliverIn() { return deliverIn; }
 }

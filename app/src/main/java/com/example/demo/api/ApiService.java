@@ -54,7 +54,7 @@ public interface ApiService {
     @POST("user/forgot-password")
     Call<CommonResponse> forgotPassword(@Body Map<String, String> body);
 
-    @HTTP(method = "DELETE", path = "api/user/delete", hasBody = true)
+    @HTTP(method = "DELETE", path = "user/delete", hasBody = true)
     Call<CommonResponse> deleteAccount(@Body Map<String, String> body);
 
     // ---- CART ----
@@ -178,23 +178,34 @@ public interface ApiService {
     Call<NotificationListResponse>getNotificationList(@Query("userID") String userID);
     /*@POST("notification/send-all")
     Call<>*/
-    @POST("momo/create-payment-momo")
+    /*@POST("momo/create-payment-momo")
     Call<CreateMomoResponse> createPaymentMomo(@Body CreateMomoRequest body);
 
     @GET("momo/confirm")
-    Call<ConfirmPaymentResponse> confirmPaymentStatus(@Query("orderID") String orderID);
+    Call<ConfirmPaymentResponse> confirmPaymentStatus(@Query("orderID") String orderID);*/
 
     @POST("momo/momo-notify")
     Call<Object> notifyMomoPayment(@Body Map<String, Object> body);
 
-    // Server: app.use('/vnpay', ...)
     @POST("vnpay/create-payment-vnpay")
     Call<String> createPaymentVnpayString(@Body CreateVnpayRequest body);
 
     @GET("vnpay/check-payment-status")
     Call<ConfirmPaymentResponse> confirmVnpayStatus(@Query("vnp_TxnRef") String orderID);
     // Trong ApiService.java
+    @HTTP(method = "DELETE", path = "order/delete-interrupt-order", hasBody = true)
+    Call<CommonResponse> deleteInterruptOrder(@Body Map<String, String> body);
     @POST("deliver/calculate-fee")
-    Call<OrderResponse> calculateShippingFee(@Body Map<String, Object> body);
+    Call<CommonResponse> calculateShippingFee(@Body Map<String, Object> body);
+    // 1. Tạo thanh toán
+    @POST("momo/create")
+    Call<CreateMomoResponse> createPaymentMomo(@Body CreateMomoRequest request);
+
+    // 2. Kiểm tra trạng thái (Polling)
+    // BE: router.get('/confirm', ...) lấy orderID từ query param
+    @GET("momo/confirm")
+    Call<ConfirmPaymentResponse> confirmPaymentStatus(@Query("orderID") String orderID);
+    @POST("vnpay/create")
+    Call<String> createPaymentVnpay(@Body Map<String, String> body);
 }
 

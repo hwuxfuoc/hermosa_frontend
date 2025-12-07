@@ -127,7 +127,7 @@ public class ActivityRegister extends AppCompatActivity {
         }
     }
 
-    // HIỆN/ẨN MẬT KHẨU
+
     private void setupPasswordToggle() {
         imgTogglePass.setOnClickListener(v -> {
             if (edtPassword.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {

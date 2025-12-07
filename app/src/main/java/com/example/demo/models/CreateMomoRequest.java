@@ -9,7 +9,8 @@ public class CreateMomoRequest {
         this.userID = userID;
     }
 }
-*/
+*//*
+
 package com.example.demo.models;
 
 import com.google.gson.annotations.SerializedName;
@@ -30,4 +31,13 @@ public class CreateMomoRequest {
     // Getter (bắt buộc cho Gson)
     public String getOrderID() { return orderID; }
     public String getUserID() { return userID; }
+}*/
+package com.example.demo.models;
+
+public class CreateMomoRequest {
+    private String orderID;
+
+    public CreateMomoRequest(String orderID) {
+        this.orderID = orderID;
+    }
 }

@@ -54,6 +54,7 @@ public class SelectAddressActivity extends AppCompatActivity {
     private String selectedMethod = null; // "delivery" hoặc "pickup"
     private String selectedAddressStr = "";
     private String selectedCustomerStr = "";
+    private String selectedAddressID = null;
 
     //them
     private List<AddressResponse.AddressData> homeList = new ArrayList<>();
@@ -136,8 +137,8 @@ public class SelectAddressActivity extends AppCompatActivity {
                 String finalCustomer = "delivery".equals(selectedMethod)
                         ? (selectedCustomerStr.isEmpty() ? DEFAULT_CUSTOMER : selectedCustomerStr)
                         : null;
-
-                returnResult(selectedMethod, finalAddress, finalCustomer);
+                String finalAddressID = "delivery".equals(selectedMethod) ? selectedAddressID : null;
+                returnResult(selectedMethod, finalAddress, finalCustomer,finalAddressID);
             }
         });
 
@@ -219,6 +220,7 @@ public class SelectAddressActivity extends AppCompatActivity {
         clickedItem.isSelected = true;
         selectedAddressStr = clickedItem.getFullAddress();
         selectedCustomerStr = clickedItem.name + " | " + clickedItem.phone;
+        selectedAddressID=clickedItem.addressID;
         selectMethod("delivery");
         if (adapterHome != null) adapterHome.notifyDataSetChanged();
         if (adapterWork != null) adapterWork.notifyDataSetChanged();
@@ -284,11 +286,12 @@ public class SelectAddressActivity extends AppCompatActivity {
         btnConfirm.setBackgroundTintList(ContextCompat.getColorStateList(this, color));
     }
 
-    private void returnResult(String method, String address, String customer) {
+    private void returnResult(String method, String address, String customer,String addressID) {
         Intent result = new Intent();
         result.putExtra("deliveryMethod", method);
         if (address != null) result.putExtra("address", address);
         if (customer != null) result.putExtra("customer", customer);
+        if (addressID != null) result.putExtra("addressID", addressID);
         setResult(RESULT_OK, result);
         finish();
     }
