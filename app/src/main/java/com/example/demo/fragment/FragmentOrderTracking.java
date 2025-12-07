@@ -1,6 +1,6 @@
-/*
 package com.example.demo.fragment;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
@@ -13,6 +13,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -20,6 +21,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.demo.ConfirmOrderActivity;
+import com.example.demo.MainActivity;
 import com.example.demo.R;
 import com.example.demo.models.CartItem;
 import com.example.demo.models.Order;
@@ -42,6 +45,7 @@ public class FragmentOrderTracking extends Fragment {
     private ImageView btnBack;
 
     // Header Status (Phần trên cùng)
+    private String currentOrderID;
     private LinearLayout layoutHeaderPending;    // Layout cho trạng thái Đang xử lý
     private LinearLayout layoutHeaderConfirmed;  // Layout cho trạng thái Chuẩn bị/Giao hàng/Hoàn tất
 
@@ -65,7 +69,7 @@ public class FragmentOrderTracking extends Fragment {
     private TextView tvCancelNote;
 
     // Biến dữ liệu
-    private String currentOrderID;
+
 
     // --- 2. KHỞI TẠO FRAGMENT ---
 
@@ -92,6 +96,7 @@ public class FragmentOrderTracking extends Fragment {
 
         // 4. Load dữ liệu (Giả lập hoặc gọi API)
         loadOrderData();
+
     }
 
     // --- 3. ÁNH XẠ VIEW (FIND VIEW BY ID) ---
@@ -141,6 +146,7 @@ public class FragmentOrderTracking extends Fragment {
             }
         });
 
+
         // Nút Hủy Đơn
         btnCancelOrder.setOnClickListener(v -> {
             // TODO: Gọi API hủy đơn hàng ở đây
@@ -175,12 +181,10 @@ public class FragmentOrderTracking extends Fragment {
         updateUI(mockOrder);
     }
 
-    */
-/*//*
-/ --- 6. HÀM CẬP NHẬT UI CHÍNH ---
-    *//*
-*/
-/*private void updateUI(Order order) {
+//*
+
+
+private void updateUI(Order order) {
         if (getContext() == null) return;
 
         // 1. Hiển thị thông tin chung (Format tiền tệ)
@@ -204,7 +208,7 @@ public class FragmentOrderTracking extends Fragment {
 
         // 3. Xử lý Logic Trạng thái (Quan trọng nhất)
         updateStatusTimeline(order.getStatus());
-    }*//*
+    }
 
         // --- 7. LOGIC TIMELINE & STATUS ---
     private void updateStatusTimeline(String status) {
@@ -365,4 +369,4 @@ public class FragmentOrderTracking extends Fragment {
             }
         }
     }
-}*/
+}

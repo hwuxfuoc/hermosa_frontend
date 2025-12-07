@@ -26,6 +26,7 @@ import com.example.demo.adapters.CartAdapter;
 import com.example.demo.adapters.RecommendedAdapter;
 import com.example.demo.api.ApiClient;
 import com.example.demo.api.ApiService;
+import com.example.demo.fragment.FragmentOrderTracking;
 import com.example.demo.fragment.FragmentPaymentMethodBottomSheet;
 import com.example.demo.models.*;
 import com.example.demo.utils.SessionManager;
@@ -96,7 +97,7 @@ public class ConfirmOrderActivity extends AppCompatActivity
     private Handler pollingHandler = new Handler(Looper.getMainLooper());
     private Runnable pollingRunnable;
     private boolean isPolling = false; // Cờ kiểm soát việc polling
-    private static final long POLL_DELAY_MS = 3000;
+    /*private static final long POLL_DELAY_MS = 3000;*/
     private double autoDiscountAmount = 0;
     private String autoVoucherCode = null;
     private static final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS", Locale.US);
@@ -139,8 +140,7 @@ public class ConfirmOrderActivity extends AppCompatActivity
         registerAddressLauncher();
         registerVoucherLauncher();
         initViews();
-        loadData();
-        setupClickListeners();
+
         if (getIntent().hasExtra("ORDER_ID")) {
             existingOrderID = getIntent().getStringExtra("ORDER_ID");
             L("Nhận được Order ID từ Cart: " + existingOrderID);
@@ -160,30 +160,13 @@ public class ConfirmOrderActivity extends AppCompatActivity
             // Log kiểm tra
             Log.d(TAG, "Nhận được Voucher tự động: " + autoVoucherCode + " | Giảm: " + autoDiscountAmount);
         }
+        loadData();
+        setupClickListeners();
 
 
 
         // Xử lý deep link ngay từ đầu (nếu mở từ MoMo)
         handleDeepLink(getIntent());
-        /*getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true *//* enabled *//*) {
-            @Override
-            public void handleOnBackPressed() {
-                // LOGIC XỬ LÝ KHI BẤM NÚT BACK (Áp dụng cho mọi hình thức)
-
-                // 1. Dừng Polling (nếu có)
-                stopPolling();
-
-                // 2. Gọi hàm hủy đơn hàng nháp
-                if (existingOrderID != null) {
-                    L("Người dùng bấm Back (Dispatcher). Tiến hành hủy đơn hàng nháp: " + existingOrderID);
-                    deletePendingOrder(existingOrderID);
-                }
-
-                // 3. Cho phép Activity đóng.
-                // Gọi lệnh này để kết thúc Activity một cách an toàn
-                ConfirmOrderActivity.super.onBackPressed();
-            }
-        });*/
 
     }
     @Override
@@ -311,14 +294,14 @@ public class ConfirmOrderActivity extends AppCompatActivity
             }
         }
     }
-    private void navigateToSuccess(String orderID) {
+    /*private void navigateToSuccess(String orderID) {
         Intent i = new Intent(this, MainActivity.class);
         i.putExtra("PAYMENT_SUCCESS", true);
         i.putExtra("ORDER_ID", orderID);
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(i);
         finish();
-    }
+    }*/
     private void stopPolling() {
         isPolling = false;
         pollingHandler.removeCallbacks(pollingRunnable);
@@ -428,28 +411,7 @@ public class ConfirmOrderActivity extends AppCompatActivity
             }
         });
     }
-    /*private void deletePendingOrder() {
-        // Chỉ xóa nếu có UserID
-        if (userID == null) return;
 
-        L("Đang dọn dẹp đơn hàng treo (User thoát mà chưa mua)...");
-
-        Map<String, String> body = new HashMap<>();
-        body.put("userID", userID);
-
-        // Gọi API xóa (Không cần quan tâm kết quả trả về, cứ gửi là được)
-        apiService.deleteInterruptOrder(body).enqueue(new Callback<CommonResponse>() {
-            @Override
-            public void onResponse(Call<CommonResponse> call, Response<CommonResponse> response) {
-                L("Dọn dẹp đơn hàng thành công (hoặc không có đơn để xóa).");
-            }
-
-            @Override
-            public void onFailure(Call<CommonResponse> call, Throwable t) {
-                L("Lỗi dọn dẹp đơn hàng: " + t.getMessage());
-            }
-        });
-    }*/
     private void registerVoucherLauncher() {
         selectVoucherLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -488,47 +450,9 @@ public class ConfirmOrderActivity extends AppCompatActivity
             tvAddVoucherText.setTextColor(getResources().getColor(R.color.smoothie_strawberry));
         }
     }
-    /*private void updateTotalsWithDiscount(long subtotal, long discount) {
-        long shipping = "delivery".equals(currentDeliveryMethod) ? currentShippingFee : 0L;
-
-        long fee = 10000L;
-
-        long total = subtotal + shipping + fee + currentTipAmount - discount;
-        if (total < 0) total = 0;
-
-        // Hiển thị
-        tvSubtotal.setText(String.format("%,d VND", subtotal));
-        tvShipping.setText(String.format("%,d VND", shipping));
-        tvFee.setText(String.format("%,d VND", fee));
-        if(currentTipAmount!=0){
-            tvTip.setText(String.format("%,d VND",currentTipAmount));
-            tvTip.setVisibility(View.VISIBLE);
-            tvTipLable.setVisibility(View.VISIBLE);
-        }if(currentTipAmount==0) {
-            tvTip.setVisibility(View.GONE);
-            tvTipLable.setVisibility(View.GONE);
-        }
-
-        if (discount > 0) {
-            tvDiscount.setText(String.format("- %,d VND", discount));
-            tvDiscount.setVisibility(View.VISIBLE);
-            tvDiscountLable.setVisibility(View.VISIBLE);
-        } else {
-            tvDiscountLable.setVisibility(View.GONE);
-            tvDiscount.setText("0 VND");
-            tvDiscount.setVisibility(View.GONE);
-        }
-
-
-        tvTotalPayment.setText(String.format("%,d VND", total));
-
-        if (btnPlaceOrder != null) {
-            btnPlaceOrder.setText("Đặt hàng - " + String.format("%,d VND", total));
-        }
-    }*/
     private void updateTotalsWithDiscount(long subtotal, long discount) {
         long shipping = "delivery".equals(currentDeliveryMethod) ? currentShippingFee : 0L;
-        long fee = 10000L;
+        long fee = 0L;
 
         long total = subtotal + shipping + fee + currentTipAmount - discount;
         if (total < 0) total = 0;
@@ -822,89 +746,8 @@ public class ConfirmOrderActivity extends AppCompatActivity
         btnMomo.setTextColor(method.equals("momo") || method.equals("vnpay") ? red : gray);
         btnMomo.setText(method.equals("vnpay") ? "VNPay" : "Momo");
     }
-    /*private void calculateShippingFeeFromServer(String orderID) {
-        L("STEP 1.5: Đang tính phí ship từ Server cho đơn: " + orderID);
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("orderID", orderID);
-        body.put("userID", userID);
-        body.put("addressID", currentAddressID); // ID địa chỉ lấy từ Bước 2
-        body.put("tipsforDriver", currentTipAmount);
 
-        apiService.calculateShippingFee(body).enqueue(new Callback<OrderResponse>() {
-            @Override
-            public void onResponse(Call<OrderResponse> call, Response<OrderResponse> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
-                    Order updatedOrder = response.body().getData();
-                    long newTotal = updatedOrder.getFinalTotal();
-                    L("STEP 1.5 DONE: Phí ship đã tính xong. Tổng tiền mới: " + newTotal);
-                    processVoucherLogic(orderID);
-                } else {
-                    L("Lỗi tính phí ship: " + response.message());
-                    Toast.makeText(ConfirmOrderActivity.this, "Không thể tính phí giao hàng", Toast.LENGTH_SHORT).show();
-                    resetPlaceOrderButton();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<OrderResponse> call, Throwable t) {
-                L("Lỗi mạng khi tính ship", t);
-                Toast.makeText(ConfirmOrderActivity.this, "Lỗi kết nối khi tính ship", Toast.LENGTH_SHORT).show();
-                resetPlaceOrderButton();
-            }
-        });
-    }*/
-    /*private void calculateShippingFeeFromServer(String orderID) {
-        L("STEP 1.5: Đang tính phí ship từ Server cho đơn: " + orderID);
-
-        Map<String, Object> body = new HashMap<>();
-        body.put("orderID", orderID);
-        body.put("userID", userID);
-        body.put("addressID", currentAddressID);
-        body.put("tipsforDriver", currentTipAmount);
-
-        apiService.calculateShippingFee(body).enqueue(new Callback<OrderResponse>() {
-            @Override
-            public void onResponse(Call<OrderResponse> call, Response<OrderResponse> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
-                    Order updatedOrder = response.body().getData();
-
-                    // === BỔ SUNG: Lấy phí ship thực tế từ BE ===
-                    long realShippingFee = updatedOrder.getDeliveryFee();
-                    long finalTotal = updatedOrder.getFinalTotal();
-
-                    // Cập nhật lên UI ngay lập tức để user thấy
-                    runOnUiThread(() -> {
-                        tvShipping.setText(String.format("%,d VND", realShippingFee));
-                        tvTotalPayment.setText(String.format("%,d VND", finalTotal));
-
-                        // Nếu đang hiển thị nút "Đặt hàng - xxx VND" thì cập nhật luôn
-                        if (btnPlaceOrder != null) {
-                            btnPlaceOrder.setText("Đặt hàng - " + String.format("%,d VND", finalTotal));
-                        }
-                    });
-
-                    L("STEP 1.5 DONE: Phí ship thực tế: " + realShippingFee + ". Tổng tiền: " + finalTotal);
-
-                    // Tiếp tục quy trình
-                    processVoucherLogic(orderID);
-
-                } else {
-                    L("Lỗi tính phí ship: " + response.message());
-                    Toast.makeText(ConfirmOrderActivity.this, "Không thể tính phí giao hàng, vui lòng thử lại", Toast.LENGTH_SHORT).show();
-                    resetPlaceOrderButton();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<OrderResponse> call, Throwable t) {
-                L("Lỗi mạng khi tính ship", t);
-                Toast.makeText(ConfirmOrderActivity.this, "Lỗi kết nối khi tính ship", Toast.LENGTH_SHORT).show();
-                resetPlaceOrderButton();
-            }
-        });
-    }*/
-    // Thêm biến toàn cục để lưu phí ship
     private long currentShippingFee = 0;
 
     private void getFeePreview() {
@@ -969,90 +812,7 @@ public class ConfirmOrderActivity extends AppCompatActivity
             }
         });
     }
-    /*private void placeOrder() {
 
-        if (cartItemsLocal.isEmpty()) {
-            Toast.makeText(this, "Giỏ hàng trống!", Toast.LENGTH_LONG).show();
-            return;
-        }
-        if ("delivery".equals(currentDeliveryMethod) && (currentAddress == null || currentAddress.isEmpty())) {
-            Toast.makeText(this, "Vui lòng chọn địa chỉ giao hàng!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        btnPlaceOrder.setEnabled(false);
-        btnPlaceOrder.setText("Đang xử lý...");
-
-        // 4. TÍNH TỔNG TIỀN CHUẨN TỪ SUBTOTAL (Backend đã tính sẵn)
-        long totalInvoiceForBE = 0;
-        for (CartResponse.CartItem item : cartItemsLocal) {
-            // --- SỬA: Dùng getSubtotal() thay vì getPrice() * getQuantity() ---
-            // Vì subtotal đã bao gồm tiền Size + Topping
-            totalInvoiceForBE += item.getSubtotal();
-        }
-
-        // Cộng phí ship/dịch vụ (Phải khớp với logic hiển thị)
-        long shippingFee = "delivery".equals(currentDeliveryMethod) ? 50000L : 0L;
-        long serviceFee = 10000L;
-        if ("delivery".equals(currentDeliveryMethod) && currentAddressID == null) {
-            Toast.makeText(this, "Lỗi: Không tìm thấy ID địa chỉ", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        totalInvoiceForBE += shippingFee + serviceFee+currentTipAmount;
-
-        // 5. Tạo Body Request
-        Map<String, Object> body = new HashMap<>();
-        body.put("userID", userID);
-        body.put("paymentMethod", currentPaymentMethod);
-        body.put("paymentStatus", PAYMENT_METHOD_CASH.equals(currentPaymentMethod) ? "done" : "not_done");
-        body.put("deliver", "delivery".equals(currentDeliveryMethod));
-        body.put("deliverAddress", "delivery".equals(currentDeliveryMethod) ? currentAddress : "Nhận tại quán");
-        body.put("note", currentNote);
-        body.put("currentTipAmount",currentTipAmount);
-        body.put("totalInvoice", totalInvoiceForBE);
-        body.put("tipsforDriver", 0);
-
-        if (selectedVoucherCode != null && !selectedVoucherCode.isEmpty()) {
-            body.put("voucherCode", selectedVoucherCode);
-            L("Gửi kèm Voucher Code: " + selectedVoucherCode);
-        }
-        // ---------------------------------------------------------------
-
-        L("STEP 1: Tạo đơn hàng - Total: " + totalInvoiceForBE);
-
-        // 6. Gọi API (Giữ nguyên logic cũ)
-        apiService.createOrder(body).enqueue(new Callback<OrderResponse>() {
-            @Override
-            public void onResponse(Call<OrderResponse> call, Response<OrderResponse> r) {
-                if (r.isSuccessful() && r.body() != null && r.body().getData() != null) {
-                    String orderID = r.body().getData().getOrderID();
-                    lastOrderID = orderID;
-                    L("STEP 1 DONE: Có OrderID = " + orderID);
-                    processVoucherLogic(orderID); // Chuyển sang bước Voucher
-                    *//*if ("delivery".equals(currentDeliveryMethod)) {
-                        getFeePreview();
-                    } else {
-                        processVoucherLogic(orderID);
-                    }*//*
-                } else {
-                    L("Lỗi tạo đơn: " + r.message());
-                    try {
-                        L("Error Body: " + r.errorBody().string());
-                    } catch (Exception e) {}
-
-                    Toast.makeText(ConfirmOrderActivity.this, "Tạo đơn thất bại", Toast.LENGTH_LONG).show();
-                    resetPlaceOrderButton();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<OrderResponse> call, Throwable t) {
-                L("Lỗi mạng tạo đơn", t);
-                Toast.makeText(ConfirmOrderActivity.this, "Lỗi kết nối", Toast.LENGTH_SHORT).show();
-                resetPlaceOrderButton();
-            }
-        });
-    }*/
     private void placeOrder() {
         // 1. Validate Order ID
         if (existingOrderID == null || existingOrderID.isEmpty()) {
@@ -1115,8 +875,227 @@ public class ConfirmOrderActivity extends AppCompatActivity
             }
         });
     }
+    // Khai báo biến đếm số lần poll
+    /*private int pollingCount = 0;
+    private static final int MAX_POLLING_RETRIES = 20000; // 60 lần * 3s = 180s (3 phút)
 
     private void startMomoPolling(String orderID) {
+        if (isPolling) return;
+        isPolling = true;
+        pollingCount = 0; // Reset đếm
+        btnPlaceOrder.setText("Đang chờ xác nhận MoMo...");
+
+        // Tạm khóa nút Back để user không thoát nhầm khi đang chờ
+        // (Tuỳ chọn, nhưng khuyến khích)
+
+        pollingRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (!isPolling) return;
+
+                // Kiểm tra giới hạn
+                if (pollingCount >= MAX_POLLING_RETRIES) {
+                    stopPolling();
+                    Toast.makeText(ConfirmOrderActivity.this, "Hết thời gian chờ thanh toán. Vui lòng kiểm tra lại đơn hàng.", Toast.LENGTH_LONG).show();
+                    btnPlaceOrder.setEnabled(true);
+                    btnPlaceOrder.setText("Kiểm tra lại");
+                    return;
+                }
+
+                pollingCount++;
+                Log.d(TAG, "Polling lần thứ: " + pollingCount);
+
+                apiService.confirmPaymentStatus(orderID).enqueue(new Callback<ConfirmPaymentResponse>() {
+                    @Override
+                    public void onResponse(Call<ConfirmPaymentResponse> call, Response<ConfirmPaymentResponse> response) {
+                        if (!isPolling) return;
+
+                        // Backend trả về 200 OK cho cả 2 trường hợp done và not_done
+                        if (response.isSuccessful() && response.body() != null) {
+                            String status = response.body().getData().getPaymentStatus();
+
+                            if ("done".equals(status)) {
+                                L("Thanh toán thành công!");
+                                stopPolling();
+                                navigateToSuccess(orderID);
+                            } else {
+                                // Chưa xong -> Đợi tiếp
+                                pollingHandler.postDelayed(pollingRunnable, POLL_DELAY_MS);
+                            }
+                        } else {
+                            // Lỗi server (404, 500) -> Thử lại
+                            pollingHandler.postDelayed(pollingRunnable, POLL_DELAY_MS);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ConfirmPaymentResponse> call, Throwable t) {
+                        // Lỗi mạng (UnknownHostException...) -> Vẫn thử lại nhưng log ra để biết
+                        Log.e(TAG, "Polling lỗi mạng: " + t.getMessage());
+                        pollingHandler.postDelayed(pollingRunnable, POLL_DELAY_MS);
+                    }
+                });
+            }
+        };
+        pollingHandler.post(pollingRunnable);
+    }*/
+    private int pollingCount = 0;
+    // 1. Cấu hình thời gian
+    /*private static final long POLL_DELAY_MS = 20000;*/ // SỬA: 20 giây mới hỏi 1 lần
+    // --- CẤU HÌNH THỜI GIAN Ở ĐÂY ---
+
+    // 1. Cứ 20 giây mới gọi API một lần
+   /* private static final long POLL_DELAY_MS = 30000;
+
+
+    // 2. Tổng số lần thử.
+// 15 lần * 20s = 300s (Tức là chờ tối đa 5 phút rồi mới báo lỗi Timeout)
+    private static final int MAX_POLLING_RETRIES = 15;
+
+    private int pollingCount = 0;
+
+    private void startMomoPolling(String orderID) {
+        if (isPolling) return;
+        isPolling = true;
+        pollingCount = 0;
+        btnPlaceOrder.setText("Đang chờ xác nhận MoMo...");
+
+        pollingRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (!isPolling) return;
+
+                // Kiểm tra xem đã quá số lần quy định chưa
+                if (pollingCount >= MAX_POLLING_RETRIES) {
+                    stopPolling();
+                    Toast.makeText(ConfirmOrderActivity.this, "Hết thời gian chờ, giao dịch có thể đang xử lý chậm.", Toast.LENGTH_LONG).show();
+                    btnPlaceOrder.setEnabled(true);
+                    btnPlaceOrder.setText("Kiểm tra lại");
+                    return;
+                }
+
+                pollingCount++;
+                // Log để bạn theo dõi xem nó chạy đúng 20s một lần không
+                Log.d(TAG, "Polling lần thứ: " + pollingCount + " (Đang gọi API...)");
+
+                // Gọi Route Confirm
+                apiService.confirmPaymentStatus(orderID).enqueue(new Callback<ConfirmPaymentResponse>() {
+                    @Override
+                    public void onResponse(Call<ConfirmPaymentResponse> call, Response<ConfirmPaymentResponse> response) {
+                        if (!isPolling) return;
+
+                        if (response.isSuccessful() && response.body() != null) {
+                            String status = response.body().getData().getPaymentStatus();
+
+                            // Nếu đã thanh toán xong
+                            if ("done".equals(status)) {
+                                stopPolling();
+                                navigateToSuccess(orderID);
+                            } else {
+                                // Chưa xong -> Đợi 20s sau gọi lại hàm này
+                                pollingHandler.postDelayed(pollingRunnable, POLL_DELAY_MS);
+                            }
+                        } else {
+                            // Lỗi server -> Vẫn đợi 20s sau thử lại
+                            pollingHandler.postDelayed(pollingRunnable, POLL_DELAY_MS);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ConfirmPaymentResponse> call, Throwable t) {
+                        // Lỗi mạng -> Vẫn đợi 20s sau thử lại
+                        Log.e(TAG, "Lỗi kết nối: " + t.getMessage());
+                        pollingHandler.postDelayed(pollingRunnable, POLL_DELAY_MS);
+                    }
+                });
+            }
+        };
+
+        // Bắt đầu chạy ngay lập tức lần đầu tiên
+        pollingHandler.post(pollingRunnable);
+    }*/
+    // CẤU HÌNH LẠI THỜI GIAN
+// Check mỗi 3 giây (để user thấy kết quả nhanh) thay vì 30 giây
+    private static final long POLL_DELAY_MS = 3000;
+
+    // Tổng thời gian chờ: 100 lần * 3s = 300s (5 phút)
+    private static final int MAX_POLLING_RETRIES = 100;
+
+    private void startMomoPolling(String orderID) {
+        // Nếu đang chạy rồi thì không tạo thêm luồng mới
+        if (isPolling) return;
+
+        isPolling = true;
+        pollingCount = 0;
+        btnPlaceOrder.setText("Đang chờ xác nhận MoMo...");
+        btnPlaceOrder.setEnabled(false); // Khóa nút lại
+
+        pollingRunnable = new Runnable() {
+            @Override
+            public void run() {
+                // Nếu user đã thoát hoặc dừng polling thì thôi
+                if (!isPolling) return;
+
+                // Kiểm tra giới hạn số lần thử
+                if (pollingCount >= MAX_POLLING_RETRIES) {
+                    stopPolling();
+                    Toast.makeText(ConfirmOrderActivity.this, "Giao dịch đang xử lý hoặc quá thời gian chờ. Vui lòng kiểm tra lại lịch sử đơn hàng.", Toast.LENGTH_LONG).show();
+                    btnPlaceOrder.setEnabled(true);
+                    btnPlaceOrder.setText("Kiểm tra lại");
+                    return;
+                }
+
+                pollingCount++;
+                Log.d(TAG, "Polling lần thứ: " + pollingCount + " (Đang gọi API...)");
+
+                // Gọi API kiểm tra
+                apiService.confirmPaymentStatus(orderID).enqueue(new Callback<ConfirmPaymentResponse>() {
+                    @Override
+                    public void onResponse(Call<ConfirmPaymentResponse> call, Response<ConfirmPaymentResponse> response) {
+                        if (!isPolling) return;
+
+                        if (response.isSuccessful() && response.body() != null) {
+                            String status = response.body().getData().getPaymentStatus();
+
+                            // TRƯỜNG HỢP 1: Đã thanh toán thành công
+                            if ("done".equals(status)) {
+                                L("Polling: Phát hiện thanh toán THÀNH CÔNG!");
+                                stopPolling();
+                                navigateToSuccess(orderID);
+                            }
+                            // TRƯỜNG HỢP 2: Chưa thanh toán -> Đợi tiếp
+                            else {
+                                pollingHandler.postDelayed(pollingRunnable, POLL_DELAY_MS);
+                            }
+                        } else {
+                            // Lỗi Server (500, 404) -> Vẫn kiên trì đợi tiếp
+                            L("Polling: Lỗi server " + response.code() + ", thử lại sau...");
+                            pollingHandler.postDelayed(pollingRunnable, POLL_DELAY_MS);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ConfirmPaymentResponse> call, Throwable t) {
+                        if (!isPolling) return;
+
+                        // XỬ LÝ LỖI MẤT MẠNG (UnknownHostException)
+                        // Đây là lỗi bạn gặp trong log. Khi gặp lỗi này, KHÔNG ĐƯỢC DỪNG lại.
+                        // Vẫn tiếp tục polling vì user có thể sẽ kết nối lại mạng ngay sau đó.
+                        Log.e(TAG, "Polling lỗi kết nối (User có thể đang ở app MoMo): " + t.getMessage());
+
+                        // Vẫn lập lịch chạy lại, không hủy bỏ
+                        pollingHandler.postDelayed(pollingRunnable, POLL_DELAY_MS);
+                    }
+                });
+            }
+        };
+
+        // Bắt đầu chạy ngay lập tức
+        pollingHandler.post(pollingRunnable);
+    }
+
+
+    /*private void startMomoPolling(String orderID) {
         if (isPolling) return;
         isPolling = true;
         btnPlaceOrder.setText("Đang chờ xác nhận MoMo...");
@@ -1150,7 +1129,7 @@ public class ConfirmOrderActivity extends AppCompatActivity
             }
         };
         pollingHandler.post(pollingRunnable);
-    }
+    }*/
 
     // ================= LOGIC VNPAY (DEEP LINK REDIRECT) =================
     private void processVnpayPayment() {
@@ -1346,7 +1325,7 @@ public class ConfirmOrderActivity extends AppCompatActivity
         long subtotal = cartItemsLocal.stream().mapToLong(CartResponse.CartItem::getSubtotal).sum();
         updateTotalsWithDiscount(subtotal, (long) currentDiscountAmount);
     }
-    private void requestMomoPayment(String orderID, String userID) {
+    /*private void requestMomoPayment(String orderID, String userID) {
         L("Gọi API MoMo cho đơn đã có sẵn: " + orderID);
 
         // Update UI
@@ -1395,6 +1374,44 @@ public class ConfirmOrderActivity extends AppCompatActivity
                 L("Lỗi mạng", t);
                 Toast.makeText(ConfirmOrderActivity.this, "Lỗi kết nối", Toast.LENGTH_SHORT).show();
                 btnPlaceOrder.setEnabled(true);
+            }
+        });
+    }*/
+    private void requestMomoPayment(String orderID, String userID) {
+        L("Gọi API MoMo cho đơn: " + orderID);
+        btnPlaceOrder.setEnabled(false);
+        btnPlaceOrder.setText("Đang lấy link MoMo...");
+
+        CreateMomoRequest request = new CreateMomoRequest(orderID);
+
+        apiService.createPaymentMomo(request).enqueue(new Callback<CreateMomoResponse>() {
+            @Override
+            public void onResponse(Call<CreateMomoResponse> call, Response<CreateMomoResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    String payUrl = response.body().getPayUrl();
+                    if (payUrl != null) {
+                        openWebBrowser(payUrl);
+                        startMomoPolling(existingOrderID);
+                    } else {
+                        Toast.makeText(ConfirmOrderActivity.this, "Không tìm thấy link thanh toán", Toast.LENGTH_SHORT).show();
+                        btnPlaceOrder.setEnabled(true);
+                        btnPlaceOrder.setText("Thử lại");
+                    }
+                } else {
+                    // Xử lý lỗi từ Backend trả về
+                    Toast.makeText(ConfirmOrderActivity.this, "Lỗi tạo đơn MoMo: " + response.message(), Toast.LENGTH_LONG).show();
+                    btnPlaceOrder.setEnabled(true);
+                    btnPlaceOrder.setText("Thử lại");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CreateMomoResponse> call, Throwable t) {
+                // Đây là chỗ bắt lỗi UnknownHostException
+                L("Lỗi mạng khi gọi MoMo", t);
+                Toast.makeText(ConfirmOrderActivity.this, "Lỗi kết nối Server! Kiểm tra lại mạng/Ngrok.", Toast.LENGTH_LONG).show();
+                btnPlaceOrder.setEnabled(true);
+                btnPlaceOrder.setText("Thử lại");
             }
         });
     }
@@ -1580,6 +1597,37 @@ public class ConfirmOrderActivity extends AppCompatActivity
             L("Đã dừng polling");
         }
     }*/
+    // Trong ConfirmOrderActivity.java
+
+    private void navigateToSuccess(String orderID) {
+        L("Chuyển sang màn hình Tracking trong Activity hiện tại");
+
+        // 1. Ẩn giao diện thanh toán đi (hoặc để Fragment đè lên cũng được vì Fragment có background trắng)
+        // findViewById(R.id.layoutContentPayment).setVisibility(View.GONE);
+        // findViewById(R.id.layoutBottomBar).setVisibility(View.GONE);
+
+        // 2. Hiện container chứa Fragment
+        View container = findViewById(R.id.fragment_container);
+        if (container != null) {
+            container.setVisibility(View.VISIBLE);
+        }
+
+        // 3. Khởi tạo Fragment Tracking
+        FragmentOrderTracking trackingFragment = new FragmentOrderTracking();
+
+        // 4. Truyền mã đơn hàng vào Fragment
+        Bundle args = new Bundle();
+        args.putString("ORDER_ID", orderID);
+        trackingFragment.setArguments(args);
+
+        // 5. Thực hiện Transaction thay thế Fragment vào container
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, trackingFragment)
+                .commit();
+
+        // Đánh dấu đã đặt hàng thành công để xử lý nút Back
+        isOrderPlacedSuccess = true;
+    }
 
     private void requestVnpayPayment(String orderID, String userID) {
         // TODO: Implement VNPay nếu cần
@@ -1668,6 +1716,25 @@ public class ConfirmOrderActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+        // LOGIC QUAN TRỌNG:
+        // Khi người dùng quay lại app (sau khi qua MoMo), kích hoạt kiểm tra ngay lập tức.
+        if (isPolling && pollingRunnable != null) {
+            L("User quay lại App -> Reset bộ đếm và Check trạng thái ngay lập tức");
+
+            // 1. Reset lại số lần thử để tránh bị báo Timeout oan uổng
+            pollingCount = 0;
+
+            // 2. Xóa các lệnh chờ cũ
+            pollingHandler.removeCallbacks(pollingRunnable);
+
+            // 3. Thêm độ trễ nhỏ (500ms) để đảm bảo Wifi/4G kịp kết nối lại sau khi app resume
+            pollingHandler.postDelayed(pollingRunnable, 500);
+        }
+    }
+
+   /* @Override
+    protected void onResume() {
+        super.onResume();
         // Nếu đang trong trạng thái chờ thanh toán (isPolling = true)
         // thì gọi runnable chạy ngay lập tức để user không phải đợi 3s
         if (isPolling && pollingRunnable != null) {
@@ -1675,7 +1742,7 @@ public class ConfirmOrderActivity extends AppCompatActivity
             pollingHandler.removeCallbacks(pollingRunnable);
             pollingRunnable.run();
         }
-    }
+    }*/
     /*@Override
     public void onBackPressed() {
         // 1. Dừng Polling (nếu có)
@@ -1691,28 +1758,19 @@ public class ConfirmOrderActivity extends AppCompatActivity
         // 3. Cho phép Activity đóng
         super.onBackPressed();
     }*/
-    @Override
-    protected void onDestroy() {
-        L("onDestroy() → dọn dẹp polling");
-        stopPolling();
+   @Override
+   protected void onDestroy() {
+       L("onDestroy() → dọn dẹp polling");
+       stopPolling();
 
-        // Thêm kiểm tra này nếu muốn hủy khi hệ thống kill App
-        // (Nhưng nên ưu tiên hủy ở onBackPressed() vì nó rõ ràng hơn)
-        if (isFinishing() && existingOrderID != null) {
-            L("onDestroy() -> Activity sắp đóng. Hủy đơn nháp: " + existingOrderID);
-            deletePendingOrder(existingOrderID);
-        }
+       // Logic xóa đơn nháp nếu chưa thành công
+       if (isFinishing() && !isOrderPlacedSuccess && existingOrderID != null) {
+           // Lưu ý: Biến isOrderPlacedSuccess cần được set = true khi gọi navigateToSuccess
+           L("Activity đóng mà chưa thanh toán xong. Xóa đơn nháp: " + existingOrderID);
+           deletePendingOrder(existingOrderID);
+       }
 
-        super.onDestroy();
-    }
+       super.onDestroy();
+   }
 
-
-    /*@Override
-    protected void onDestroy() {
-        // Nếu người dùng CHƯA đặt hàng thành công mà đã thoát -> Xóa đơn nháp
-
-        L("onDestroy() → dọn dẹp polling");
-        stopPolling();
-        super.onDestroy();
-    }*/
 }

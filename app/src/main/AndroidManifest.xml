@@ -53,6 +53,7 @@
         <activity android:name=".PickLocationActivity"/>
         <activity android:name=".VoucherSelectionActivity"/>
 
+
         <activity
             android:name=".ConfirmOrderActivity"
             android:exported="true">
