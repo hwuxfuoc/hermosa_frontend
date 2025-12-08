@@ -97,19 +97,17 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:visibility="gone">
-
-                        <TextView
-                            android:id="@+id/tvStatusTag"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="#B71C1C"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="6dp"
-                            android:text="Chuẩn bị"
-                            android:textColor="#FFFFFF"
-                            android:textStyle="bold"
-                            android:textSize="14sp" />
+                        android:visibility="gone"> <TextView
+                        android:id="@+id/tvStatusTag"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="#B71C1C"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="6dp"
+                        android:text="Chuẩn bị"
+                        android:textColor="#FFFFFF"
+                        android:textStyle="bold"
+                        android:textSize="14sp" />
 
                         <TextView
                             android:id="@+id/tvTimeEstimate"
@@ -135,53 +133,86 @@
                         android:id="@+id/layoutTimeline"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="32dp"
-                        android:layout_marginBottom="16dp">
+                        android:layout_marginTop="24dp">
 
-                        <!-- Icon quán (bắt đầu) -->
                         <ImageView
-                            android:id="@+id/ivStore"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:background="@drawable/circle_green"
-                            android:padding="8dp"
+                            android:id="@+id/ivStep1"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:scaleType="fitCenter"
                             android:src="@drawable/ic_store_gray"
-                            app:tint="@android:color/white"
+                            app:layout_constraintEnd_toStartOf="@id/line1"
+                            app:layout_constraintHorizontal_chainStyle="spread"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
-                        <!-- Đường line + hiệu ứng chạy -->
                         <View
-                            android:id="@+id/progressLine"
+                            android:id="@+id/line1"
                             android:layout_width="0dp"
-                            android:layout_height="6dp"
-                            android:background="@drawable/progress_track_gray"
-                            app:layout_constraintStart_toEndOf="@id/ivStore"
-                            app:layout_constraintEnd_toStartOf="@id/ivUser"
-                            app:layout_constraintTop_toTopOf="@id/ivStore"
-                            app:layout_constraintBottom_toBottomOf="@id/ivStore" />
+                            android:layout_height="2dp"
+                            android:background="#E0E0E0"
+                            app:layout_constraintBottom_toBottomOf="@id/ivStep1"
+                            app:layout_constraintEnd_toStartOf="@id/ivStep2"
+                            app:layout_constraintHorizontal_weight="1"
+                            app:layout_constraintStart_toEndOf="@id/ivStep1"
+                            app:layout_constraintTop_toTopOf="@id/ivStep1" />
 
-                        <!-- Hiệu ứng thanh xanh chạy bên trong line -->
-                        <View
-                            android:id="@+id/progressBar"
-                            android:layout_width="60dp"
-                            android:layout_height="6dp"
-                            android:background="@drawable/progress_bar_green"
-                            android:visibility="gone"
-                            app:layout_constraintStart_toStartOf="@id/progressLine"
-                            app:layout_constraintTop_toTopOf="@id/progressLine"
-                            app:layout_constraintBottom_toBottomOf="@id/progressLine" />
-
-                        <!-- Icon người dùng (kết thúc) -->
                         <ImageView
-                            android:id="@+id/ivUser"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:background="@drawable/circle_gray"
-                            android:padding="8dp"
+                            android:id="@+id/ivStep2"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/ic_cooking_gray"
+                            app:layout_constraintEnd_toStartOf="@id/line2"
+                            app:layout_constraintStart_toEndOf="@id/line1"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <View
+                            android:id="@+id/line2"
+                            android:layout_width="0dp"
+                            android:layout_height="2dp"
+                            android:background="#E0E0E0"
+                            app:layout_constraintBottom_toBottomOf="@id/ivStep1"
+                            app:layout_constraintEnd_toStartOf="@id/ivStep3"
+                            app:layout_constraintHorizontal_weight="1"
+                            app:layout_constraintStart_toEndOf="@id/ivStep2"
+                            app:layout_constraintTop_toTopOf="@id/ivStep1" />
+
+                        <ImageView
+                            android:id="@+id/ivStep3"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/ic_bike_gray"
+                            app:layout_constraintEnd_toStartOf="@id/line3"
+                            app:layout_constraintStart_toEndOf="@id/line2"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <androidx.constraintlayout.widget.Group
+                            android:id="@+id/groupStepShipping"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:constraint_referenced_ids="line2,ivStep3" />
+
+                        <View
+                            android:id="@+id/line3"
+                            android:layout_width="0dp"
+                            android:layout_height="2dp"
+                            android:background="#E0E0E0"
+                            app:layout_constraintBottom_toBottomOf="@id/ivStep1"
+                            app:layout_constraintEnd_toStartOf="@id/ivStep4"
+                            app:layout_constraintHorizontal_weight="1"
+                            app:layout_constraintStart_toEndOf="@id/ivStep3"
+                            app:layout_constraintTop_toTopOf="@id/ivStep1" />
+
+                        <ImageView
+                            android:id="@+id/ivStep4"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:scaleType="fitCenter"
                             android:src="@drawable/ic_location_outline"
-                            app:tint="@android:color/white"
                             app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="@id/line3"
                             app:layout_constraintTop_toTopOf="parent" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -238,7 +269,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
-                            android:nestedScrollingEnabled="false"/>
+                            android:nestedScrollingEnabled="false" />
                     </LinearLayout>
 
                     <RelativeLayout
@@ -433,23 +464,48 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSubmitReview"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="8dp"
+                android:text="Đánh giá ngay"
+                app:cornerRadius="8dp"
+                app:backgroundTint="#B71C1C"
+                android:textStyle="bold"/>
         </LinearLayout>
     </ScrollView>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnCancelOrder"
-        android:layout_width="0dp"
-        android:layout_height="52dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="24dp"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="10dp"
         android:text="Hủy Đơn Hàng"
         android:textSize="16sp"
         android:textStyle="bold"
         app:backgroundTint="#B71C1C"
-        app:cornerRadius="12dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:cornerRadius="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNavigation"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        android:visibility="visible"
+        />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        app:menu="@menu/menu_bottom_nav"
+        app:itemIconTint="#000000"
+        app:itemTextColor="#000000"
+        app:labelVisibilityMode="labeled"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

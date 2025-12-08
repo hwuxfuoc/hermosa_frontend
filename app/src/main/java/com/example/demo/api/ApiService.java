@@ -17,12 +17,13 @@ import com.example.demo.models.MenuResponse;
 import com.example.demo.models.NotificationListResponse;
 import com.example.demo.models.OrderListResponse;
 import com.example.demo.models.OrderResponse;
+import com.example.demo.models.ReviewResponse;
 import com.example.demo.models.VoucherResponse;
 
 import retrofit2.Call;
 import retrofit2.http.*;
 
-
+import java.util.HashMap;
 import java.util.Map;
 
 import retrofit2.http.Body;
@@ -87,12 +88,10 @@ public interface ApiService {
     @HTTP(method = "DELETE", path = "order/cancel", hasBody = true)
     //Call<CommonResponse> cancelOrder(@Body Map<String, Object> body);
 
-
     @GET("order/view-all")
     Call<OrderListResponse> viewAllOrders();
     @GET("order/list")
     Call<CommonResponse> getOrdersByDate(@Query("startDate") String startDate, @Query("endDate") String endDate);
-
 
     @POST("order/review-order-and-products")
     Call<CommonResponse> reviewOrderAndProducts(
@@ -105,19 +104,6 @@ public interface ApiService {
             @Query("orderID") String orderID,
             @Body Map<String, Object> body
     );
-    /* @POST("payment-momo/create-payment-momo")
-     Call<CreateMomoResponse> createPaymentMomo(@Body CreateMomoRequest body);
-     @GET("payment-momo/confirm")
-     Call<Map<String, Object>> confirmMomoPayment(@Query("orderID") String orderID);
-     @GET("payment-momo/confirm")
-     Call<ConfirmPaymentResponse> confirmPaymentStatus(@Query("orderID") String orderID);
-     @POST("payment-momo/momo-notify")
-     Call<Object> notifyMomoPayment(@Body Map<String, Object> body);
-     @POST("payment-vnpay/create-payment-vnpay")
-     Call<String> createPaymentVnpayString(@Body CreateVnpayRequest body);
-
-     @GET("payment-vnpay/check-payment-status")
-     Call<ConfirmPaymentResponse> confirmVnpayStatus(@Query("vnp_TxnRef") String orderID);*/
     @GET("menu/all-product")
     Call<MenuResponse> getAllProducts();
     @GET("menu/product")
@@ -166,9 +152,6 @@ public interface ApiService {
     // Body cần: voucherCode, orderID
     @PUT("voucher/confirm-use")
     Call<CommonResponse> confirmVoucherUse(@Body Map<String, String> body);
-    /*@POST("user/save-token") // Thay bằng endpoint thật của Backend bạn
-    Call<CommonResponse> saveFcmToken(@Body Map<String, String> body);*/
-
     @POST("notification/save-fcm-token")
     Call<CommonResponse>saveFcmToken(@Body Map<String,String>body);
     @POST("notification/send-to-users")
@@ -177,14 +160,6 @@ public interface ApiService {
     Call<CommonResponse>createNotification(@Body Map<String,Object>body);
     @GET("notification/list")
     Call<NotificationListResponse>getNotificationList(@Query("userID") String userID);
-    /*@POST("notification/send-all")
-    Call<>*/
-    /*@POST("momo/create-payment-momo")
-    Call<CreateMomoResponse> createPaymentMomo(@Body CreateMomoRequest body);
-
-    @GET("momo/confirm")
-    Call<ConfirmPaymentResponse> confirmPaymentStatus(@Query("orderID") String orderID);*/
-
     @POST("momo/momo-notify")
     Call<Object> notifyMomoPayment(@Body Map<String, Object> body);
 
@@ -208,4 +183,14 @@ public interface ApiService {
     Call<ConfirmPaymentResponse> confirmPaymentStatus(@Query("orderID") String orderID);
     @POST("vnpay/create")
     Call<String> createPaymentVnpay(@Body Map<String, String> body);
+
+    @GET("order/view")
+    Call<OrderResponse> getOrderDetail(@Query("orderID") String orderID);
+    @HTTP(method = "DELETE", path = "order/cancel", hasBody = true)
+    Call<OrderResponse> cancelOrder(@Body HashMap<String, String> body);
+    @GET("notification/list")
+    Call<NotificationListResponse> getNotifications(@Query("userID") String userID);
+    // Thêm 1 dòng này vào ApiService.java
+    @GET("product/reviews")
+    Call<ReviewResponse> getProductReviews(@Query("productID") String productID);
 }

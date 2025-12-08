@@ -84,7 +84,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="24dp"
-            android:text="Quay lại giỏ hàng"
+            android:text="Quay lại mua hàng"
             android:textSize="16sp"
             android:textStyle="bold"
             app:backgroundTint="#B71C1C"

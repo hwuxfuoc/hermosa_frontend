@@ -2,6 +2,9 @@ package com.example.demo.models;
 
 import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gson.Gson;
 import android.graphics.Color;
 
@@ -304,4 +307,10 @@ public class Product implements Serializable {
         p.setTopping(cartItem.getTopping() != null ? cartItem.getTopping().toArray(new String[0]) : new String[0]);
         return p;
     }
+
+    // Thêm vào class Product
+    private List<Review> reviews = new ArrayList<>();
+
+    public List<Review> getReviews() { return reviews; }
+    public void setReviews(List<Review> reviews) { this.reviews = reviews; }
 }

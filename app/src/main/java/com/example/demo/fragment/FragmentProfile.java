@@ -1,5 +1,6 @@
 package com.example.demo.fragment;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,12 +16,14 @@ import androidx.fragment.app.Fragment;
 import androidx.core.content.ContextCompat;
 
 import com.example.demo.ActivityForgotPassword;
+import com.example.demo.ActivityLogin;
 import com.example.demo.AddAddressActivity;
 import com.example.demo.R;
 import com.example.demo.SelectAddressActivity;
 import com.example.demo.VoucherWalletActivity;
 import com.example.demo.models.AddressDetail;
 import com.example.demo.utils.SessionManager;
+import com.google.android.material.button.MaterialButton;
 
 public class FragmentProfile extends Fragment {
 
@@ -67,12 +70,13 @@ public class FragmentProfile extends Fragment {
                     .commit();
         });
 
-        layoutLogout.setOnClickListener(v -> {
+        layoutLogout.setOnClickListener(v -> showLogoutDialog());
+        /*layoutLogout.setOnClickListener(v -> {
             SessionManager.clearSession(requireContext());
             Toast.makeText(requireContext(), "Đã đăng xuất thành công!", Toast.LENGTH_SHORT).show();
             requireActivity().finish();
             startActivity(new Intent(requireContext(), com.example.demo.ActivityLogin.class));
-        });
+        });*/
 
         layoutDeleteAccount.setOnClickListener(v -> {
             Toast.makeText(requireContext(), "Tính năng xóa tài khoản đang phát triển!", Toast.LENGTH_LONG).show();
@@ -97,6 +101,37 @@ public class FragmentProfile extends Fragment {
         });
 
         return view;
+    }
+
+    private void showLogoutDialog() {
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_logout, null);
+
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                .setView(dialogView)
+                .setCancelable(false)
+                .create();
+
+        // Nút trong dialog
+        MaterialButton btnConfirmLogout = dialogView.findViewById(R.id.btnConfirmLogout);
+        MaterialButton btnCancelLogout = dialogView.findViewById(R.id.btnCancelLogout);
+
+        btnConfirmLogout.setOnClickListener(v -> {
+            // Thực hiện đăng xuất
+            SessionManager.clearSession(requireContext());
+            Toast.makeText(requireContext(), "Đã đăng xuất thành công!", Toast.LENGTH_SHORT).show();
+
+            dialog.dismiss();
+
+            // Quay về màn hình đăng nhập
+            Intent intent = new Intent(requireContext(), ActivityLogin.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            requireActivity().finish();
+        });
+
+        btnCancelLogout.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 
     private void updateUserInfo() {
