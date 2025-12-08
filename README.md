@@ -21,7 +21,7 @@ Do server đã online, bạn chỉ cần thực hiện các bước sau để ch
 2.  **Open in Android Studio:**
     * Mở Android Studio -> File -> Open -> Chọn thư mục vừa clone.
 3.  **Check Configuration (Quan trọng):**
-    * Mở file: `app/src/main/java/.../utils/Constants.java` (hoặc `APIUtils.java`).
+    * Mở file: `com/example/demo/api/ApiClient.java`.
     * Đảm bảo `BASE_URL` đang trỏ về: `http://34.151.64.207/`.
 4.  **Sync & Run:**
     * Nhấn **Sync Project with Gradle Files**.
