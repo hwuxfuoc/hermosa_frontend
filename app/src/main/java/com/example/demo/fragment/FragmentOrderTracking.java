@@ -439,15 +439,29 @@ import com.example.demo.api.ApiService;
 import com.example.demo.models.CartItem;
 import com.example.demo.models.Order;
 import com.example.demo.models.OrderResponse;
+import com.example.demo.models.Product;
 import com.google.android.material.button.MaterialButton;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.text.DecimalFormat;
+import java.text.ParseException;      // Sửa lỗi ParseException
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;            // Sửa lỗi TimeZone
 
 public class FragmentOrderTracking extends Fragment {
 
@@ -466,13 +480,14 @@ public class FragmentOrderTracking extends Fragment {
 
     private TextView tvStoreName, tvAddressName, tvDetailAddress;
     private MaterialButton btnCancelOrder;
+    private MaterialButton btnSubmitReview;
     private TextView tvCancelNote;
     private RecyclerView rvOrderItems;
 
-    // --- DATA & API ---
     private String currentOrderID;
     private ApiService apiService;
-    private boolean isDialogShown = false; // Cờ để tránh hiện dialog lặp lại
+    private boolean isDialogShown = false;
+    private final List<Product> currentOrderProducts = new ArrayList<>();
 
     @Nullable
     @Override
@@ -496,6 +511,15 @@ public class FragmentOrderTracking extends Fragment {
         if (currentOrderID != null && !currentOrderID.isEmpty()) {
             loadOrderDataFromApi(currentOrderID);
         }
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (currentOrderID != null) {
+                    loadOrderDataFromApi(currentOrderID); // Gọi lại API
+                }
+                new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(this, 5000);
+            }
+        }, 5000);
     }
 
     private void initViews(View view) {
@@ -521,6 +545,7 @@ public class FragmentOrderTracking extends Fragment {
         tvAddressName = view.findViewById(R.id.tvAddressName);
         tvDetailAddress = view.findViewById(R.id.tvDetailAddress);
         btnCancelOrder = view.findViewById(R.id.btnCancelOrder);
+        btnSubmitReview = view.findViewById(R.id.btnSubmitReview);
         tvCancelNote = view.findViewById(R.id.tvCancelNote);
 
         tvTotalPriceList = view.findViewById(R.id.tvTotalPriceList);
@@ -546,11 +571,21 @@ public class FragmentOrderTracking extends Fragment {
 
         // Nút Hủy -> Hiện Dialog xác nhận
         btnCancelOrder.setOnClickListener(v -> showConfirmCancelDialog());
+        btnSubmitReview.setOnClickListener(v -> {
+            FragmentReview reviewFragment = new FragmentReview();
+            Bundle bundle = new Bundle();
+            bundle.putString("ORDER_ID", currentOrderID);
+            bundle.putSerializable("PRODUCTS", new ArrayList<>(currentOrderProducts)); // Truyền bản sao an toàn
+            reviewFragment.setArguments(bundle);
+
+            if (getActivity() != null) {
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, reviewFragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
     }
-
-    // ================== CÁC HÀM HIỂN THỊ DIALOG (POPUP) ==================
-
-    // 1. Dialog "Xác nhận muốn hủy đơn" (Trước khi hủy)
     private void showConfirmCancelDialog() {
         if (getContext() == null) return;
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -569,9 +604,7 @@ public class FragmentOrderTracking extends Fragment {
         btnCancelAction.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
     }
-
-    // 2. Dialog "Hủy thành công" (Sau khi API báo Success)
-    private void showCancelSuccessDialog() {
+    /*private void showCancelSuccessDialog() {
         if (getContext() == null) return;
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.fragment_cancel_success, null);
@@ -594,7 +627,7 @@ public class FragmentOrderTracking extends Fragment {
         });
 
         dialog.show();
-    }
+    }*/
 
     // 3. Dialog "Đơn hàng hoàn tất - Vui lòng nhận nước" (Khi status = done)
     private void showOrderDoneDialog() {
@@ -616,36 +649,110 @@ public class FragmentOrderTracking extends Fragment {
         isDialogShown = true; // Đánh dấu đã hiện để không spam
     }
 
-    // ================== CÁC HÀM GỌI API ==================
 
-    private void cancelOrderApi(String orderID) {
+    /*private void cancelOrderApi(String orderID) {
         HashMap<String, String> body = new HashMap<>();
         body.put("orderID", orderID);
 
+        // Gọi API
         apiService.cancelOrder(body).enqueue(new Callback<OrderResponse>() {
             @Override
             public void onResponse(Call<OrderResponse> call, Response<OrderResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     OrderResponse res = response.body();
                     if ("Success".equalsIgnoreCase(res.getStatus())) {
-                        // Hủy thành công -> Hiện Dialog thông báo thành công
+                        Toast.makeText(getContext(), "Đã hủy đơn hàng thành công!", Toast.LENGTH_LONG).show();
+                        updateStatusTimeline("cancelled", false);
                         showCancelSuccessDialog();
 
-                        // Cập nhật giao diện bên dưới thành trạng thái "Đã hủy"
-                        updateStatusTimeline("cancelled");
                     } else {
                         Toast.makeText(getContext(), res.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Toast.makeText(getContext(), "Lỗi khi hủy đơn hàng", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Không thể hủy đơn hàng lúc này", Toast.LENGTH_SHORT).show();
                 }
             }
+
             @Override
             public void onFailure(Call<OrderResponse> call, Throwable t) {
-                Toast.makeText(getContext(), "Lỗi mạng", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Lỗi kết nối mạng", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }*/
+    private void cancelOrderApi(String orderID) {
+        HashMap<String, String> body = new HashMap<>();
+        body.put("orderID", orderID);
+
+        // Gọi API
+        apiService.cancelOrder(body).enqueue(new Callback<OrderResponse>() {
+            @Override
+            public void onResponse(Call<OrderResponse> call, Response<OrderResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    OrderResponse res = response.body();
+
+                    if ("Success".equalsIgnoreCase(res.getStatus())) {
+                        Toast.makeText(getContext(), "Đã hủy đơn hàng thành công!", Toast.LENGTH_SHORT).show();
+
+                        // BƯỚC 1: Cập nhật giao diện thành "Đã hủy" ngay lập tức
+                        // Để người dùng thấy trạng thái thay đổi (chữ đỏ, ẩn nút hủy...)
+                        updateStatusTimeline("cancelled", false);
+
+                        // BƯỚC 2: Đợi 1 giây (1000ms) rồi mới hiện Dialog thông báo
+                        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                // Kiểm tra nếu Fragment còn đang hiển thị thì mới hiện Dialog
+                                if (isAdded() && getContext() != null) {
+                                    showCancelSuccessDialog();
+                                }
+                            }
+                        }, 1000); // 1000ms = 1 giây
+
+                    } else {
+                        Toast.makeText(getContext(), res.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Không thể hủy đơn hàng lúc này", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<OrderResponse> call, Throwable t) {
+                Toast.makeText(getContext(), "Lỗi kết nối mạng", Toast.LENGTH_SHORT).show();
             }
         });
     }
+    private void showCancelSuccessDialog() {
+        if (getContext() == null) return;
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.fragment_cancel_success, null);
+        builder.setView(dialogView);
+
+        // Không cho người dùng bấm ra ngoài để tắt, bắt buộc bấm nút trong dialog
+        builder.setCancelable(false);
+
+        AlertDialog dialog = builder.create();
+        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        // Điền thông tin mã đơn
+        TextView tvOrderID = dialogView.findViewById(R.id.tvOrderID);
+        if (tvOrderID != null) tvOrderID.setText("Mã đơn: " + currentOrderID);
+
+        MaterialButton btnReturnHome = dialogView.findViewById(R.id.btnReturnHome);
+        btnReturnHome.setOnClickListener(v -> {
+            dialog.dismiss();
+
+            // Logic: Quay lại mua hàng tiếp (Về trang chủ)
+            Intent intent = new Intent(getContext(), MainActivity.class);
+            // Xóa các màn hình cũ, chỉ giữ lại MainActivity mới
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            if (getActivity() != null) getActivity().finish();
+        });
+
+        dialog.show();
+    }
+
 
     private void loadOrderDataFromApi(String orderID) {
         apiService.getOrderDetail(orderID).enqueue(new Callback<OrderResponse>() {
@@ -664,27 +771,65 @@ public class FragmentOrderTracking extends Fragment {
         });
     }
 
-    // ================== CẬP NHẬT GIAO DIỆN ==================
 
     private void updateUI(Order order) {
         if (getContext() == null) return;
 
-        // Tiền tệ
-        DecimalFormat formatter = new DecimalFormat("###,###,###");
-        String priceStr = formatter.format(order.getFinalTotal()) + " VND";
-        tvTotalPriceList.setText(priceStr);
-        if (layoutPaymentInfo != null) layoutPaymentInfo.setVisibility(View.VISIBLE);
-        if (tvTotalPayment != null) tvTotalPayment.setText(priceStr);
-
-        // Phương thức thanh toán
-        if (tvPaymentMethodName != null) {
-            String method = order.getPaymentMethod();
-            tvPaymentMethodName.setText("momo".equalsIgnoreCase(method) ? "Ví MoMo" : "Tiền mặt");
-        }
-
-        // Địa chỉ
+        boolean isPickup = false;
         String address = order.getDeliverAddress();
         if (address == null || address.isEmpty() || "null".equalsIgnoreCase(address)) {
+            isPickup = true;
+        }
+        String timeDisplay = "---";
+
+        if (order.getCreateAt() != null && !order.getCreateAt().isEmpty()) {
+            try {
+                SimpleDateFormat serverFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+                serverFormat.setTimeZone(TimeZone.getTimeZone("UTC")); // Server dùng UTC
+
+                SimpleDateFormat displayFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                displayFormat.setTimeZone(TimeZone.getDefault()); // Giờ Việt Nam
+
+                Date startTime = serverFormat.parse(order.getCreateAt());
+                String strStart = displayFormat.format(startTime);
+
+                String strEnd = "";
+
+                boolean isDone = "done".equalsIgnoreCase(order.getStatus()) || "completed".equalsIgnoreCase(order.getStatus());
+
+                if (isDone && order.getDoneIn() != null && !order.getDoneIn().isEmpty()) {
+                    try {
+                        Date doneTime = serverFormat.parse(order.getDoneIn());
+                        strEnd = displayFormat.format(doneTime);
+                    } catch (Exception e) {
+                        strEnd = "??:??";
+                    }
+                } else {
+                    // === TRƯỜNG HỢP 2: CHƯA XONG HOẶC GIAO HÀNG (Tính dự kiến) ===
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(startTime);
+
+                    if (isPickup) {
+                        calendar.add(Calendar.MINUTE, 15); // Nhận tại quán: Dự kiến 15p
+                    } else {
+                        calendar.add(Calendar.MINUTE, 30); // Giao hàng: Dự kiến 30p
+                    }
+                    strEnd = displayFormat.format(calendar.getTime());
+                }
+
+                // Ghép chuỗi: "20:00 - 20:15"
+                timeDisplay = strStart + " - " + strEnd;
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+                timeDisplay = "Đang cập nhật...";
+            }
+        }
+
+        // Gán lên giao diện
+        tvTimeEstimate.setText(timeDisplay);
+
+        if (isPickup) {
             tvAddressName.setText("Nhận tại cửa hàng");
             tvDetailAddress.setVisibility(View.GONE);
         } else {
@@ -692,24 +837,38 @@ public class FragmentOrderTracking extends Fragment {
             tvDetailAddress.setText(address);
             tvDetailAddress.setVisibility(View.VISIBLE);
         }
+
+        DecimalFormat formatter = new DecimalFormat("###,###,###");
+        String priceStr = formatter.format(order.getFinalTotal()) + " VND";
+        tvTotalPriceList.setText(priceStr);
+
+        if (layoutPaymentInfo != null) layoutPaymentInfo.setVisibility(View.VISIBLE);
+        if (tvTotalPayment != null) tvTotalPayment.setText(priceStr);
+
+        if (tvPaymentMethodName != null) {
+            String method = order.getPaymentMethod();
+            tvPaymentMethodName.setText("momo".equalsIgnoreCase(method) ? "Ví MoMo" : "Tiền mặt");
+        }
         tvStoreName.setText("Hermosa Coffee");
 
-        // List món
         if (order.getProducts() != null) {
             OrderItemAdapter adapter = new OrderItemAdapter(order.getProducts());
             rvOrderItems.setAdapter(adapter);
         }
 
-        // Trạng thái & Hiện Dialog Done nếu cần
-        updateStatusTimeline(order.getStatus());
+        updateStatusTimeline(order.getStatus(), isPickup);
 
-        // KIỂM TRA ĐỂ HIỆN DIALOG "DONE"
-        if ("done".equalsIgnoreCase(order.getStatus()) || "completed".equalsIgnoreCase(order.getStatus())) {
+        if (("done".equalsIgnoreCase(order.getStatus()) || "completed".equalsIgnoreCase(order.getStatus()))
+                && isPickup) {
             showOrderDoneDialog();
         }
+        if ("done".equalsIgnoreCase(order.getStatus()) || "completed".equalsIgnoreCase(order.getStatus())) {
+            btnSubmitReview.setVisibility(View.VISIBLE);
+        } else {
+            btnSubmitReview.setVisibility(View.GONE);
+        }
     }
-
-    private void updateStatusTimeline(String status) {
+    private void updateStatusTimeline(String status, boolean isPickup) {
         if (status == null) status = "pending";
         resetTimelineColors();
 
@@ -740,7 +899,14 @@ public class FragmentOrderTracking extends Fragment {
                 layoutHeaderConfirmed.setVisibility(View.VISIBLE);
                 tvStatusTag.setText("Đang giao");
                 tvStatusTag.setBackgroundColor(Color.parseColor("#1976D2"));
-                tvStatusMsg.setText("Tài xế đang giao hàng...");
+
+                // Nếu là pickup mà lỡ có status shipping (lỗi logic server) thì handle nhẹ
+                if (isPickup) {
+                    tvStatusMsg.setText("Đơn hàng đang được chuẩn bị xong...");
+                } else {
+                    tvStatusMsg.setText("Tài xế đang giao hàng đến bạn...");
+                }
+
                 tvStatusMsg.setTextColor(Color.parseColor("#1976D2"));
                 highlightTimeline(3);
                 btnCancelOrder.setVisibility(View.GONE);
@@ -753,7 +919,13 @@ public class FragmentOrderTracking extends Fragment {
                 layoutHeaderConfirmed.setVisibility(View.VISIBLE);
                 tvStatusTag.setText("Hoàn tất");
                 tvStatusTag.setBackgroundColor(Color.parseColor("#388E3C"));
-                tvStatusMsg.setText("Đơn hàng đã hoàn thành!");
+
+                if (isPickup) {
+                    tvStatusMsg.setText("Đơn hàng hoàn tất. Vui lòng đến quầy nhận nước nhé! ");
+                } else {
+                    tvStatusMsg.setText("Giao hàng thành công!");
+                }
+
                 tvStatusMsg.setTextColor(Color.parseColor("#388E3C"));
                 highlightTimeline(4);
                 btnCancelOrder.setVisibility(View.GONE);
@@ -771,6 +943,7 @@ public class FragmentOrderTracking extends Fragment {
                 break;
         }
     }
+
 
     // Helper: Tô màu Timeline
     private void highlightTimeline(int step) {

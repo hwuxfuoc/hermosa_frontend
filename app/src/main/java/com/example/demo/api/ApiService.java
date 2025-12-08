@@ -17,6 +17,7 @@ import com.example.demo.models.MenuResponse;
 import com.example.demo.models.NotificationListResponse;
 import com.example.demo.models.OrderListResponse;
 import com.example.demo.models.OrderResponse;
+import com.example.demo.models.ReviewResponse;
 import com.example.demo.models.VoucherResponse;
 
 import retrofit2.Call;
@@ -202,8 +203,6 @@ public interface ApiService {
     @POST("momo/create")
     Call<CreateMomoResponse> createPaymentMomo(@Body CreateMomoRequest request);
 
-    // 2. Kiểm tra trạng thái (Polling)
-    // BE: router.get('/confirm', ...) lấy orderID từ query param
     @GET("momo/confirm")
     Call<ConfirmPaymentResponse> confirmPaymentStatus(@Query("orderID") String orderID);
     @POST("vnpay/create")
@@ -216,5 +215,7 @@ public interface ApiService {
     Call<OrderResponse> cancelOrder(@Body HashMap<String, String> body);
     @GET("notification/list")
     Call<NotificationListResponse> getNotifications(@Query("userID") String userID);
+    @GET("product/reviews")
+    Call<ReviewResponse> getProductReviews(@Query("productID") String productID);
 }
 

@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Demo</string>
     <string name="mapbox_access_token">sk.eyJ1IjoicGh1dGh1YW4zMjMiLCJhIjoiY21pYTJqczI5MHBwZjJqczlwZmFpY3FqbyJ9.vCMhxuIIrLLiUy_3QoQMxQ</string>
+    <string name="facebook_app_id">1218203776996728</string>
+    <string name="fb_login_protocol_scheme">fb1218203776996728</string>
+    <string name="facebook_client_token">dd6ee0f91053b9e0b4469ca834d8e73a</string>
+    <string name="facebook_application_name">Demo</string>
 </resources>

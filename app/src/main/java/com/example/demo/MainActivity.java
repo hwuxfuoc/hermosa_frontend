@@ -222,6 +222,7 @@ import com.example.demo.api.ApiService;
 import com.example.demo.fragment.FragmentCart;
 import com.example.demo.fragment.FragmentHome;
 import com.example.demo.fragment.FragmentNotification;
+import com.example.demo.fragment.FragmentOrderTracking;
 import com.example.demo.fragment.FragmentProfile;
 import com.example.demo.models.CommonResponse;
 import com.example.demo.service.MyFirebaseMessagingService;
@@ -283,10 +284,12 @@ public class MainActivity extends AppCompatActivity {
             } else if (itemId == R.id.nav_noti) {
                 selectedFragment = new FragmentNotification();
                 tag = "FragmentNotification";
-            } else if (itemId == R.id.menu_profile) {
+            } else if (itemId == R.id.nav_profile) {
                 selectedFragment = new FragmentProfile();
                 tag = "FragmentProfile";
-            }
+            }else if (itemId == R.id.nav_order) {
+            selectedFragment = new FragmentOrderTracking();
+            tag = "FragmentOrderTracking";}
 
             if (selectedFragment != null) {
                 replaceFragment(selectedFragment, tag);

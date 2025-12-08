@@ -74,13 +74,13 @@
                         android:orientation="vertical"
                         android:visibility="visible">
                         <TextView
-                        android:id="@+id/tvStatusTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Đang xử lý"
-                        android:textColor="#B71C1C"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
+                            android:id="@+id/tvStatusTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Đang xử lý"
+                            android:textColor="#B71C1C"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/tvStatusDesc"
@@ -464,6 +464,16 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSubmitReview"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="8dp"
+                android:text="Đánh giá ngay"
+                app:cornerRadius="8dp"
+                app:backgroundTint="#B71C1C"
+                android:textStyle="bold"/>
         </LinearLayout>
     </ScrollView>
 
@@ -499,5 +509,3 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-
-

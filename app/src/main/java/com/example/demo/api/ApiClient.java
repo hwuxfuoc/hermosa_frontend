@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 public class ApiClient {
     private static Retrofit retrofit = null;/*https://38d670f12a80.ngrok-free.app/*/
-    private static final String BASE_URL = "http://34.151.64.207"; /*"http://13.250.179.85/"*/
+    private static final String BASE_URL = "http://34.151.64.207/"; /*"http://13.250.179.85/"*/
 
     public static Retrofit getClient() {
         if (retrofit == null) {

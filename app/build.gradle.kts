@@ -57,6 +57,8 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation(platform(libs.firebase.bom))
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
+    implementation("com.facebook.android:facebook-login:16.0.1")
 
     // 3. Import Firebase Messaging (Không cần version)
     implementation(libs.firebase.messaging)
