@@ -94,13 +94,21 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
 
         btnBack.setOnClickListener(v -> finish());
 
-        // Xử lý Favorite
+        // === FAVORITE SIÊU ỔN ĐỊNH – KHÔNG LỖI FINAL ===
+        // === SỬA ĐOẠN FAVORITE ===
         SharedPreferences prefs = getSharedPreferences("favorites", MODE_PRIVATE);
-        String favoriteKey = product.getProductID() != null ? product.getProductID() : product.getId();
 
-        btnFav.setImageResource(prefs.getBoolean(favoriteKey, false)
-                ? R.drawable.icon_favorite_fill
-                : R.drawable.icon_favorite_empty);
+        String productId = product.getId();
+        if (productId == null || productId.isEmpty()) {
+            productId = product.getProductID();
+        }
+        final String favoriteKey = productId; // ← CHUẨN, KHÔNG ĐỔI NỮA
+
+        btnFav.setImageResource(
+                prefs.getBoolean(favoriteKey, false)
+                        ? R.drawable.icon_favorite_fill
+                        : R.drawable.icon_favorite_empty
+        );
 
         btnFav.setOnClickListener(v -> {
             SharedPreferences.Editor editor = prefs.edit();
@@ -117,6 +125,7 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
             }
             editor.apply();
 
+            // RELOAD TAB YÊU THÍCH NẾU ĐANG MỞ
             Fragment frag = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
             if (frag instanceof FragmentFavorite) {
                 ((FragmentFavorite) frag).reloadFavorites();
@@ -124,11 +133,6 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
         });
 
         setupAddToCart();
-
-        // Cuối cùng: Gọi load review (chỉ gọi 1 lần!)
-        if (product.getProductID() != null) {
-            loadProductReviews(product.getProductID());
-        }
     }
 
     private void loadProductReviews(String productID) {
