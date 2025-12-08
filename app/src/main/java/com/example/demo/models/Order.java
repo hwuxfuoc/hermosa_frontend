@@ -25,6 +25,12 @@ public class Order {
     private String orderDate;
     private String deliverIn;
 
+    private String createAt; // Đổi từ long sang String
+    private String doneIn;
+    public String getCreateAt() { return createAt; }
+    public void setCreateAt(String createAt) { this.createAt = createAt; }
+    public String getDoneIn() { return doneIn; }
+    public void setDoneIn(String doneIn) { this.doneIn = doneIn; }
 
     public String getVoucherCodeApply() {
         return voucherCodeApply;
