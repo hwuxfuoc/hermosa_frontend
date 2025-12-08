@@ -79,7 +79,7 @@
             android:fontFamily="serif"
             android:textStyle="bold"
             app:layout_constraintTop_toBottomOf="@id/imgProduct"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="20dp"
             app:layout_constraintStart_toStartOf="parent"
             android:layout_marginStart="16dp"/>
 
@@ -209,8 +209,12 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="16dp"/>
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvProductReviews"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:nestedScrollingEnabled="false" />
         </LinearLayout>
-
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
