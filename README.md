@@ -17,7 +17,10 @@ Do server đã online, bạn chỉ cần thực hiện các bước sau để ch
 1.  **Clone Project:**
     ```bash
     git clone https://github.com/hwuxfuoc/hermosa_frontend.git
+    git checkout ck
+    git pull
     ```
+    
 2.  **Open in Android Studio:**
     * Mở Android Studio -> File -> Open -> Chọn thư mục vừa clone.
 3.  **Check Configuration (Quan trọng):**
