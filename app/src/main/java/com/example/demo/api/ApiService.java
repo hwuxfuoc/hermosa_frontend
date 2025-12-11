@@ -15,6 +15,7 @@ import com.example.demo.models.CreateVnpayResponse;
 import com.example.demo.models.MapboxSuggestionResponse;
 import com.example.demo.models.MenuResponse;
 import com.example.demo.models.NotificationListResponse;
+import com.example.demo.models.OrderHistoryResponse;
 import com.example.demo.models.OrderListResponse;
 import com.example.demo.models.OrderResponse;
 import com.example.demo.models.ReviewResponse;
@@ -125,8 +126,6 @@ public interface ApiService {
     Call<MenuResponse.SingleProductResponse> getProductDetail(@Query("productID") String productID);
     @GET("order/view")
     Call<OrderResponse> viewOrder(@Query("orderID") String orderID);
-    @GET("order/order-history")
-    Call<OrderListResponse> getOrderHistory(@Query("userID") String userID);
     @HTTP(method = "DELETE", path = "order/cancel", hasBody = true)
     Call<CommonResponse> cancelOrder(@Body CancelOrderRequest body);
     @POST("address/add")
@@ -217,5 +216,7 @@ public interface ApiService {
     Call<NotificationListResponse> getNotifications(@Query("userID") String userID);
     @GET("product/reviews")
     Call<ReviewResponse> getProductReviews(@Query("productID") String productID);
+    @GET("order/order-history")
+    Call<OrderHistoryResponse> getOrderHistory(@Query("userID") String userID);
 }
 

@@ -39,10 +39,9 @@ import retrofit2.Response;
 public class FragmentReview extends Fragment {
 
     private String orderID;
-    private List<Product> productsToReview; // Danh sách sản phẩm từ order
+    private List<Product> productsToReview;
     private ApiService apiService;
 
-    // Views
     private RatingBar rbGeneral;
     private EditText etGeneralFeedback;
     private MaterialButton btnSubmitReview;
@@ -62,7 +61,6 @@ public class FragmentReview extends Fragment {
 
         apiService = ApiClient.getClient().create(ApiService.class);
 
-        // Lấy data từ bundle (từ FragmentOrderTracking)
         if (getArguments() != null) {
             orderID = getArguments().getString("ORDER_ID");
             productsToReview = (List<Product>) getArguments().getSerializable("PRODUCTS"); // List sản phẩm từ order
@@ -116,9 +114,6 @@ public class FragmentReview extends Fragment {
             }
         }
 
-        // TRÁNH LỖI BACKEND: Nếu không có review nào → gửi mảng rỗng (không gửi dummy)
-        // Vì backend lỗi ở chỗ dùng biến sai → dummy cũng không cứu được
-        // → TỐT NHẤT: Không gửi review sản phẩm nếu người dùng không đánh giá món nào
 
         Map<String, Object> body = new HashMap<>();
         body.put("orderReview", Map.of(
@@ -126,11 +121,10 @@ public class FragmentReview extends Fragment {
                 "comment", generalFeedback
         ));
 
-        // CHỈ GỬI productsReview NẾU CÓ ÍT NHẤT 1 REVIEW HỢP LỆ
         if (!productReviews.isEmpty()) {
             body.put("productsReview", productReviews);
         }
-        // Nếu rỗng → không gửi field này → backend sẽ bỏ qua vòng lặp → không lỗi!
+
 
         Log.d("REVIEW", "Gửi đánh giá: " + new com.google.gson.Gson().toJson(body));
 
@@ -142,7 +136,7 @@ public class FragmentReview extends Fragment {
                         showVoucherSuccessDialog();
                     } else {
                         Toast.makeText(getContext(), "Đánh giá thành công (chỉ tổng quát)", Toast.LENGTH_LONG).show();
-                        showVoucherSuccessDialog(); // Vẫn tặng voucher dù chỉ đánh giá chung
+                        showVoucherSuccessDialog();
                     }
                 } else {
                     Toast.makeText(getContext(), "Đã gửi đánh giá!", Toast.LENGTH_LONG).show();
@@ -166,7 +160,6 @@ public class FragmentReview extends Fragment {
                 .setView(LayoutInflater.from(getContext()).inflate(R.layout.dialog_voucher_success, null))
                 .show();
 
-        // Tự động về trang chủ sau 3s
         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
             if (getActivity() != null) {
                 startActivity(new Intent(getContext(), MainActivity.class)

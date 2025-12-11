@@ -103,7 +103,6 @@ public class FragmentFavorite extends Fragment {
                                 }
                             }
 
-                            // DỌN DẸP: Xóa ID không còn tồn tại
                             SharedPreferences.Editor editor = prefs.edit();
                             for (String id : favoriteIds) {
                                 boolean exists = newList.stream().anyMatch(p -> p.getId().equals(id));

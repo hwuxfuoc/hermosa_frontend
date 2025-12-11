@@ -42,12 +42,10 @@
             android:name="com.facebook.sdk.AdvertiserIDCollectionEnabled"
             android:value="true"/>
 
-        <!-- Tuỳ chọn nhưng nên có -->
         <meta-data
             android:name="com.facebook.sdk.AutoInitEnabled"
             android:value="true"/>
 
-        <!-- 2 DÒNG BẮT BUỘC MỚI NHẤT CỦA FACEBOOK SDK 2024-2025 -->
         <meta-data
             android:name="com.facebook.sdk.ClientToken"
             android:value="@string/facebook_client_token"/>
@@ -85,6 +83,7 @@
         <activity android:name=".AddAddressActivity"/>
         <activity android:name=".PickLocationActivity"/>
         <activity android:name=".VoucherSelectionActivity"/>
+        <activity android:name=".VoucherWalletActivity" />
 
 
         <activity

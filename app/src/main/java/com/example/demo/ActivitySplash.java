@@ -13,7 +13,7 @@ import com.example.demo.utils.NetworkUtil;
 
 public class ActivitySplash extends AppCompatActivity {
 
-    private static final int SPLASH_DELAY = 2500; // 2.5 giây
+    private static final int SPLASH_DELAY = 2500;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

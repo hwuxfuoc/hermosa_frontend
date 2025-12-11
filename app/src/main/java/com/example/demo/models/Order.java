@@ -16,6 +16,7 @@ public class Order {
 
     // --- Bổ sung các trường thiếu ---
     private long finalTotal;
+
     private long deliveryFee;
     private long tipsforDriver;
     private long discountAmount;
@@ -26,6 +27,8 @@ public class Order {
     private String deliverIn;
     private String createAt; // Đổi từ long sang String
     private String doneIn;
+    private List<Product> productss;
+    public List<Product>getProductss(){return productss;}
     public String getCreateAt() { return createAt; }
     public void setCreateAt(String createAt) { this.createAt = createAt; }
     public String getDoneIn() { return doneIn; }

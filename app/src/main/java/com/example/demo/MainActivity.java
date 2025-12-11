@@ -222,6 +222,7 @@ import com.example.demo.api.ApiService;
 import com.example.demo.fragment.FragmentCart;
 import com.example.demo.fragment.FragmentHome;
 import com.example.demo.fragment.FragmentNotification;
+import com.example.demo.fragment.FragmentOrderHistory;
 import com.example.demo.fragment.FragmentOrderTracking;
 import com.example.demo.fragment.FragmentProfile;
 import com.example.demo.models.CommonResponse;
@@ -243,7 +244,6 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private static final String TAG = "MainActivity_FCM";
 
-    // 1. KHAI BÁO BỘ THU SÓNG (RECEIVER) ĐỂ NHẬN THÔNG BÁO KHI APP ĐANG MỞ
     private final BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -252,7 +252,6 @@ public class MainActivity extends AppCompatActivity {
                 String body = intent.getStringExtra("body");
                 String notiID = intent.getStringExtra("notiID");
 
-                // Hiện Popup ngay lập tức
                 showInAppNotificationDialog(title, body);
             }
         }
@@ -288,8 +287,8 @@ public class MainActivity extends AppCompatActivity {
                 selectedFragment = new FragmentProfile();
                 tag = "FragmentProfile";
             }else if (itemId == R.id.nav_order) {
-            selectedFragment = new FragmentOrderTracking();
-            tag = "FragmentOrderTracking";}
+            selectedFragment = new FragmentOrderHistory();
+            tag = "FragmentOrderHistory";}
 
             if (selectedFragment != null) {
                 replaceFragment(selectedFragment, tag);

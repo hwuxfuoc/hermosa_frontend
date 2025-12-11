@@ -465,14 +465,12 @@ import java.util.TimeZone;            // Sửa lỗi TimeZone
 
 public class FragmentOrderTracking extends Fragment {
 
-    // --- VIEW DECLARATION ---
     private ImageView btnBack;
     private LinearLayout layoutHeaderPending, layoutHeaderConfirmed;
     private TextView tvStatusTitle, tvStatusDesc, tvStatusTag, tvTimeEstimate, tvStatusMsg;
     private ImageView ivStep1, ivStep2, ivStep3, ivStep4;
     private View line1, line2, line3;
 
-    // View hiển thị tiền
     private TextView tvTotalPriceList;
     private TextView tvTotalPayment;
     private TextView tvPaymentMethodName;
@@ -728,13 +726,11 @@ public class FragmentOrderTracking extends Fragment {
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.fragment_cancel_success, null);
         builder.setView(dialogView);
 
-        // Không cho người dùng bấm ra ngoài để tắt, bắt buộc bấm nút trong dialog
         builder.setCancelable(false);
 
         AlertDialog dialog = builder.create();
         if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-        // Điền thông tin mã đơn
         TextView tvOrderID = dialogView.findViewById(R.id.tvOrderID);
         if (tvOrderID != null) tvOrderID.setText("Mã đơn: " + currentOrderID);
 
@@ -788,7 +784,7 @@ public class FragmentOrderTracking extends Fragment {
                 serverFormat.setTimeZone(TimeZone.getTimeZone("UTC")); // Server dùng UTC
 
                 SimpleDateFormat displayFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
-                displayFormat.setTimeZone(TimeZone.getDefault()); // Giờ Việt Nam
+                displayFormat.setTimeZone(TimeZone.getDefault());
 
                 Date startTime = serverFormat.parse(order.getCreateAt());
                 String strStart = displayFormat.format(startTime);
@@ -805,19 +801,17 @@ public class FragmentOrderTracking extends Fragment {
                         strEnd = "??:??";
                     }
                 } else {
-                    // === TRƯỜNG HỢP 2: CHƯA XONG HOẶC GIAO HÀNG (Tính dự kiến) ===
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTime(startTime);
 
                     if (isPickup) {
-                        calendar.add(Calendar.MINUTE, 15); // Nhận tại quán: Dự kiến 15p
+                        calendar.add(Calendar.MINUTE, 15);
                     } else {
-                        calendar.add(Calendar.MINUTE, 30); // Giao hàng: Dự kiến 30p
+                        calendar.add(Calendar.MINUTE, 30);
                     }
                     strEnd = displayFormat.format(calendar.getTime());
                 }
 
-                // Ghép chuỗi: "20:00 - 20:15"
                 timeDisplay = strStart + " - " + strEnd;
 
             } catch (ParseException e) {
@@ -826,7 +820,6 @@ public class FragmentOrderTracking extends Fragment {
             }
         }
 
-        // Gán lên giao diện
         tvTimeEstimate.setText(timeDisplay);
 
         if (isPickup) {

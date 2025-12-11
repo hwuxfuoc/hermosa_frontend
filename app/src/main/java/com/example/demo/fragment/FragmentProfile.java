@@ -204,14 +204,12 @@ public class FragmentProfile extends Fragment {
 
         tvProfileName.setText(name != null && !name.isEmpty() ? name : "User");
         tvUserName.setText(name != null && !name.isEmpty() ? name : "User");
-        tvUserPoints.setText("2345 points • Thành viên Kim Cương"); // FIX: Không có getUserPoints → dùng cứng
+        tvUserPoints.setText("2345 points • Thành viên Kim Cương");
     }
 
-    // === HIỆU ỨNG BẤM SIÊU ĐẸP – DÙNG RIPPLE CHUẨN ANDROID ===
     private void setClickable(LinearLayout layout) {
         layout.setClickable(true);
         layout.setFocusable(true);
-        // FIX: ripple_rounded_corners → dùng drawable có sẵn
         layout.setBackground(ContextCompat.getDrawable(requireContext(), android.R.drawable.list_selector_background));
     }
 }

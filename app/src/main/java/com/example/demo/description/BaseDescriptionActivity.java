@@ -181,7 +181,7 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
     private ImageButton btnFav;
 
     private ApiService apiService;
-    private RecyclerView rvProductReviews; // Biến thành field để dùng trong loadProductReviews()
+    private RecyclerView rvProductReviews;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -241,15 +241,13 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
 
         btnBack.setOnClickListener(v -> finish());
 
-        // === FAVORITE SIÊU ỔN ĐỊNH – KHÔNG LỖI FINAL ===
-        // === SỬA ĐOẠN FAVORITE ===
         SharedPreferences prefs = getSharedPreferences("favorites", MODE_PRIVATE);
 
         String productId = product.getId();
         if (productId == null || productId.isEmpty()) {
             productId = product.getProductID();
         }
-        final String favoriteKey = productId; // ← CHUẨN, KHÔNG ĐỔI NỮA
+        final String favoriteKey = productId;
 
         btnFav.setImageResource(
                 prefs.getBoolean(favoriteKey, false)
@@ -272,7 +270,6 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
             }
             editor.apply();
 
-            // RELOAD TAB YÊU THÍCH NẾU ĐANG MỞ
             Fragment frag = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
             if (frag instanceof FragmentFavorite) {
                 ((FragmentFavorite) frag).reloadFavorites();
@@ -296,7 +293,6 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ReviewResponse> call, Throwable t) {
-                // Backend chưa có hoặc lỗi mạng → vẫn để trống, không crash
                 rvProductReviews.setAdapter(new ProductReviewDisplayAdapter(new ArrayList<>()));
             }
         });

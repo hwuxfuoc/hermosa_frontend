@@ -2,6 +2,9 @@ package com.example.demo.models;
 
 import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gson.Gson;
 import android.graphics.Color;
 
@@ -43,8 +46,8 @@ public class Product implements Serializable {
     @SerializedName("image")
     private String imageUrl; // URL Cloudinary: "https://res.cloudinary.com/.../cake01.jpg"
 
-    @SerializedName("color")
-    private String colorHex; // ví dụ: "#FF5733"
+    @SerializedName("backgroundHexacode")
+    private String backgroundHexacode; // ví dụ: "#FF5733"
 
     @SerializedName("description")
     private String description;
@@ -227,19 +230,30 @@ public class Product implements Serializable {
     public static Product fromMenuItem(MenuResponse.MenuItem item) {
         String normalizedCat = normalizeCategory(item.getCategory());
 
-        int color = 0xFFEB4341;
-        if (item.getBackgroundHexacode() != null && !item.getBackgroundHexacode().isEmpty()) {
+        int color = 0xFFEB4341; // default
+
+        String hexCode = item.getBackgroundHexacode();
+        if (hexCode != null && !hexCode.trim().isEmpty()) {
             try {
-                String hex = item.getBackgroundHexacode().trim();
+                String hex = hexCode.trim();
                 if (!hex.startsWith("#")) hex = "#" + hex;
-                if (hex.length() == 7) hex = "#FF" + hex.substring(1);
+                if (hex.length() == 6) hex = "#FF" + hex; // thêm alpha nếu thiếu
+                if (hex.length() == 7) hex = "#FF" + hex.substring(1); // 6 ký tự → 8
                 color = Color.parseColor(hex);
             } catch (Exception e) {
+                // fallback theo category
                 switch (normalizedCat) {
                     case "drink": color = 0xFFA71317; break;
-                    case "food": color = 0xFF388E3C; break;
-                    default: color = 0xFFEB4341;
+                    case "food":  color = 0xFF388E3C; break;
+                    default:      color = 0xFFEB4341; break;
                 }
+            }
+        } else {
+            // fallback nếu null
+            switch (normalizedCat) {
+                case "drink": color = 0xFFA71317; break;
+                case "food":  color = 0xFF388E3C; break;
+                default:      color = 0xFFEB4341; break;
             }
         }
 
@@ -257,7 +271,6 @@ public class Product implements Serializable {
 
         p.setImageUrl(item.getPicture());
         p.setColor(color);
-
         p.setCategory(normalizedCat);
 
         return p;
@@ -294,4 +307,10 @@ public class Product implements Serializable {
         p.setTopping(cartItem.getTopping() != null ? cartItem.getTopping().toArray(new String[0]) : new String[0]);
         return p;
     }
+
+    // Thêm vào class Product
+    private List<Review> reviews = new ArrayList<>();
+
+    public List<Review> getReviews() { return reviews; }
+    public void setReviews(List<Review> reviews) { this.reviews = reviews; }
 }

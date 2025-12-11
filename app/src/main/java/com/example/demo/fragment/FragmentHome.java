@@ -66,7 +66,6 @@ public class FragmentHome extends Fragment {
         setupTabs();
         setupSearch(searchView);
 
-        // GỌI API LẤY TẤT CẢ SẢN PHẨM
         if (allProducts.isEmpty()) {
             loadAllProducts();
         }
@@ -75,12 +74,11 @@ public class FragmentHome extends Fragment {
     }
 
     private void setupRecyclerViews() {
-        // Best Seller - ngang
+
         recyclerBestSeller.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         bestSellerAdapter = new BestSellerAdapter(requireContext(), bestSellerList);
         recyclerBestSeller.setAdapter(bestSellerAdapter);
 
-        // Danh sách chính - grid 2 cột
         recyclerProducts.setLayoutManager(new GridLayoutManager(getContext(), 2));
         productAdapter = new ProductAdapter(requireContext(), currentProductList);
         recyclerProducts.setAdapter(productAdapter);

@@ -35,23 +35,21 @@ public class SelectAddressActivity extends AppCompatActivity {
     private static final String DEFAULT_ADDRESS = "[Trường ĐH CNTT - ĐHQG TP.HCM] Hàn Thuyên, khu phố 6, P. Linh Chiểu, TP. Thủ Đức";
     private static final String DEFAULT_CUSTOMER = "Tên Khách Hàng | 0909123456";
 
-    // Các view cần thao tác
+
     private MaterialCardView cardDeliveryOption;
     private View containerDelivery;
     private View sectionPickup;
     private MaterialButton btnConfirm;
     private View btnBack;
 
-    // Các nút "Thêm địa chỉ"
+
     private TextView btnAddHome;
     private TextView btnAddWorkAddress;
     private TextView btnAddOtherAddress;
 
-    // --- BỔ SUNG: RecyclerView để hiển thị danh sách ---
     private RecyclerView rvHomeAddress, rvWorkAddress, rvOtherAddress;
 
-    // Trạng thái
-    private String selectedMethod = null; // "delivery" hoặc "pickup"
+    private String selectedMethod = null;
     private String selectedAddressStr = "";
     private String selectedCustomerStr = "";
     private String selectedAddressID = null;
@@ -85,7 +83,6 @@ public class SelectAddressActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        // --- CODE CŨ: Ánh xạ view có sẵn ---
         cardDeliveryOption = findViewById(R.id.cardDeliveryOption);
         containerDelivery = findViewById(R.id.containerDelivery);
         sectionPickup = findViewById(R.id.sectionPickup);
@@ -96,22 +93,18 @@ public class SelectAddressActivity extends AppCompatActivity {
         btnAddWorkAddress = findViewById(R.id.btnAddWorkAddress);
         btnAddOtherAddress = findViewById(R.id.btnAddOtherAddress);
 
-        // --- BỔ SUNG: Ánh xạ RecyclerView và set LayoutManager ---
         rvHomeAddress = findViewById(R.id.rvHomeAddress);
         rvWorkAddress = findViewById(R.id.rvWorkAddress);
         rvOtherAddress = findViewById(R.id.rvOtherAddress);
 
-        // Bắt buộc phải có LayoutManager thì RecyclerView mới hiện
         rvHomeAddress.setLayoutManager(new LinearLayoutManager(this));
         rvWorkAddress.setLayoutManager(new LinearLayoutManager(this));
         rvOtherAddress.setLayoutManager(new LinearLayoutManager(this));
 
-        // Ban đầu nút xác nhận bị tắt
         updateConfirmButton(false);
     }
 
     private void setupEventHandlers() {
-        // --- GIỮ NGUYÊN LOGIC CŨ ---
         cardDeliveryOption.setOnClickListener(null);
         cardDeliveryOption.setStrokeWidth(0);
 
@@ -119,17 +112,12 @@ public class SelectAddressActivity extends AppCompatActivity {
             sectionPickup.setOnClickListener(v -> selectMethod("pickup"));
         }
         if(containerDelivery!=null){
-            // Sửa nhẹ: Khi bấm vào khung Delivery, nếu chưa chọn địa chỉ cụ thể thì vẫn selectMethod
             containerDelivery.setOnClickListener(v-> selectMethod("delivery"));
         }
-
-        // --- SỬA LOGIC NÚT XÁC NHẬN ---
         btnConfirm.setOnClickListener(v -> {
             if (selectedMethod != null) {
                 Log.d(TAG, "XÁC NHẬN PHƯƠNG THỨC: " + selectedMethod);
 
-                // Nếu chọn Delivery: Ưu tiên lấy địa chỉ User vừa bấm chọn trong List.
-                // Nếu User không chọn gì cả, lấy DEFAULT (hoặc bắt buộc chọn tùy bạn)
                 String finalAddress = "delivery".equals(selectedMethod)
                         ? (selectedAddressStr.isEmpty() ? DEFAULT_ADDRESS : selectedAddressStr)
                         : null;
@@ -158,7 +146,6 @@ public class SelectAddressActivity extends AppCompatActivity {
 
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
 
-        // Gọi API lấy danh sách (type = null để lấy tất cả)
         apiService.getListAddress(userID).enqueue(new Callback<AddressResponse>() {
             @Override
             public void onResponse(Call<AddressResponse> call, Response<AddressResponse> response) {
@@ -177,16 +164,13 @@ public class SelectAddressActivity extends AppCompatActivity {
     private void filterAndDisplayAddresses(List<AddressResponse.AddressData> list) {
         if (list == null) return;
 
-        // 1. Xóa dữ liệu cũ
         homeList.clear();
         workList.clear();
         otherList.clear();
 
         // 2. Chia dữ liệu vào 3 list
         for (AddressResponse.AddressData item : list) {
-            item.isSelected = false; // Reset trạng thái chọn khi mới load
-
-            // (Tuỳ chọn) Giữ lại trạng thái đã chọn trước đó nếu có
+            item.isSelected = false;
             if (!selectedAddressStr.isEmpty() && item.getFullAddress().equals(selectedAddressStr)) {
                 item.isSelected = true;
             }
@@ -225,10 +209,7 @@ public class SelectAddressActivity extends AppCompatActivity {
         if (adapterHome != null) adapterHome.notifyDataSetChanged();
         if (adapterWork != null) adapterWork.notifyDataSetChanged();
         if (adapterOther != null) adapterOther.notifyDataSetChanged();
-        // Toast.makeText(this, "Đã chọn: " + clickedItem.name, Toast.LENGTH_SHORT).show();
     }
-
-    // Hàm phụ trợ để reset list
     private void deselectAll(List<AddressResponse.AddressData> list) {
         if (list == null) return;
         for (AddressResponse.AddressData data : list) {
@@ -248,9 +229,7 @@ public class SelectAddressActivity extends AppCompatActivity {
         if (requestCode == 100 && resultCode == RESULT_OK && data != null) {
             String newAddress = data.getStringExtra("newAddress");
             String newCustomer = data.getStringExtra("newCustomer");
-            // String type = data.getStringExtra("type"); // Không cần dùng ở đây nữa vì onResume sẽ tự load lại list
 
-            // Nếu người dùng vừa thêm mới -> Tự chọn cái đó luôn
             if(newAddress != null) selectedAddressStr = newAddress;
             if(newCustomer != null) selectedCustomerStr = newCustomer;
 
@@ -268,7 +247,6 @@ public class SelectAddressActivity extends AppCompatActivity {
         if(containerDelivery!=null) containerDelivery.setBackgroundResource(android.R.color.white);
         if(sectionPickup!=null) sectionPickup.setBackgroundResource(android.R.color.white);
 
-        // Highlight mục được chọn
         if("delivery".equals(method)){
             if(containerDelivery!=null) containerDelivery.setBackgroundResource(R.drawable.bg_btn_selected); // Đảm bảo drawable này tồn tại
         } else if ("pickup".equals(method)) {

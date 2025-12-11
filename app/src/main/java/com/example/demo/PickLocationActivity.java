@@ -383,7 +383,6 @@ public class PickLocationActivity extends AppCompatActivity {
     private Handler handler = new Handler();
     private Runnable searchRunnable;
 
-    // Khởi tạo chuỗi rỗng để tránh NullPointerException ngay từ đầu
     private String finalAddressName = "";
     private String finalStreet = "";
     private String finalWard = "";
@@ -413,7 +412,6 @@ public class PickLocationActivity extends AppCompatActivity {
         rvSuggestions = findViewById(R.id.rvSuggestions);
 
         rvSuggestions.setLayoutManager(new LinearLayoutManager(this));
-        // Truyền callback khi chọn item gợi ý
         suggestionAdapter = new SuggestionAdapter(new ArrayList<>(), this::onSuggestionSelected);
         rvSuggestions.setAdapter(suggestionAdapter);
     }
@@ -611,31 +609,25 @@ public class PickLocationActivity extends AppCompatActivity {
 
     private void setupClickEvents() {
         if (btnBack != null) btnBack.setOnClickListener(v -> finish());
-
-        // --- NÚT LƯU ĐỊA CHỈ (FIX CRASH TẠI ĐÂY) ---
         if (btnSaveAddress != null) btnSaveAddress.setOnClickListener(v -> {
-            // Lấy text người dùng đang nhập làm dự phòng
+
             String currentText = etSearchAddress.getText().toString().trim();
 
-            // Nếu các biến final đang null hoặc rỗng, dùng text hiện tại
             if (finalAddressName == null || finalAddressName.isEmpty()) {
                 finalAddressName = currentText;
             }
-            // Nếu tên đường chưa có, lấy luôn tên địa chỉ full
             if (finalStreet == null || finalStreet.isEmpty()) {
                 finalStreet = currentText;
             }
 
-            // Kiểm tra lần cuối, nếu vẫn rỗng thì báo lỗi
             if (finalAddressName == null || finalAddressName.isEmpty()) {
                 Toast.makeText(this, "Vui lòng chọn một địa chỉ", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             Intent result = new Intent();
-            // Put dữ liệu an toàn (đảm bảo không null)
             result.putExtra("fullAddress", finalAddressName);
-            result.putExtra("selectedAddress", finalAddressName); // Key cũ hỗ trợ tương thích
+            result.putExtra("selectedAddress", finalAddressName);
 
             result.putExtra("street", finalStreet != null ? finalStreet : "");
             result.putExtra("ward", finalWard != null ? finalWard : "");
@@ -679,9 +671,7 @@ public class PickLocationActivity extends AppCompatActivity {
                                 .zoom(15.0)
                                 .build()
                 );
-                // Xóa listener sau khi lấy được vị trí lần đầu
                 locationPlugin.removeOnIndicatorPositionChangedListener(this);
-                // Lấy địa chỉ của vị trí hiện tại
                 getAddressFromCoordinates(point.latitude(), point.longitude());
             }
         };

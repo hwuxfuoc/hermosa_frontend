@@ -42,11 +42,9 @@ public class FragmentNotification extends Fragment {
     private NotificationAdapter adapter;
     private ApiService apiService;
 
-    // Bộ thu sóng để nhận tín hiệu có thông báo mới từ Service
     private final BroadcastReceiver updateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            // Khi nhận được tin báo có noti mới -> Gọi API tải lại danh sách ngay
             loadNotifications();
         }
     };
@@ -106,11 +104,8 @@ public class FragmentNotification extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // Đăng ký nhận tin khi màn hình này hiện lên
         if (getContext() != null) {
             IntentFilter filter = new IntentFilter(MyFirebaseMessagingService.EVENT_NOTIFICATION_RECEIVED);
-
-            // SỬA LỖI Ở ĐÂY: Thêm cờ RECEIVER_NOT_EXPORTED cho Android 13+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 getContext().registerReceiver(updateReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
             } else {
@@ -118,19 +113,16 @@ public class FragmentNotification extends Fragment {
             }
         }
 
-        // Reload lại để chắc chắn dữ liệu mới nhất (ví dụ user vừa chuyển tab)
         loadNotifications();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        // Hủy đăng ký khi rời màn hình để tránh lỗi rò rỉ bộ nhớ (Memory Leak)
         if (getContext() != null) {
             try {
                 getContext().unregisterReceiver(updateReceiver);
             } catch (IllegalArgumentException e) {
-                // Bỏ qua lỗi nếu Receiver chưa được đăng ký
             }
         }
     }

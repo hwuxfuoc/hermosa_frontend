@@ -41,11 +41,10 @@ public class AddToCartBottomSheet extends BottomSheetDialogFragment {
     private static final String ARG_PRODUCT = "product";
     private Product product;
     private int quantity = 1;
-    private String selectedSize = "medium"; // backend: small, medium, large
+    private String selectedSize = "medium";
     private final List<String> selectedToppings = new ArrayList<>();
-    private String note = ""; // có thể dùng sau
+    private String note = "";
 
-    // === TẠO INSTANCE ===
     public static AddToCartBottomSheet newInstance(Product product) {
         AddToCartBottomSheet fragment = new AddToCartBottomSheet();
         Bundle args = new Bundle();
@@ -115,13 +114,11 @@ public class AddToCartBottomSheet extends BottomSheetDialogFragment {
         }
         tvName.setText(product.getName());
 
-        // DÙNG getPriceLong() → trả int
-        int priceValue = (int) product.getPriceLong(); // ÉP KIỂU long → int
+        int priceValue = (int) product.getPriceLong();
         tvPrice.setText(String.format("%,d đ", priceValue));
 
         tvQuantity.setText(String.valueOf(quantity));
 
-        // === DANH SÁCH CHECKBOX ===
         List<CheckboxItem> options = new ArrayList<>();
         options.add(new CheckboxItem("Size S", false));
         options.add(new CheckboxItem("Size M", true));
@@ -137,7 +134,6 @@ public class AddToCartBottomSheet extends BottomSheetDialogFragment {
         rvOptions.setLayoutManager(new LinearLayoutManager(getContext()));
         rvOptions.setAdapter(adapter);
 
-        // === TĂNG / GIẢM SỐ LƯỢNG ===
         btnPlus.setOnClickListener(v -> {
             quantity++;
             tvQuantity.setText(String.valueOf(quantity));
@@ -150,9 +146,7 @@ public class AddToCartBottomSheet extends BottomSheetDialogFragment {
             }
         });
 
-        // === NÚT THÊM VÀO GIỎ ===
         btnAddToCart.setOnClickListener(v -> {
-            // Lấy size/topping
             selectedSize = "medium";
             selectedToppings.clear();
             for (CheckboxItem item : options) {
@@ -179,7 +173,6 @@ public class AddToCartBottomSheet extends BottomSheetDialogFragment {
         return view;
     }
 
-    // === GỌI API /cart/add ===
     private void addToCartViaApi() {
         String userID = SessionManager.getUserID(requireContext());
         if (userID == null || userID.isEmpty()) {

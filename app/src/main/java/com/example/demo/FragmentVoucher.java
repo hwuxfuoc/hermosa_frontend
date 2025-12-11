@@ -16,7 +16,6 @@ public class FragmentVoucher extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        // inflate layout fragment_cart.xml (nếu chưa có, tạo file này)
         return inflater.inflate(R.layout.fragment_voucher, container, false);
     }
 }

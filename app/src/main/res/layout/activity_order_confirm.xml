@@ -283,29 +283,6 @@
                             android:text="0 VND"
                             android:textSize="12sp"
                             android:textColor="#4CAF50" />
-
-                        <TextView
-                            android:id="@+id/tvFeeLabel"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/tvDiscount"
-                            android:layout_marginTop="4dp"
-                            android:text="Phí áp dụng"
-                            android:visibility="gone"
-                            android:textSize="12sp"
-                            android:textColor="#333" />
-
-                        <TextView
-                            android:id="@+id/tvFee"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/tvDiscount"
-                            android:layout_alignParentEnd="true"
-                            android:layout_marginTop="4dp"
-                            android:text="10.000 VND"
-                            android:visibility="gone"
-                            android:textSize="12sp"
-                            android:textColor="#333" />
                         <TextView
                             android:id="@+id/tvTipLable"
                             android:layout_width="wrap_content"
@@ -314,7 +291,7 @@
                             android:layout_marginTop="4dp"
                             android:text="Tip cho tài xế"
                             android:textSize="12sp"
-                            android:visibility="gone"
+                            android:visibility="visible"
                             android:textColor="@color/black"/>
                         <TextView
                             android:id="@+id/tvTip"
@@ -326,7 +303,7 @@
                             android:text="0 VND"
                             android:textColor="@color/black"
                             android:textSize="12sp"
-                            android:visibility="gone"/>
+                            android:visibility="visible"/>
                     </RelativeLayout>
 
                     <View

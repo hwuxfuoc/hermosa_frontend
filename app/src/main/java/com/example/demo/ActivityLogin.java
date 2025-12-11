@@ -437,7 +437,6 @@ public class ActivityLogin extends AppCompatActivity {
         buttonLogin.setEnabled(false);
         buttonLogin.setText("Đang đăng nhập...");
 
-        // THÊM DÒNG NÀY – GIẢI QUYẾT LỖI "this" TRONG CALLBACK
         final ActivityLogin that = this;
 
         Map<String, String> body = new HashMap<>();
@@ -451,7 +450,6 @@ public class ActivityLogin extends AppCompatActivity {
                 buttonLogin.setText("Đăng nhập");
 
                 if (response.isSuccessful() && response.body() != null && "Success".equals(response.body().getStatus())) {
-                    // DÙNG "that" THAY VÌ "this" → HOÀN HẢO!
                     SessionManager.saveRememberMe(
                             that,
                             email,
