@@ -1,162 +1,125 @@
 package com.example.demo.adapters;
 
 import android.content.Context;
-import android.content.Intent;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
 import com.example.demo.R;
 import com.example.demo.models.OrderHistoryResponse;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
 
 public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapter.OrderViewHolder> {
 
-    private final Context context;
-    private final List<OrderHistoryResponse.OrderItem> orderList;
+    private Context context;
+    // Lưu ý: List ở đây là List<HistoryItem> chứ không phải Order
+    private List<OrderHistoryResponse.HistoryItem> historyList;
 
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy, HH:mm", new Locale("vi"));
-
-    public OrderHistoryAdapter(Context context, List<OrderHistoryResponse.OrderItem> orderList) {
+    public OrderHistoryAdapter(Context context, List<OrderHistoryResponse.HistoryItem> historyList) {
         this.context = context;
-        this.orderList = orderList;
+        this.historyList = historyList;
+    }
+
+    public void setData(List<OrderHistoryResponse.HistoryItem> newList) {
+        this.historyList = newList;
+        notifyDataSetChanged();
     }
 
     @NonNull
     @Override
     public OrderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_order, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_order_history, parent, false);
         return new OrderViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull OrderViewHolder h, int position) {
-        OrderHistoryResponse.OrderItem order = orderList.get(position);
+    public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
+        OrderHistoryResponse.HistoryItem item = historyList.get(position);
+        if (item == null || item.getOrderInfo() == null) return;
 
-        // Mã đơn + ngày
-        h.tvOrderID.setText(order.getOrderID() != null ? order.getOrderID() : "#ORD-???");
-        h.tvOrderDate.setText(dateFormat.format(new Date(order.getCreateAt())));
+        OrderHistoryResponse.OrderInfo info = item.getOrderInfo();
 
-        // Trạng thái
-        String status = order.getStatus();
-        h.tvOrderStatus.setText(getStatusText(status));
-        h.tvOrderStatus.setBackgroundResource(getStatusBgRes(status));
+        // 1. Hiển thị thông tin chung
+        holder.tvOrderID.setText("Mã: " + info.getOrderID());
+        holder.tvDate.setText(info.getDate());
 
-        // Tổng tiền
-        h.tvOrderTotal.setText(String.format(Locale.getDefault(), "%,.0f đ", order.getFinalTotal()));
+        // Format tiền
+        NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+        holder.tvTotalPrice.setText(formatter.format(info.getTotalPrice()));
 
-        // Phương thức thanh toán
-        String payment = order.getPaymentMethod();
-        h.tvPaymentMethodLabel.setText(payment != null && !payment.isEmpty() ? payment : "Tiền mặt");
-
-        // Danh sách sản phẩm tóm tắt
-        List<OrderHistoryResponse.OrderItem.ProductItem> products = order.getProducts();
-        if (products != null && !products.isEmpty()) {
-            StringBuilder summary = new StringBuilder();
-            int totalQty = 0;
-
-            int maxShow = Math.min(3, products.size());
-            for (int i = 0; i < maxShow; i++) {
-                OrderHistoryResponse.OrderItem.ProductItem p = products.get(i);
-                if (i > 0) summary.append(", ");
-                summary.append(p.getName()).append(" (x").append(p.getQuantity()).append(")");
-                totalQty += p.getQuantity();
-            }
-            if (products.size() > 3) summary.append("...");
-
-            h.tvProductSummary.setText(summary.toString());
-            h.tvItemCount.setText(totalQty + " món");
-
-            // Ảnh sản phẩm đầu tiên
-            String imgUrl = products.get(0).getImage();
-            Glide.with(context)
-                    .load(imgUrl)
-                    .placeholder(R.drawable.placeholder_food)  // Đảm bảo bạn đã tạo drawable này
-                    .error(R.drawable.ic_launcher_foreground)
-                    .into(h.imgProductThumb);
+        // Màu sắc trạng thái
+        holder.tvStatus.setText(info.getStatus());
+        if ("Completed".equalsIgnoreCase(info.getStatus()) || "Success".equalsIgnoreCase(info.getStatus())) {
+            holder.tvStatus.setTextColor(Color.parseColor("#4CAF50"));
+        } else if ("Failed".equalsIgnoreCase(info.getStatus())) {
+            holder.tvStatus.setTextColor(Color.RED);
         } else {
-            h.tvProductSummary.setText("Không có sản phẩm");
-            h.tvItemCount.setText("0 món");
-            h.imgProductThumb.setImageResource(R.drawable.cake_strawberry_cheese);
+            holder.tvStatus.setTextColor(Color.parseColor("#FF9800"));
         }
 
-        // Nút Xem chi tiết (tạm thời dùng Toast vì chưa có OrderDetailActivity)
-        h.btnDetail.setOnClickListener(v -> {
-            Toast.makeText(context, "Chi tiết đơn hàng: " + order.getOrderID(), Toast.LENGTH_LONG).show();
+        // 2. Xử lý Ảnh và Tên món ăn (Logic ghép mảng)
+        List<OrderHistoryResponse.ProductDetail> pics = item.getPictures();
+        List<OrderHistoryResponse.ProductQuantity> prods = item.getProducts();
 
-            // Khi bạn tạo xong OrderDetailActivity, bỏ comment đoạn sau:
-            // Intent intent = new Intent(context, OrderDetailActivity.class);
-            // intent.putExtra("orderID", order.getOrderID());
-            // context.startActivity(intent);
-        });
+        if (pics != null && !pics.isEmpty()) {
+            // Load ảnh đầu tiên tìm thấy
+            Glide.with(context).load(pics.get(0).getImage()).into(holder.imgProductThumb);
 
-        // Nút Mua lại (tạm thời thông báo)
-        h.btnReorder.setOnClickListener(v -> {
-            Toast.makeText(context, "Tính năng mua lại đang phát triển", Toast.LENGTH_SHORT).show();
-            // TODO: Implement thêm lại sản phẩm vào giỏ hàng
-        });
+            // Ghép tên món + số lượng
+            StringBuilder summary = new StringBuilder();
+
+            // Duyệt qua danh sách sản phẩm đã mua
+            if (prods != null) {
+                for (OrderHistoryResponse.ProductQuantity pq : prods) {
+                    // Tìm tên món tương ứng trong mảng pictures
+                    String name = "Món lạ";
+                    for (OrderHistoryResponse.ProductDetail pd : pics) {
+                        if (pd.getProductID().equals(pq.getProductID())) {
+                            name = pd.getName();
+                            break;
+                        }
+                    }
+                    summary.append(name).append(" (x").append(pq.getQuantity()).append("), ");
+                }
+            }
+
+            // Xóa dấu phẩy thừa cuối cùng
+            String resultText = summary.toString();
+            if (resultText.endsWith(", ")) {
+                resultText = resultText.substring(0, resultText.length() - 2);
+            }
+            holder.tvProductSummary.setText(resultText);
+
+        } else {
+            holder.imgProductThumb.setImageResource(R.drawable.ic_launcher_background); // Ảnh mặc định
+            holder.tvProductSummary.setText("Không có thông tin chi tiết");
+        }
     }
 
     @Override
     public int getItemCount() {
-        return orderList != null ? orderList.size() : 0;
+        return historyList != null ? historyList.size() : 0;
     }
 
-    static class OrderViewHolder extends RecyclerView.ViewHolder {
-        TextView tvOrderID, tvOrderDate, tvOrderStatus;
-        TextView tvProductSummary, tvItemCount, tvPaymentMethodLabel, tvOrderTotal;
+    public static class OrderViewHolder extends RecyclerView.ViewHolder {
+        TextView tvOrderID, tvDate, tvStatus, tvTotalPrice, tvProductSummary;
         ImageView imgProductThumb;
-        Button btnDetail, btnReorder;
 
         public OrderViewHolder(@NonNull View itemView) {
             super(itemView);
             tvOrderID = itemView.findViewById(R.id.tvOrderID);
-            tvOrderDate = itemView.findViewById(R.id.tvOrderDate);
-            tvOrderStatus = itemView.findViewById(R.id.tvOrderStatus);
+            tvDate = itemView.findViewById(R.id.tvDate);
+            tvStatus = itemView.findViewById(R.id.tvStatus);
+            tvTotalPrice = itemView.findViewById(R.id.tvTotalPrice);
             tvProductSummary = itemView.findViewById(R.id.tvProductSummary);
-            tvItemCount = itemView.findViewById(R.id.tvItemCount);
-            tvPaymentMethodLabel = itemView.findViewById(R.id.tvPaymentMethodLabel);
-            tvOrderTotal = itemView.findViewById(R.id.tvOrderTotal);
             imgProductThumb = itemView.findViewById(R.id.imgProductThumb);
-            btnDetail = itemView.findViewById(R.id.btnDetail);
-            btnReorder = itemView.findViewById(R.id.btnReorder);
         }
-    }
-
-    // Helper: Chuyển trạng thái tiếng Anh → tiếng Việt
-    private String getStatusText(String status) {
-        if (status == null) return "Không rõ";
-        return switch (status.toLowerCase()) {
-            case "pending" -> "Chờ xác nhận";
-            case "confirmed" -> "Đã xác nhận";
-            case "preparing" -> "Đang chuẩn bị";
-            case "delivering" -> "Đang giao";
-            case "done", "completed" -> "Hoàn thành";
-            case "cancelled", "canceled" -> "Đã hủy";
-            default -> status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
-        };
-    }
-
-    // Helper: Background theo trạng thái
-    private int getStatusBgRes(String status) {
-        if (status == null) return R.drawable.bg_status_pending;
-        return switch (status.toLowerCase()) {
-            case "pending" -> R.drawable.bg_status_pending;
-            case "done", "completed" -> R.drawable.bg_status_done;
-            case "cancelled", "canceled" -> R.drawable.bg_status_cancelled;
-            default -> R.drawable.bg_status_pending;
-        };
     }
 }

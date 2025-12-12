@@ -424,16 +424,6 @@ public class ConfirmOrderActivity extends AppCompatActivity
         tvShipping.setText(String.format("%,d VND", shipping));
 
 
-        // --- BỔ SUNG: Hiển thị tiền Tip ---
-        /*if (currentTipAmount > 0) {
-            tvTip.setVisibility(View.VISIBLE);
-            tvTip.setText(String.format("%,d VND", currentTipAmount));
-            if (tvTipLable != null) tvTipLable.setVisibility(View.VISIBLE);
-        } else {
-            // Nếu Tip = 0 thì ẩn đi cho gọn
-            tvTip.setVisibility(View.GONE);
-            if (tvTipLable != null) tvTipLable.setVisibility(View.GONE);
-        }*/
         if (currentTipAmount > 0) {
             // Phải set VISIBLE ở đây
             tvTip.setVisibility(View.VISIBLE);

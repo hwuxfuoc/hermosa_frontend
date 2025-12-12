@@ -602,31 +602,6 @@ public class FragmentOrderTracking extends Fragment {
         btnCancelAction.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
     }
-    /*private void showCancelSuccessDialog() {
-        if (getContext() == null) return;
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.fragment_cancel_success, null);
-        builder.setView(dialogView);
-        AlertDialog dialog = builder.create();
-        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
-        // Điền thông tin vào dialog (Mã đơn, Thời gian...)
-        TextView tvOrderID = dialogView.findViewById(R.id.tvOrderID);
-        if (tvOrderID != null) tvOrderID.setText("Mã đơn: " + currentOrderID);
-
-        MaterialButton btnReturnHome = dialogView.findViewById(R.id.btnReturnHome);
-        btnReturnHome.setOnClickListener(v -> {
-            dialog.dismiss();
-            // Quay về trang chủ MainActivity
-            Intent intent = new Intent(getContext(), MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            if (getActivity() != null) getActivity().finish();
-        });
-
-        dialog.show();
-    }*/
-
     // 3. Dialog "Đơn hàng hoàn tất - Vui lòng nhận nước" (Khi status = done)
     private void showOrderDoneDialog() {
         if (getContext() == null || isDialogShown) return; // Nếu đã hiện rồi thì thôi
@@ -861,7 +836,7 @@ public class FragmentOrderTracking extends Fragment {
             btnSubmitReview.setVisibility(View.GONE);
         }
     }
-    private void updateStatusTimeline(String status, boolean isPickup) {
+    /*private void updateStatusTimeline(String status, boolean isPickup) {
         if (status == null) status = "pending";
         resetTimelineColors();
 
@@ -933,6 +908,62 @@ public class FragmentOrderTracking extends Fragment {
                 tvStatusDesc.setText("Đơn hàng này đã bị hủy.");
                 btnCancelOrder.setVisibility(View.GONE);
                 tvCancelNote.setVisibility(View.GONE);
+                break;
+        }
+    }*/
+    private void updateStatusTimeline(String status, boolean isPickup) {
+        if (status == null) status = "pending";
+
+        switch (status.toLowerCase()) {
+            case "pending":
+                layoutHeaderPending.setVisibility(View.VISIBLE);
+                layoutHeaderConfirmed.setVisibility(View.GONE);
+
+                tvStatusTag.setText("Đang xử lý");
+                tvStatusTag.setBackgroundColor(Color.parseColor("#FF9800"));
+                tvStatusMsg.setText("Chúng tôi đã nhận đơn hàng của bạn");
+                tvStatusMsg.setTextColor(Color.parseColor("#FF9800"));
+
+                btnCancelOrder.setVisibility(View.VISIBLE);
+                tvCancelNote.setVisibility(View.VISIBLE);
+                btnSubmitReview.setVisibility(View.GONE);
+                break;
+
+            case "confirmed":
+            case "cooking":
+            case "shipping":
+            case "done":
+            case "completed":
+                layoutHeaderPending.setVisibility(View.GONE);
+                layoutHeaderConfirmed.setVisibility(View.VISIBLE);
+
+                tvStatusTag.setText("Hoàn tất");
+                tvStatusTag.setBackgroundColor(Color.parseColor("#388E3C"));
+
+                if (isPickup) {
+                    tvStatusMsg.setText("Đơn hàng đã sẵn sàng. Vui lòng ra quầy nhận đồ nhé!");
+                    showOrderDoneDialog(); // Hiện popup nhận nước
+                } else {
+                    tvStatusMsg.setText("Đã giao hàng thành công!");
+                }
+                tvStatusMsg.setTextColor(Color.parseColor("#388E3C"));
+
+                btnCancelOrder.setVisibility(View.GONE);
+                tvCancelNote.setVisibility(View.GONE);
+                btnSubmitReview.setVisibility(View.VISIBLE);
+                break;
+
+            case "cancelled":
+                layoutHeaderPending.setVisibility(View.VISIBLE);
+                layoutHeaderConfirmed.setVisibility(View.GONE);
+
+                tvStatusTitle.setText("Đơn hàng đã hủy");
+                tvStatusTitle.setTextColor(Color.RED);
+                tvStatusDesc.setText("Bạn đã hủy đơn hàng này");
+
+                btnCancelOrder.setVisibility(View.GONE);
+                tvCancelNote.setVisibility(View.GONE);
+                btnSubmitReview.setVisibility(View.GONE);
                 break;
         }
     }

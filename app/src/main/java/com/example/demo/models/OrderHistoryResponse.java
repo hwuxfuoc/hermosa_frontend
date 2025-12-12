@@ -1,20 +1,6 @@
-/*
-package com.example.demo.models;
-
-import java.util.List;
-
-public class OrderHistoryResponse {
-    private String status;
-    private String message;
-    private List<Order> data; // Backend trả về mảng danh sách đơn hàng
-
-    public String getStatus() { return status; }
-    public List<Order> getData() { return data; }
-}*/
 package com.example.demo.models;
 
 import com.google.gson.annotations.SerializedName;
-
 import java.util.List;
 
 public class OrderHistoryResponse {
@@ -26,58 +12,73 @@ public class OrderHistoryResponse {
     private String message;
 
     @SerializedName("data")
-    private List<OrderItem> data;
+    private List<HistoryItem> data; // Danh sách các item lịch sử
 
-    // Getter & Setter
     public String getStatus() { return status; }
     public String getMessage() { return message; }
-    public List<OrderItem> getData() { return data; }
+    public List<HistoryItem> getData() { return data; }
 
-    public static class OrderItem {
-        @SerializedName("orderID")
+    // --- Class đại diện cho 1 phần tử trong mảng "data" ---
+    public static class HistoryItem {
+        @SerializedName("orderInfo")
+        private OrderInfo orderInfo;
+
+        @SerializedName("products")
+        private List<ProductQuantity> products;
+
+        @SerializedName("pictures")
+        private List<ProductDetail> pictures;
+
+        public OrderInfo getOrderInfo() { return orderInfo; }
+        public List<ProductQuantity> getProducts() { return products; }
+        public List<ProductDetail> getPictures() { return pictures; }
+    }
+
+    // --- Thông tin đơn hàng (orderInfo) ---
+    public static class OrderInfo {
+        @SerializedName("_id")
         private String orderID;
 
-        @SerializedName("createAt")
-        private long createAt; // timestamp
+        @SerializedName("finalTotal") // Hoặc "totalPrice" tùy DB của bạn
+        private int totalPrice;
 
         @SerializedName("status")
         private String status;
 
-        @SerializedName("products")
-        private List<ProductItem> products;
+        @SerializedName("date") // Hoặc "createdAt" tùy DB
+        private String date;
 
-        @SerializedName("finalTotal")
-        private double finalTotal;
-
-        @SerializedName("paymentMethod") // nếu có
-        private String paymentMethod;
-
-        // Getter
         public String getOrderID() { return orderID; }
-        public long getCreateAt() { return createAt; }
+        public int getTotalPrice() { return totalPrice; }
         public String getStatus() { return status; }
-        public List<ProductItem> getProducts() { return products; }
-        public double getFinalTotal() { return finalTotal; }
-        public String getPaymentMethod() { return paymentMethod != null ? paymentMethod : "Tiền mặt"; }
+        public String getDate() { return date; }
+    }
 
-        public static class ProductItem {
-            @SerializedName("productID")
-            private String productID;
+    // --- Số lượng sản phẩm (trong mảng products) ---
+    public static class ProductQuantity {
+        @SerializedName("productID")
+        private String productID;
 
-            @SerializedName("name")
-            private String name;
+        @SerializedName("quantity")
+        private int quantity;
 
-            @SerializedName("image")
-            private String image; // URL hoặc tên ảnh
+        public String getProductID() { return productID; }
+        public int getQuantity() { return quantity; }
+    }
 
-            @SerializedName("quantity")
-            private int quantity;
+    // --- Chi tiết hình ảnh/tên (trong mảng pictures) ---
+    public static class ProductDetail {
+        @SerializedName("productID")
+        private String productID;
 
-            // Getter
-            public String getProductID() { return productID; }
-            public String getName() { return name; }
-            public String getImage() { return image; }
-            public int getQuantity() { return quantity; }
-        }
+        @SerializedName("name") // Tên món ăn trong bảng Menu
+        private String name;
+
+        @SerializedName("image") // Link ảnh
+        private String image;
+
+        public String getProductID() { return productID; }
+        public String getName() { return name; }
+        public String getImage() { return image; }
     }
 }
