@@ -8,7 +8,6 @@ public class CancelOrderRequest {
     private String orderID;
     public CancelOrderRequest() {}
 
-    // Constructor để tạo nhanh: new CancelOrderRequest("ORD-123")
     public CancelOrderRequest(String orderID) {
         this.orderID = orderID;
     }

@@ -17,7 +17,6 @@ public class NetworkUtil {
 
         if (cm == null) return false;
 
-        // Android 6.0 trở lên
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             Network network = cm.getActiveNetwork();
             if (network == null) return false;
@@ -28,7 +27,6 @@ public class NetworkUtil {
                             || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
                             || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET));
         } else {
-            // Android cũ hơn
             NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
             return activeNetwork != null && activeNetwork.isConnected();
         }

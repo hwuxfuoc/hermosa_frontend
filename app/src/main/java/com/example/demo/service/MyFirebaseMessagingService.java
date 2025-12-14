@@ -82,7 +82,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId)
-                .setSmallIcon(R.mipmap.ic_launcher) // Thay bằng R.drawable.ic_noti nếu có
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(title)
                 .setContentText(body)
                 .setAutoCancel(true)
@@ -96,7 +96,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         broadcastIntent.putExtra("title", title);
         broadcastIntent.putExtra("body", body);
         broadcastIntent.putExtra("notiID", notiID);
-        broadcastIntent.setPackage(getPackageName()); // Bảo mật: Chỉ gửi trong app mình
+        broadcastIntent.setPackage(getPackageName());
         sendBroadcast(broadcastIntent);
     }
 

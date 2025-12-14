@@ -9,7 +9,6 @@ public class AutoApplyVoucherResponse {
     @SerializedName("discountAmount")
     private long discountAmount;
 
-    // getters
     public Voucher getBestVoucher() { return bestVoucher; }
     public long getDiscountAmount() { return discountAmount; }
 }

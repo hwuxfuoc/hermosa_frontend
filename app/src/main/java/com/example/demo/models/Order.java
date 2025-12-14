@@ -11,10 +11,7 @@ public class Order {
     private String deliver;
     private String deliverAddress;
     private String note;
-    /*private long totalInvoice;*/
-    // Nên dùng long cho tiền tệ
 
-    // --- Bổ sung các trường thiếu ---
     private long finalTotal;
     private long deliveryFee;
     private long tipsforDriver;
@@ -24,13 +21,15 @@ public class Order {
     private String storeAddress;
     private String orderDate;
     private String deliverIn;
-
-    private String createAt; // Đổi từ long sang String
+    private String createAt;
     private String doneIn;
+    private List<Product> productss;
+    public List<Product>getProductss(){return productss;}
     public String getCreateAt() { return createAt; }
     public void setCreateAt(String createAt) { this.createAt = createAt; }
     public String getDoneIn() { return doneIn; }
     public void setDoneIn(String doneIn) { this.doneIn = doneIn; }
+
 
     public String getVoucherCodeApply() {
         return voucherCodeApply;

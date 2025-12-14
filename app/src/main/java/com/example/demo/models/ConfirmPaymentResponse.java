@@ -1,10 +1,10 @@
 package com.example.demo.models;
 
-import com.example.demo.models.Order; // Import class Order hiện có của bạn
+import com.example.demo.models.Order;
 
 public class ConfirmPaymentResponse {
     private String message;
-    private Order data; // Backend trả về object Order trong field "data"
+    private Order data;
 
     public Order getData() {
         return data;

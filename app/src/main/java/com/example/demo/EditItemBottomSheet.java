@@ -52,7 +52,7 @@ public class EditItemBottomSheet extends BottomSheetDialogFragment {
                              @Nullable Bundle savedInstanceState) {
 
         int layoutId;
-        switch (product.getCategory()) { // ĐÃ SỬA: dùng getCategory() thay vì getType()
+        switch (product.getCategory()) {
             case "drink":
                 layoutId = R.layout.layout_edit_item_drink;
                 break;
@@ -83,7 +83,6 @@ public class EditItemBottomSheet extends BottomSheetDialogFragment {
         tvPrice.setText(String.format("%,d VND", product.getPrice()));
         tvQty.setText(String.valueOf(product.getQuantity()));
 
-        // Demo options (size/topping)
         List<CheckboxItem> options = new ArrayList<>();
         options.add(new CheckboxItem("Size S", false));
         options.add(new CheckboxItem("Size M", true));

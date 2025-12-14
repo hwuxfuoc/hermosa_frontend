@@ -4,21 +4,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5">
+    android:background="#FFE9EF">
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@android:color/white"
+        android:layout_height="60dp"
+        android:background="#FAB9CE"
         app:layout_constraintTop_toTopOf="parent">
-
         <ImageView
             android:id="@+id/btnBack"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginStart="16dp"
             android:src="@drawable/ic_arrow_back"
-            app:tint="#000"
+            app:tint="#FFF"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -27,10 +27,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Địa điểm giao hàng"
-            android:textColor="#000"
+            android:textColor="#FFF"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:fontFamily="serif"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -55,7 +54,7 @@
                 android:layout_marginBottom="16dp"
                 app:cardBackgroundColor="@android:color/white"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="0dp"
+                app:cardElevation="5dp"
                 app:strokeWidth="0dp">
 
                 <LinearLayout
@@ -68,6 +67,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="16dp"
+                        android:background="#FAB9CE"
                         android:orientation="vertical">
 
                         <RelativeLayout
@@ -76,12 +76,13 @@
                             android:layout_height="wrap_content">
                             <ImageView
                                 android:id="@+id/icPin"
-                                android:src="@drawable/ic_location_outline"
+                                android:src="@drawable/icon_address"
+                                app:tint="@android:color/white"
                                 android:layout_width="20dp"
                                 android:layout_height="20dp"/>
                             <TextView android:text="Thông tin giao hàng"
                                 android:textStyle="bold"
-                                android:textColor="#000"
+                                android:textColor="#FFF"
                                 android:layout_toEndOf="@id/icPin"
                                 android:layout_marginStart="8dp"
                                 android:layout_width="wrap_content"
@@ -98,14 +99,15 @@
 
                         <TextView android:text="[Trường ĐH...] khu phố 6..."
                             android:layout_marginTop="4dp"
-                            android:textColor="#666"
+                            android:textColor="#FFF"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"/>
+
                         <TextView
                             android:text="Tên Khách Hàng | 090912345"
                             android:layout_marginTop="4dp"
                             android:textStyle="bold"
-                            android:textColor="#333"
+                            android:textColor="#FFF"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"/>
                     </LinearLayout>
@@ -113,22 +115,25 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="#E0E0E0"/>
+                        android:background="#FFE9EF"/>
 
                     <LinearLayout
                         android:id="@+id/sectionPickup"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="16dp"
+                        android:background="#FAB9CE"
                         android:orientation="vertical">
+
                         <TextView android:text="Nhận đơn tại quán"
                             android:textStyle="bold"
-                            android:textColor="#000"
+                            android:textColor="#FFF"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
+
                         <TextView
                             android:text="Bạn sẽ nhận được thông báo khi đơn hàng hoàn tất"
-                            android:textColor="#666"
+                            android:textColor="#FFF"
                             android:layout_marginTop="4dp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
@@ -139,7 +144,7 @@
             <TextView
                 android:text="Địa chỉ nhà"
                 android:textStyle="bold"
-                android:textColor="#333"
+                android:textColor="#FF9CD7"
                 android:layout_marginBottom="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
@@ -151,8 +156,8 @@
                 android:layout_marginBottom="16dp"
                 app:cardBackgroundColor="@android:color/white"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="0dp"
-                app:strokeColor="#E0E0E0"
+                app:cardElevation="5dp"
+                app:strokeColor="#FFE9EF"
                 app:strokeWidth="0dp">
 
                 <LinearLayout
@@ -165,11 +170,12 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:paddingHorizontal="2dp"
+                        android:background="#FAB9CE"
                         android:nestedScrollingEnabled="false" />
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="#E0E0E0"
+                        android:background="#FFE9EF"
                         android:layout_marginHorizontal="0dp"/>
                     <TextView
                         android:id="@+id/btnAddHome"
@@ -179,15 +185,15 @@
                         android:text="Thêm địa chỉ Nhà"
                         android:paddingHorizontal="10dp"
                         android:paddingTop="10dp"
-                        android:textColor="#000000"
-                        android:textSize="14sp"
-                        android:background="?attr/selectableItemBackground"/>
+                        android:textColor="#FFF"
+                        android:background="#FAB9CE"
+                        android:textSize="14sp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
             <TextView
                 android:text="Địa chỉ công ty"
                 android:textStyle="bold"
-                android:textColor="#333"
+                android:textColor="#FF9CD7"
                 android:layout_marginBottom="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
@@ -198,7 +204,7 @@
                 app:cardBackgroundColor="@color/white"
                 android:paddingHorizontal="2dp"
                 app:strokeWidth="0dp"
-                app:cardElevation="0dp"
+                app:cardElevation="5dp"
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="12dp"
                 >
@@ -211,11 +217,12 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:paddingHorizontal="2dp"
+                        android:background="#FAB9CE"
                         android:nestedScrollingEnabled="false"/>
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="#E0E0E0"/>
+                        android:background="#FFE9EF"/>
                     <TextView
                         android:id="@+id/btnAddWorkAddress"
                         android:layout_width="match_parent"
@@ -224,16 +231,16 @@
                         android:text="Thêm địa chỉ Công ty"
                         android:paddingHorizontal="10dp"
                         android:paddingTop="10dp"
-                        android:textColor="#000000"
+                        android:textColor="#FFF"
                         android:textSize="14sp"
-                        android:background="?attr/selectableItemBackground"/>
+                        android:background="#FAB9CE"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <TextView
                 android:text="Địa chỉ đã lưu"
                 android:textStyle="bold"
-                android:textColor="#333"
+                android:textColor="#FF9CD7"
                 android:layout_marginBottom="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
@@ -243,6 +250,7 @@
                 android:layout_height="wrap_content"
                 android:background="@color/white"
                 app:cardCornerRadius="12dp"
+                app:cardElevation="5dp"
                 android:layout_marginBottom="16dp"
                 app:strokeWidth="0dp">
                 <LinearLayout
@@ -254,11 +262,12 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:nestedScrollingEnabled="false"
+                        android:background="#FAB9CE"
                         android:paddingHorizontal="2dp"/>
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="#E0E0E0"/>
+                        android:background="#FFE9EF"/>
                     <TextView
                         android:id="@+id/btnAddOtherAddress"
                         android:layout_width="match_parent"
@@ -267,9 +276,9 @@
                         android:text="Thêm địa chỉ mới"
                         android:paddingHorizontal="10dp"
                         android:paddingTop="10dp"
-                        android:textColor="#000000"
+                        android:textColor="#FFF"
                         android:textSize="14sp"
-                        android:background="?attr/selectableItemBackground"/>
+                        android:background="#FAB9CE"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
@@ -283,17 +292,18 @@
         android:text="Xác nhận"
         android:textStyle="bold"
         android:textSize="16sp"
-        app:backgroundTint="#B71C1C"
+        app:backgroundTint="#FC909F"
         app:cornerRadius="5dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigation"/>
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/white"
-        app:menu="@menu/menu_bottom_nav"
+        app:menu="@menu/bottom_menu"
         app:itemIconTint="#000000"
         app:itemTextColor="#000000"
         app:labelVisibilityMode="labeled"

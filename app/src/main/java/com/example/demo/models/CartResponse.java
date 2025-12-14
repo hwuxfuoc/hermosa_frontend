@@ -16,13 +16,12 @@ public class CartResponse {
     @SerializedName("data")
     private Data data;
     @SerializedName("price")
-    private Long price; // giá gốc của sản phẩm (không tính size/topping)
+    private Long price;
 
     public Long getPrice() {
         return price != null ? price : 0L;
     }
 
-    // --- GETTER ---
     public String getStatus() {
         return status;
     }
@@ -31,7 +30,6 @@ public class CartResponse {
         return data;
     }
 
-    // --- INNER CLASS: Data ---
     public static class Data {
 
         @SerializedName("items")
@@ -40,7 +38,6 @@ public class CartResponse {
         @SerializedName("totalMoney")
         private long totalMoney = 0;
 
-        // --- GETTER (Null-safe) ---
         public List<CartItem> getItems() {
             return items != null ? items : new ArrayList<>();
         }
@@ -50,7 +47,6 @@ public class CartResponse {
         }
     }
 
-    // --- INNER CLASS: CartItem (implements Parcelable) ---
     public static class CartItem implements Parcelable {
 
         @SerializedName("_id")
@@ -86,10 +82,8 @@ public class CartResponse {
         @SerializedName("note")
         private String note;
 
-        // UI: checkbox chọn món
         private boolean selected = true;
 
-        // --- GETTER (Null-safe) ---
         public String getId() {
             return id;
         }
@@ -138,7 +132,6 @@ public class CartResponse {
             return selected;
         }
 
-        // --- SETTER ---
         public void setQuantity(int quantity) {
             this.quantity = quantity;
         }
@@ -167,7 +160,6 @@ public class CartResponse {
             this.picture = picture;
         }
 
-        // --- PARCELABLE IMPLEMENTATION ---
         protected CartItem(Parcel in) {
             id = in.readString();
             productID = in.readString();

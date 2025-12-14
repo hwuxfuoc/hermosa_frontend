@@ -41,11 +41,9 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
     private boolean isEditMode = false;
     private boolean isConfirmMode = false;
 
-    // Interface để báo cho Fragment biết cần update
     public interface OnCartUpdateListener { void onCartUpdated(); }
     public interface OnItemCheckListener { void onUpdateTotal(); }
 
-    // Constructor cho CartFragment
     public CartAdapter(List<CartResponse.CartItem> items, Context context, OnCartUpdateListener listener) {
         this.items = items;
         this.context = context;
@@ -53,7 +51,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
         this.listener = listener;
     }
 
-    // Constructor cho ConfirmOrderActivity
     public CartAdapter(List<CartResponse.CartItem> items, String userID, OnCartUpdateListener listener) {
         this.items = items;
         this.context = null;
@@ -91,18 +88,14 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
         holder.tvPrice.setText(String.format("%,d VND", item.getSubtotal()));
         holder.tvQuantity.setText(String.valueOf(item.getQuantity()));
 
-        // Checkbox
         holder.cbSelect.setVisibility(isConfirmMode ? View.GONE : View.VISIBLE);
         if (!isConfirmMode) {
-            // Gỡ listener trước khi set trạng thái để tránh trigger sai
             holder.cbSelect.setOnCheckedChangeListener(null);
             holder.cbSelect.setChecked(item.isSelected());
         }
 
-        // Nút xóa
         holder.btnDelete.setVisibility(isEditMode || isConfirmMode ? View.VISIBLE : View.GONE);
 
-        // GỌI API LẤY CHI TIẾT SẢN PHẨM → ẢNH + MÀU NỀN TỪ BACKEND
         ApiClient.getClient().create(ApiService.class)
                 .getProductDetail(item.getProductID())
                 .enqueue(new Callback<MenuResponse.SingleProductResponse>() {
@@ -141,7 +134,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
                     }
                 });
 
-        // Nút trừ
         holder.btnMinus.setOnClickListener(v -> {
             int pos = holder.getAdapterPosition();
             if (pos == RecyclerView.NO_POSITION) return;
@@ -153,21 +145,18 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
             }
         });
 
-        // Nút cộng
         holder.btnPlus.setOnClickListener(v -> {
             int pos = holder.getAdapterPosition();
             if (pos == RecyclerView.NO_POSITION) return;
             update(items.get(pos).getId(), true);
         });
 
-        // Nút xóa
         holder.btnDelete.setOnClickListener(v -> {
             int pos = holder.getAdapterPosition();
             if (pos == RecyclerView.NO_POSITION) return;
             delete(items.get(pos).getId(), holder.itemView.getContext());
         });
 
-        // Xử lý sự kiện Checkbox
         if (!isConfirmMode) {
             holder.cbSelect.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 int pos = holder.getAdapterPosition();
@@ -184,7 +173,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
         }
     }
 
-    // CHUYỂN HEX "F1BCBC" → int color (0xFFF1BCBC)
     private int parseHexColor(String hex) {
         if (hex == null || hex.isEmpty()) return 0xFFF0BCBC;
         hex = hex.trim().replace("#", "");
@@ -194,7 +182,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
         return 0xFFF0BCBC; // fallback
     }
 
-    // Cập nhật số lượng
     private void update(String itemId, boolean increase) {
         Map<String, Object> body = new HashMap<>();
         body.put("userID", userID);
@@ -212,7 +199,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
         });
     }
 
-    // Xóa món
     private void delete(String itemId, Context context) {
         Map<String, Object> body = new HashMap<>();
         body.put("userID", userID);
@@ -257,9 +243,9 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
 
     static class VH extends RecyclerView.ViewHolder {
         CheckBox cbSelect;
-        ImageView imgProduct;
+        ImageView imgProduct, btnDelete;
         TextView tvName, tvPrice, tvQuantity;
-        ImageButton btnMinus, btnPlus, btnDelete;
+        ImageView btnMinus, btnPlus;
         CardView itemBackground;
 
         VH(@NonNull View v) {

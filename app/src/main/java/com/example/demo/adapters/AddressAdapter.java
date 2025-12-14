@@ -1,5 +1,4 @@
 package com.example.demo.adapters;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,13 +34,10 @@ public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.AddressV
         holder.tvContactInfo.setText(item.name + " | " + item.phone);
         holder.tvAddressDetail.setText(item.getFullAddress());
 
-        // Trong AddressAdapter.java > onBindViewHolder
         if (item.isSelected) {
-            // Load file CÓ viền đỏ
             holder.itemView.setBackgroundResource(R.drawable.bg_btn_selected);
         }
         else {
-            // Nếu không chọn -> Dùng file bình thường
             holder.itemView.setBackgroundResource(0);
         }
 
@@ -55,7 +51,6 @@ public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.AddressV
 
     public static class AddressViewHolder extends RecyclerView.ViewHolder {
         TextView tvContactInfo, tvAddressDetail;
-
 
         public AddressViewHolder(@NonNull View itemView) {
             super(itemView);

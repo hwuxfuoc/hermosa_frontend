@@ -115,10 +115,7 @@ public class AddAddressActivity extends AppCompatActivity {
         if (!gate.isEmpty()) streetDetail += ", Cổng " + gate;
         if (!note.isEmpty()) streetDetail += " (" + note + ")";
 
-        // --- KHẮC PHỤC LỖI TẠI ĐÂY ---
-        // Tạo một biến final để "chốt" giá trị của streetDetail
         final String finalStreetDetail = streetDetail;
-        // -----------------------------
 
         // 2. Tạo chuỗi gửi đi Backend
         StringBuilder sb = new StringBuilder();
@@ -148,9 +145,7 @@ public class AddAddressActivity extends AppCompatActivity {
 
                     Intent result = new Intent();
 
-                    // --- SỬA LẠI: Dùng biến finalStreetDetail thay vì streetDetail ---
                     result.putExtra("newAddress", finalStreetDetail);
-                    // ----------------------------------------------------------------
 
                     result.putExtra("newCustomer", name + " | " + phone);
                     result.putExtra("type", addressType);
@@ -167,64 +162,6 @@ public class AddAddressActivity extends AppCompatActivity {
             }
         });
     }
-    /*private void saveAddressToApi() {
-        String name = etCustomerName.getText().toString().trim();
-        String phone = etPhone.getText().toString().trim();
-        String building = etBuilding.getText().toString().trim();
-        String gate = etGate.getText().toString().trim();
-        String note = etNote.getText().toString().trim();
-
-        if (name.isEmpty() || phone.isEmpty() || selectedStreet.isEmpty()) {
-            Toast.makeText(this, "Vui lòng nhập tên, sđt và chọn địa chỉ", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String tempAddress = selectedStreet;
-        if (!building.isEmpty()) tempAddress += ", " + building;
-        if (!gate.isEmpty()) tempAddress += ", Cổng " + gate;
-        if (!note.isEmpty()) tempAddress += " (" + note + ")";
-        final String finalAddressStr = tempAddress;
-        String userID = SessionManager.getUserID(this);
-        if (userID == null || userID.isEmpty()) {
-            Toast.makeText(this, "Phiên đăng nhập hết hạn", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        AddressDetail detail = new AddressDetail(
-                finalAddressStr,
-                selectedWard,
-                selectedDistrict,
-                selectedCity,
-                "Việt Nam"
-        );
-
-        AddressRequest request = new AddressRequest(userID, name, phone, addressType, detail);
-
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
-
-        apiService.addAddress(request).enqueue(new Callback<AddUpdateResponse>() {
-            @Override
-            public void onResponse(Call<AddUpdateResponse> call, Response<AddUpdateResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    Toast.makeText(AddAddressActivity.this, "Thêm thành công!", Toast.LENGTH_SHORT).show();
-
-                    Intent result = new Intent();
-                    result.putExtra("newAddress", finalAddressStr); // Dùng biến final
-                    result.putExtra("newCustomer", name + " | " + phone);
-                    result.putExtra("type", addressType);
-                    setResult(RESULT_OK, result);
-                    finish();
-                } else {
-                    Toast.makeText(AddAddressActivity.this, "Lỗi server: " + response.message(), Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<AddUpdateResponse> call, Throwable t) {
-                Toast.makeText(AddAddressActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }*/
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

@@ -8,9 +8,8 @@ public class VoucherResponse {
     private String message;
 
     @SerializedName("data")
-    private List<Voucher> data; // Danh sách voucher
+    private List<Voucher> data;
 
-    // Dành cho trường hợp API trả về thông tin giảm giá cụ thể (như api auto-apply)
     @SerializedName("discountAmount")
     private double discountAmount;
 

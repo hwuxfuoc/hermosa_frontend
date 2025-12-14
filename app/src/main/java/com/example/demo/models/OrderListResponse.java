@@ -11,7 +11,7 @@ public class OrderListResponse {
     private String message;
 
     @SerializedName("data")
-    private List<Order> data; // Trả về 1 danh sách Order
+    private List<Order> data;
 
     public String getStatus() { return status; }
     public String getMessage() { return message; }

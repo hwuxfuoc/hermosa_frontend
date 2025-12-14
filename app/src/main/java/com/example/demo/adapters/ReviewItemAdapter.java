@@ -22,11 +22,10 @@ import java.util.List;
 public class ReviewItemAdapter extends RecyclerView.Adapter<ReviewItemAdapter.ViewHolder> {
 
     private List<Product> products;
-    private List<Review> reviews = new ArrayList<>(); // Lưu reviews để submit
+    private List<Review> reviews = new ArrayList<>();
 
     public ReviewItemAdapter(List<Product> products) {
         this.products = products;
-        // Khởi tạo reviews rỗng cho từng product
         for (Product p : products) {
             reviews.add(new Review(p.getProductID(), 0, ""));
         }
@@ -35,7 +34,7 @@ public class ReviewItemAdapter extends RecyclerView.Adapter<ReviewItemAdapter.Vi
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_review_product, parent, false); // XML item trong RecyclerView
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_review_product, parent, false);
         return new ViewHolder(view);
     }
 
@@ -63,7 +62,6 @@ public class ReviewItemAdapter extends RecyclerView.Adapter<ReviewItemAdapter.Vi
     }
 
     public List<Review> getReviews() {
-        // Cập nhật cuối cùng trước khi submit
         return reviews;
     }
 

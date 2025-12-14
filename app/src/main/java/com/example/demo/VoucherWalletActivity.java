@@ -33,7 +33,7 @@ public class VoucherWalletActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_voucher_wallet); // ← Tạo layout này nhé
+        setContentView(R.layout.activity_voucher_wallet);
 
         apiService = ApiClient.getClient().create(ApiService.class);
         userID = SessionManager.getUserID(this);
@@ -52,7 +52,7 @@ public class VoucherWalletActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
-        voucherAdapter = new VoucherAdapter(this, voucherList, null); // không cần listener vì chỉ xem
+        voucherAdapter = new VoucherAdapter(this, voucherList, null);
         rvVoucherList.setLayoutManager(new LinearLayoutManager(this));
         rvVoucherList.setAdapter(voucherAdapter);
     }

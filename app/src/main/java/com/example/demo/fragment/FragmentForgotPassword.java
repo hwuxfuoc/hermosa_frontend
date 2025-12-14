@@ -42,7 +42,6 @@ public class FragmentForgotPassword extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_forgot_password, container, false);
-        // Dùng chung XML với ActivityForgotPassword (chỉ khác phần đầu)
     }
 
     @Override
@@ -62,13 +61,11 @@ public class FragmentForgotPassword extends Fragment {
         btnResetPassword = view.findViewById(R.id.btnResetPassword);
         tvError = view.findViewById(R.id.tvError);
 
-        // Ẩn các phần không cần thiết trong Fragment (phần gửi email)
-        View layoutTop = view.findViewById(R.id.btnBack); // Nếu có btnBack thì ẩn cả tiêu đề
+        View layoutTop = view.findViewById(R.id.btnBack);
         if (layoutTop != null && layoutTop.getParent() instanceof ViewGroup) {
             ((ViewGroup) layoutTop.getParent()).setVisibility(View.GONE);
         }
 
-        // Ẩn phần nhập email + nút gửi cũ
         View oldSection = view.findViewById(R.id.edtEmail);
         if (oldSection != null) {
             ((ViewGroup) oldSection.getParent()).setVisibility(View.GONE);
@@ -80,7 +77,6 @@ public class FragmentForgotPassword extends Fragment {
         View successLayout = view.findViewById(R.id.layoutSuccess);
         if (successLayout != null) successLayout.setVisibility(View.GONE);
 
-        // Hiện tiêu đề "Đặt lại mật khẩu mới"
         TextView tvTitle = view.findViewById(R.id.tvNewPassTitle);
         if (tvTitle != null) tvTitle.setVisibility(View.VISIBLE);
     }
@@ -115,7 +111,7 @@ public class FragmentForgotPassword extends Fragment {
         btnResetPassword.setText("Đang xử lý...");
 
         Map<String, String> body = new HashMap<>();
-        body.put("tempPassword", tempPass);     // Backend dùng tempPassword
+        body.put("tempPassword", tempPass);
         body.put("newPassword", newPass);
 
         apiService.changePassword(body).enqueue(new Callback<CommonResponse>() {
@@ -128,9 +124,7 @@ public class FragmentForgotPassword extends Fragment {
                     String status = response.body().getStatus();
                     if ("success".equalsIgnoreCase(status) || "Sucsess".equalsIgnoreCase(status)) {
                         Toast.makeText(getContext(), "Đổi mật khẩu thành công! Vui lòng đăng nhập lại", Toast.LENGTH_LONG).show();
-                        // Có thể logout tự động hoặc chuyển về Login
                         requireActivity().finishAffinity();
-                        // Hoặc: startActivity(new Intent(requireContext(), ActivityLogin.class));
                     } else {
                         tvError.setText("Mật khẩu tạm không đúng hoặc đã hết hạn");
                         tvError.setVisibility(View.VISIBLE);

@@ -16,11 +16,8 @@ public class AddressResponse {
         public String type;
         public boolean isSelected = false;
 
-        // --- SỬA TẠI ĐÂY: Đổi thành String để hứng chuỗi từ Backend ---
         public String addressDetail;
-        // -------------------------------------------------------------
 
-        // Hàm này đơn giản chỉ trả về chuỗi đó
         public String getFullAddress() {
             return addressDetail != null ? addressDetail : "";
         }

@@ -34,7 +34,7 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
     private ImageButton btnFav;
 
     private ApiService apiService;
-    private RecyclerView rvProductReviews; // Biến thành field để dùng trong loadProductReviews()
+    private RecyclerView rvProductReviews;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +43,6 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
 
         apiService = ApiClient.getClient().create(ApiService.class);
 
-        // Lấy product từ Intent
         product = (Product) getIntent().getSerializableExtra("product");
 
         if (product == null) {
@@ -64,7 +63,6 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
             product.setProductID("TEMP_" + System.currentTimeMillis());
         }
 
-        // Ánh xạ các view chính
         ImageView imgProduct = findViewById(getImageViewId());
         TextView tvName = findViewById(getNameTextViewId());
         TextView tvPrice = findViewById(getPriceTextViewId());
@@ -72,7 +70,6 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
         ImageButton btnBack = findViewById(R.id.icon_return_arrow);
         btnFav = findViewById(R.id.icon_favorite);
 
-        // Setup RecyclerView bình luận (chỉ ánh xạ 1 lần!)
         rvProductReviews = findViewById(R.id.rvProductReviews);
         if (rvProductReviews != null) {
             rvProductReviews.setLayoutManager(new LinearLayoutManager(this));
@@ -80,7 +77,6 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
             rvProductReviews.setAdapter(new ProductReviewDisplayAdapter(new ArrayList<>())); // khởi tạo rỗng
         }
 
-        // Gán dữ liệu sản phẩm
         tvName.setText(product.getName());
         tvPrice.setText(formatPrice(product.getPrice()) + " đ");
         tvDesc.setText(product.getDescription() != null ? product.getDescription() : "Đang cập nhật...");
@@ -94,15 +90,13 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
 
         btnBack.setOnClickListener(v -> finish());
 
-        // === FAVORITE SIÊU ỔN ĐỊNH – KHÔNG LỖI FINAL ===
-        // === SỬA ĐOẠN FAVORITE ===
         SharedPreferences prefs = getSharedPreferences("favorites", MODE_PRIVATE);
 
         String productId = product.getId();
         if (productId == null || productId.isEmpty()) {
             productId = product.getProductID();
         }
-        final String favoriteKey = productId; // ← CHUẨN, KHÔNG ĐỔI NỮA
+        final String favoriteKey = productId;
 
         btnFav.setImageResource(
                 prefs.getBoolean(favoriteKey, false)
@@ -166,7 +160,6 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
         }
     }
 
-    // Abstract methods
     protected abstract int getLayoutResId();
     protected abstract int getImageViewId();
     protected abstract int getNameTextViewId();

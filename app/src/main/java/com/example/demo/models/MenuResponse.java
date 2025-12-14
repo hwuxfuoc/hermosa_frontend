@@ -36,7 +36,6 @@ public class MenuResponse {
         @SerializedName("backgroundHexacode")
         private String backgroundHexacode;
 
-        // TẤT CẢ GETTER
         public String getId() { return id; }
         public String getProductID() { return productID; }
         public String getName() { return name; }

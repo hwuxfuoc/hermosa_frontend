@@ -71,7 +71,7 @@
             android:text="Lưu"
             android:textStyle="bold"
             android:textSize="16sp"
-            app:backgroundTint="#B71C1C"
+            app:backgroundTint="#FC809F"
             app:cornerRadius="8dp"/>
     </LinearLayout>
 
@@ -135,7 +135,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginRight="0dp"
-                android:backgroundTint="#A71317"
+                android:backgroundTint="#FC809F"
                 android:text="Tìm" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

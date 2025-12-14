@@ -4,13 +4,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F2F2F2">
+    android:background="#FFE9EF">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@android:color/white"
+        android:layout_height="60dp"
+        android:background="#FAB9CE"
         app:layout_constraintTop_toTopOf="parent">
         <ImageView
             android:id="@+id/btnBack"
@@ -18,7 +18,7 @@
             android:layout_height="24dp"
             android:layout_marginStart="16dp"
             android:src="@drawable/ic_arrow_back"
-            app:tint="#000"
+            app:tint="#FFF"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -27,7 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Thêm địa chỉ mới"
-            android:textColor="#000"
+            android:textColor="#FFF"
             android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -52,10 +52,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
+                android:layout_marginTop="10dp"
                 app:cardBackgroundColor="@android:color/white"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
-                app:strokeColor="#E0E0E0"
+                app:strokeColor="#FFE9EF"
                 app:strokeWidth="0dp">
 
                 <LinearLayout
@@ -74,7 +75,7 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="#E0E0E0" />
+                        android:background="#FFE9EF" />
 
                     <EditText
                         android:id="@+id/etPhone"
@@ -95,7 +96,7 @@
                 app:cardBackgroundColor="@android:color/white"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
-                app:strokeColor="#E0E0E0"
+                app:strokeColor="#FFE9EF"
                 app:strokeWidth="0dp">
 
                 <LinearLayout
@@ -117,7 +118,7 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="#E0E0E0" />
+                        android:background="#FFE9EF" />
 
                     <EditText
                         android:id="@+id/etBuilding"
@@ -129,7 +130,7 @@
 
                     <View android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="#E0E0E0" />
+                        android:background="#FFE9EF" />
 
                     <EditText
                         android:id="@+id/etGate"
@@ -155,36 +156,40 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
+                    android:background="#FFF"
                     android:padding="16dp">
 
                     <Button
                         android:id="@+id/btnTypeHome"
                         android:layout_width="wrap_content"
                         android:layout_height="40dp"
+                        android:layout_weight="1"
                         android:text="Home"
                         android:background="@drawable/bg_tag_selector"
-                        android:textColor="#000"
-                        app:backgroundTint="@null"
+                        android:textColor="#FFF"
+                        app:backgroundTint="#FAB9CE"
                         android:layout_marginEnd="12dp"/>
 
                     <Button
                         android:id="@+id/btnTypeWork"
                         android:layout_width="wrap_content"
                         android:layout_height="40dp"
+                        android:layout_weight="1"
                         android:text="Work"
                         android:background="@drawable/bg_tag_selector"
-                        android:textColor="#000"
-                        app:backgroundTint="@null"
+                        android:textColor="#FFF"
+                        app:backgroundTint="#FAB9CE"
                         android:layout_marginEnd="12dp"/>
 
                     <Button
                         android:id="@+id/btnTypeOther"
                         android:layout_width="wrap_content"
                         android:layout_height="40dp"
+                        android:layout_weight="1"
                         android:text="Other"
                         android:background="@drawable/bg_tag_selector"
-                        android:textColor="#000"
-                        app:backgroundTint="@null"/>
+                        android:textColor="#FFF"
+                        app:backgroundTint="#FAB9CE"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -194,7 +199,7 @@
                 app:cardBackgroundColor="@android:color/white"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
-                app:strokeColor="#E0E0E0"
+                app:strokeColor="#FFE9EF"
                 app:strokeWidth="0dp">
 
                 <EditText
@@ -216,20 +221,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@android:color/white"
-        android:padding="16dp"
+        android:padding="5dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSave"
-            android:layout_width="match_parent"
+            android:layout_width="350dp"
             android:layout_height="50dp"
+            android:layout_gravity="center"
             android:text="Lưu"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
             android:textSize="16sp"
-            app:backgroundTint="#B71C1C"
-            app:cornerRadius="8dp"/>
+            app:backgroundTint="#A92138"
+            app:cornerRadius="30dp"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

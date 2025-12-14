@@ -8,15 +8,15 @@ public class Review implements Serializable {
     private String productID;
 
     @SerializedName("rating")
-    private float rating; // 0-5
+    private float rating;
 
     @SerializedName("comment")
     private String comment;
 
-    @SerializedName("userName") // Optional: Tên user gửi review
+    @SerializedName("userName")
     private String userName;
 
-    @SerializedName("date") // Optional: Ngày gửi
+    @SerializedName("date")
     private String date;
 
     public Review(String productID, float rating, String comment) {
@@ -25,7 +25,6 @@ public class Review implements Serializable {
         this.comment = comment;
     }
 
-    // Getters & Setters
     public String getProductID() { return productID; }
     public void setProductID(String productID) { this.productID = productID; }
 

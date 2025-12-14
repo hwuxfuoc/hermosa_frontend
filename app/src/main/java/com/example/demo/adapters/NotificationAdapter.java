@@ -38,7 +38,6 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         holder.tvTitle.setText(item.getTitle());
         holder.tvMessage.setText(item.getMessage());
 
-        // Format ngày tháng (Tùy chỉnh theo format backend trả về)
         holder.tvDate.setText(item.getCreatedAt());
     }
 

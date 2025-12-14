@@ -25,20 +25,16 @@ import java.util.Map;
 
 public class ActivityRegister extends AppCompatActivity {
 
-    // --- Layouts ---
     private LinearLayout layoutEmail, layoutOtp;
     private ScrollView layoutForm;
 
-    // --- Step 1: Email ---
     private EditText edtEmail;
     private Button btnSendOTP;
 
-    // --- Step 2: OTP ---
     private EditText otp1, otp2, otp3, otp4, otp5, otp6;
     private TextView tvOtpError, tvTimer, tvResendOtp;
     private Button btnVerifyOtp;
 
-    // --- Step 3: Form ---
     private EditText edtUsername, edtPassword, edtConfirmPassword;
     private ImageView imgTogglePass, imgToggleConfirmPass;
     private TextView tvPasswordError;
@@ -66,11 +62,9 @@ public class ActivityRegister extends AppCompatActivity {
         View otpInclude   = findViewById(R.id.layoutOtp);
         View formInclude  = findViewById(R.id.layoutForm);
 
-        // Email
         edtEmail   = emailInclude.findViewById(R.id.edtEmail);
         btnSendOTP = emailInclude.findViewById(R.id.btnSendOTP);
 
-        // OTP
         otp1 = otpInclude.findViewById(R.id.otp1);
         otp2 = otpInclude.findViewById(R.id.otp2);
         otp3 = otpInclude.findViewById(R.id.otp3);
@@ -82,7 +76,6 @@ public class ActivityRegister extends AppCompatActivity {
         tvResendOtp = otpInclude.findViewById(R.id.tvResendOtp);
         btnVerifyOtp= otpInclude.findViewById(R.id.btnVerifyOtp);
 
-        // Form
         edtUsername        = formInclude.findViewById(R.id.edtUsername);
         edtPassword        = formInclude.findViewById(R.id.edtPassword);
         edtConfirmPassword = formInclude.findViewById(R.id.edtConfirmPassword);
@@ -91,12 +84,10 @@ public class ActivityRegister extends AppCompatActivity {
         tvPasswordError    = formInclude.findViewById(R.id.tvPasswordError);
         btnRegister        = formInclude.findViewById(R.id.btnRegister);
 
-        // Layout cha
         layoutEmail = (LinearLayout) emailInclude;
         layoutOtp   = (LinearLayout) otpInclude;
         layoutForm  = (ScrollView) formInclude;
 
-        // Ẩn ban đầu
         layoutOtp.setVisibility(View.GONE);
         layoutForm.setVisibility(View.GONE);
         tvOtpError.setVisibility(View.GONE);
@@ -128,7 +119,6 @@ public class ActivityRegister extends AppCompatActivity {
         }
     }
 
-    // HIỆN/ẨN MẬT KHẨU
     private void setupPasswordToggle() {
         imgTogglePass.setOnClickListener(v -> {
             if (edtPassword.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
@@ -153,7 +143,6 @@ public class ActivityRegister extends AppCompatActivity {
         });
     }
 
-    // GỬI OTP
     private void sendOtp() {
         String email = edtEmail.getText().toString().trim().toLowerCase();
         if (TextUtils.isEmpty(email) || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
@@ -164,7 +153,6 @@ public class ActivityRegister extends AppCompatActivity {
         btnSendOTP.setEnabled(false);
         btnSendOTP.setText("Đang kiểm tra...");
 
-        // BƯỚC 1: KIỂM TRA EMAIL ĐÃ TỒN TẠI CHƯA
         Map<String, String> loginBody = new HashMap<>();
         loginBody.put("email", email);
         loginBody.put("password", "dummy_password_for_check");
@@ -172,7 +160,6 @@ public class ActivityRegister extends AppCompatActivity {
         apiService.login(loginBody).enqueue(new Callback<AuthResponse>() {
             @Override
             public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
-                // Nếu login thành công → email đã tồn tại → CHẶN
                 if (response.isSuccessful() && response.body() != null
                         && "Success".equals(response.body().getStatus())) {
 
@@ -184,19 +171,16 @@ public class ActivityRegister extends AppCompatActivity {
                     return;
                 }
 
-                // Nếu login thất bại → email chưa tồn tại → CHO PHÉP GỬI OTP
                 sendOtpRequest(email);
             }
 
             @Override
             public void onFailure(Call<AuthResponse> call, Throwable t) {
-                // Nếu mạng lỗi hoặc login fail → coi như email chưa tồn tại → CHO PHÉP GỬI OTP
                 sendOtpRequest(email);
             }
         });
     }
 
-    // HÀM RIÊNG ĐỂ GỬI OTP – TRÁNH LẶP CODE
     private void sendOtpRequest(String email) {
         Map<String, Object> body = new HashMap<>();
         body.put("email", email);
@@ -362,9 +346,9 @@ public class ActivityRegister extends AppCompatActivity {
                     // LƯU VÀO SESSION
                     SessionManager.saveUserSession(
                             ActivityRegister.this,
-                            verifiedEmail,        // tạm dùng email làm userID nếu chưa có
-                            username,             // tên người dùng
-                            "",                   // tạm không có số điện thoại
+                            verifiedEmail,
+                            username,
+                            "",
                             ""
                     );
                     finish();

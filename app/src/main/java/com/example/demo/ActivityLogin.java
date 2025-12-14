@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -7,13 +8,22 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.*;
+
+import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.demo.api.ApiClient;
 import com.example.demo.api.ApiService;
+import com.example.demo.fragment.FragmentHome;
 import com.example.demo.models.AuthResponse;
 import com.example.demo.models.CommonResponse;
 import com.example.demo.utils.SessionManager;
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import com.facebook.CallbackManager;
@@ -26,12 +36,19 @@ import com.google.android.gms.auth.api.signin.*;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 
+// IMPORT ĐÚNG 100% – KHÔNG BAO GIỜ LỖI
 import retrofit2.Call;
-import retrofit2.Callback;
+import retrofit2.Callback;        // DÙNG CHO RETROFIT (login email)
 import retrofit2.Response;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,31 +57,29 @@ public class ActivityLogin extends AppCompatActivity {
 
     private EditText editTextEmail, editTextPassword;
     private ImageView imgTogglePassword;
-    private Button buttonLogin, buttonGoogleLogin, buttonFacebookLogin;
+    private Button buttonLogin;
+    private MaterialButton buttonGoogleLogin, buttonFacebookLogin;
     private TextView textViewRegister, textViewForgotPassword;
     private CheckBox checkBoxRemember;
     private ApiService apiService;
     private SharedPreferences prefs;
 
-    // Google
     private GoogleSignInClient mGoogleSignInClient;
+    private CallbackManager callbackManager;
     private static final int RC_GOOGLE_SIGN_IN = 9001;
-
-    // Facebook
-    private CallbackManager facebookCallbackManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        AppEventsLogger.activateApp(getApplication());
         setContentView(R.layout.activity_login);
 
         initViews();
         initGoogleSignIn();
         initFacebookLogin();
 
-        // Load remember me
         SessionManager.loadRememberMe(this, editTextEmail, editTextPassword, checkBoxRemember);
-
         setupClickListeners();
     }
 
@@ -85,32 +100,14 @@ public class ActivityLogin extends AppCompatActivity {
 
     private void initGoogleSignIn() {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.google_web_client_id))
                 .requestEmail()
-                .requestIdToken("946081988458-c3h39d7hgefv3pdhf7d6qdja81avjjue.apps.googleusercontent.com")
                 .build();
-
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
     }
 
     private void initFacebookLogin() {
-        facebookCallbackManager = CallbackManager.Factory.create();
-
-        LoginManager.getInstance().registerCallback(facebookCallbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                handleFacebookAccessToken(loginResult);
-            }
-
-            @Override
-            public void onCancel() {
-                Toast.makeText(ActivityLogin.this, "Hủy đăng nhập Facebook", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onError(FacebookException error) {
-                Toast.makeText(ActivityLogin.this, "Lỗi Facebook: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+        callbackManager = CallbackManager.Factory.create();
     }
 
     private void setupClickListeners() {
@@ -119,10 +116,82 @@ public class ActivityLogin extends AppCompatActivity {
         textViewRegister.setOnClickListener(v -> startActivity(new Intent(this, ActivityRegister.class)));
         textViewForgotPassword.setOnClickListener(v -> startActivity(new Intent(this, ActivityForgotPassword.class)));
 
-        buttonGoogleLogin.setOnClickListener(v -> signInWithGoogle());
+        buttonGoogleLogin.setOnClickListener(v -> {
+            Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+            startActivityForResult(signInIntent, RC_GOOGLE_SIGN_IN);
+        });
+
         buttonFacebookLogin.setOnClickListener(v -> {
             LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("email", "public_profile"));
         });
+
+        LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override public void onSuccess(LoginResult loginResult) {
+                String accessToken = loginResult.getAccessToken().getToken();
+                loginWithFacebook(accessToken);
+            }
+            @Override public void onCancel() {
+                Toast.makeText(ActivityLogin.this, "Hủy đăng nhập Facebook", Toast.LENGTH_SHORT).show();
+            }
+            @Override public void onError(FacebookException error) {
+                Toast.makeText(ActivityLogin.this, "Lỗi Facebook: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RC_GOOGLE_SIGN_IN) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            task.addOnSuccessListener(account -> {
+                String idToken = account.getIdToken();
+                if (idToken != null) {
+                    loginWithGoogle(idToken);
+                } else {
+                    Toast.makeText(this, "Không lấy được idToken", Toast.LENGTH_LONG).show();
+                }
+            }).addOnFailureListener(e -> {
+                Toast.makeText(this, "Google login failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            });
+        }
+    }
+
+    private void loginWithGoogle(String idToken) {
+        apiService.googleLogin(idToken).enqueue(new Callback<AuthResponse>() {
+            @Override
+            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+                handleAuthResponse(response, "Google");
+            }
+            @Override
+            public void onFailure(Call<AuthResponse> call, Throwable t) {
+                Toast.makeText(ActivityLogin.this, "Lỗi mạng Google", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void loginWithFacebook(String accessToken) {
+        apiService.facebookLogin(accessToken).enqueue(new Callback<AuthResponse>() {
+            @Override
+            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+                handleAuthResponse(response, "Facebook");
+            }
+            @Override
+            public void onFailure(Call<AuthResponse> call, Throwable t) {
+                Toast.makeText(ActivityLogin.this, "Lỗi mạng Facebook", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void handleAuthResponse(Response<AuthResponse> response, String provider) {
+        if (response.isSuccessful() && response.body() != null && "Success".equals(response.body().getStatus())) {
+            saveUserAndGoToMain(response.body());
+            Toast.makeText(this, "Đăng nhập " + provider + " thành công!", Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, "Đăng nhập " + provider + " thất bại", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void togglePasswordVisibility() {
@@ -134,71 +203,6 @@ public class ActivityLogin extends AppCompatActivity {
             imgTogglePassword.setImageResource(R.drawable.ic_eye_closed);
         }
         editTextPassword.setSelection(editTextPassword.getText().length());
-    }
-
-    private void signInWithGoogle() {
-        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_GOOGLE_SIGN_IN);
-    }
-
-    private void handleFacebookAccessToken(LoginResult loginResult) {
-        com.facebook.GraphRequest request = com.facebook.GraphRequest.newMeRequest(
-                loginResult.getAccessToken(),
-                (object, response) -> {
-                    if (object == null) {
-                        runOnUiThread(() -> Toast.makeText(this, "Lỗi lấy dữ liệu Facebook", Toast.LENGTH_SHORT).show());
-                        return;
-                    }
-
-                    try {
-                        String email = object.optString("email");
-                        String name = object.optString("name", "Facebook User");
-
-                        if (TextUtils.isEmpty(email)) {
-                            String id = object.optString("id", "unknown");
-                            email = id + "@facebook.com";
-                        }
-                        if (TextUtils.isEmpty(name)) name = "Facebook User";
-
-                        loginWithSocial(email, name, "Facebook");
-
-                    } catch (Exception e) {
-                        runOnUiThread(() -> {
-                            Toast.makeText(this, "Lỗi xử lý dữ liệu Facebook", Toast.LENGTH_SHORT).show();
-                            Log.e("FB_LOGIN", "Error: " + e.getMessage());
-                        });
-                    }
-                });
-
-        Bundle parameters = new Bundle();
-        parameters.putString("fields", "id,name,email");
-        request.setParameters(parameters);
-        request.executeAsync();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        // Facebook
-        facebookCallbackManager.onActivityResult(requestCode, resultCode, data);
-
-        // Google
-        if (requestCode == RC_GOOGLE_SIGN_IN) {
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            try {
-                GoogleSignInAccount account = task.getResult(ApiException.class);
-                if (account != null) {
-                    String email = account.getEmail();
-                    String name = account.getDisplayName();
-                    if (TextUtils.isEmpty(email)) email = account.getId() + "@google.com";
-                    if (TextUtils.isEmpty(name)) name = "Google User";
-                    loginWithSocial(email, name, "Google");
-                }
-            } catch (ApiException e) {
-                Toast.makeText(this, "Google login failed: " + e.getStatusCode(), Toast.LENGTH_SHORT).show();
-            }
-        }
     }
 
     private void login() {
@@ -217,7 +221,6 @@ public class ActivityLogin extends AppCompatActivity {
         buttonLogin.setEnabled(false);
         buttonLogin.setText("Đang đăng nhập...");
 
-        // THÊM DÒNG NÀY – GIẢI QUYẾT LỖI "this" TRONG CALLBACK
         final ActivityLogin that = this;
 
         Map<String, String> body = new HashMap<>();
@@ -231,7 +234,6 @@ public class ActivityLogin extends AppCompatActivity {
                 buttonLogin.setText("Đăng nhập");
 
                 if (response.isSuccessful() && response.body() != null && "Success".equals(response.body().getStatus())) {
-                    // DÙNG "that" THAY VÌ "this" → HOÀN HẢO!
                     SessionManager.saveRememberMe(
                             that,
                             email,
@@ -254,32 +256,6 @@ public class ActivityLogin extends AppCompatActivity {
         });
     }
 
-    private void loginWithSocial(String email, String name, String provider) {
-        Map<String, String> body = new HashMap<>();
-        body.put("email", email);
-        body.put("name", name);
-        body.put("provider", provider);
-
-        apiService.socialLogin(body).enqueue(new Callback<AuthResponse>() {
-            @Override
-            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
-                if (response.isSuccessful() && response.body() != null && "Success".equals(response.body().getStatus())) {
-                    saveUserAndGoToMain(response.body());
-                    Toast.makeText(ActivityLogin.this, "Đăng nhập " + provider + " thành công!", Toast.LENGTH_LONG).show();
-                } else {
-                    String msg = response.body() != null ? response.body().getMessage() : response.message();
-                    Toast.makeText(ActivityLogin.this, "Lỗi: " + msg, Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<AuthResponse> call, Throwable t) {
-                Toast.makeText(ActivityLogin.this, "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    // ĐÃ FIX CRASH 100% TẠI ĐÂY
     private void saveUserAndGoToMain(AuthResponse authResponse) {
         try {
             AuthResponse.User user = authResponse.getData();
@@ -298,14 +274,12 @@ public class ActivityLogin extends AppCompatActivity {
             String email = TextUtils.isEmpty(user.getEmail()) ? "" : user.getEmail();
             String name = "Khách";
 
-            // CHỈ DÙNG getName() VÀ getEmail() – VÌ CLASS USER CHỈ CÓ 2 FIELD NÀY!
             if (!TextUtils.isEmpty(user.getName())) {
                 name = user.getName().trim();
             } else if (!TextUtils.isEmpty(email)) {
                 name = email.split("@")[0];
             }
 
-            // LƯU BẰNG SESSION MANAGER CHUẨN
             SessionManager.saveUserSession(
                     this,
                     userId,
@@ -334,7 +308,6 @@ public class ActivityLogin extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> {
                     Log.e("FCM", "Lấy FCM token thất bại", e);
-                    // Không crash, chỉ log → vẫn vào MainActivity bình thường
                 });
     }
 

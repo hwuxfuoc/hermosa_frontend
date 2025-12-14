@@ -19,6 +19,7 @@ import com.example.demo.models.OrderListResponse;
 import com.example.demo.models.OrderResponse;
 import com.example.demo.models.ReviewResponse;
 import com.example.demo.models.VoucherResponse;
+import com.example.demo.models.OrderHistoryResponse;
 
 import retrofit2.Call;
 import retrofit2.http.*;
@@ -59,6 +60,13 @@ public interface ApiService {
     Call<CommonResponse> deleteAccount(@Body Map<String, String> body);
     @POST("user/social-login")
     Call<AuthResponse> socialLogin(@Body Map<String, String> body);
+    @FormUrlEncoded
+    @POST("user/google")
+    Call<AuthResponse> googleLogin(@Field("credential") String idToken);
+
+    @FormUrlEncoded
+    @POST("user/facebook")
+    Call<AuthResponse> facebookLogin(@Field("accessToken") String accessToken);
 
     // ---- CART ----
 
@@ -110,8 +118,6 @@ public interface ApiService {
     Call<MenuResponse.SingleProductResponse> getProductDetail(@Query("productID") String productID);
     @GET("order/view")
     Call<OrderResponse> viewOrder(@Query("orderID") String orderID);
-    @GET("order/order-history")
-    Call<OrderListResponse> getOrderHistory(@Query("userID") String userID);
     @HTTP(method = "DELETE", path = "order/cancel", hasBody = true)
     Call<CommonResponse> cancelOrder(@Body CancelOrderRequest body);
     @POST("address/add")
@@ -193,4 +199,6 @@ public interface ApiService {
     // Thêm 1 dòng này vào ApiService.java
     @GET("product/reviews")
     Call<ReviewResponse> getProductReviews(@Query("productID") String productID);
+    @GET("order/order-history")
+    Call<OrderHistoryResponse> getOrderHistory(@Query("userID") String userID);
 }

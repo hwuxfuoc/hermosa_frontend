@@ -35,34 +35,45 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.text.DecimalFormat;
+import java.text.ParseException;      // Sửa lỗi ParseException
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;            // Sửa lỗi TimeZone
 
 public class FragmentOrderTracking extends Fragment {
 
-    // --- VIEW DECLARATION ---
     private ImageView btnBack;
     private LinearLayout layoutHeaderPending, layoutHeaderConfirmed;
     private TextView tvStatusTitle, tvStatusDesc, tvStatusTag, tvTimeEstimate, tvStatusMsg;
     private ImageView ivStep1, ivStep2, ivStep3, ivStep4;
     private View line1, line2, line3;
 
-    private TextView tvTotalPriceList, tvTotalPayment, tvPaymentMethodName;
+    private TextView tvTotalPriceList;
+    private TextView tvTotalPayment;
+    private TextView tvPaymentMethodName;
     private View layoutPaymentInfo;
+
     private TextView tvStoreName, tvAddressName, tvDetailAddress;
     private MaterialButton btnCancelOrder;
-    private MaterialButton btnSubmitReview; // Nút đánh giá
+    private MaterialButton btnSubmitReview;
     private TextView tvCancelNote;
     private RecyclerView rvOrderItems;
 
-    // --- DATA & API ---
     private String currentOrderID;
     private ApiService apiService;
     private boolean isDialogShown = false;
-
-    // Lưu list Product để truyền cho FragmentReview
     private final List<Product> currentOrderProducts = new ArrayList<>();
 
     @Nullable
@@ -87,13 +98,11 @@ public class FragmentOrderTracking extends Fragment {
         if (currentOrderID != null && !currentOrderID.isEmpty()) {
             loadOrderDataFromApi(currentOrderID);
         }
-
-        // Polling mỗi 5s
         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (currentOrderID != null && getView() != null) {
-                    loadOrderDataFromApi(currentOrderID);
+                if (currentOrderID != null) {
+                    loadOrderDataFromApi(currentOrderID); // Gọi lại API
                 }
                 new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(this, 5000);
             }
@@ -112,12 +121,12 @@ public class FragmentOrderTracking extends Fragment {
         tvStatusMsg = view.findViewById(R.id.tvStatusMsg);
 
         ivStep1 = view.findViewById(R.id.ivStep1);
-        ivStep2 = view.findViewById(R.id.ivStep2);
-        ivStep3 = view.findViewById(R.id.ivStep3);
+        //ivStep2 = view.findViewById(R.id.ivStep2);
+        //ivStep3 = view.findViewById(R.id.ivStep3);
         ivStep4 = view.findViewById(R.id.ivStep4);
         line1 = view.findViewById(R.id.line1);
-        line2 = view.findViewById(R.id.line2);
-        line3 = view.findViewById(R.id.line3);
+        //line2 = view.findViewById(R.id.line2);
+        //line3 = view.findViewById(R.id.line3);
 
         tvStoreName = view.findViewById(R.id.tvStoreName);
         tvAddressName = view.findViewById(R.id.tvAddressName);
@@ -148,7 +157,6 @@ public class FragmentOrderTracking extends Fragment {
         });
 
         btnCancelOrder.setOnClickListener(v -> showConfirmCancelDialog());
-
         btnSubmitReview.setOnClickListener(v -> {
             FragmentReview reviewFragment = new FragmentReview();
             Bundle bundle = new Bundle();
@@ -164,8 +172,6 @@ public class FragmentOrderTracking extends Fragment {
             }
         });
     }
-
-    // ================== CÁC DIALOG ==================
     private void showConfirmCancelDialog() {
         if (getContext() == null) return;
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -184,12 +190,71 @@ public class FragmentOrderTracking extends Fragment {
         btnCancelAction.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
     }
+    private void showOrderDoneDialog() {
+        if (getContext() == null || isDialogShown) return; // Nếu đã hiện rồi thì thôi
 
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.fragment_pickup_success, null);
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
+        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        MaterialButton btnConfirm = dialogView.findViewById(R.id.btnDialogConfirm);
+        btnConfirm.setOnClickListener(v -> {
+            dialog.dismiss();
+        });
+
+        dialog.show();
+        isDialogShown = true;
+    }
+
+    private void cancelOrderApi(String orderID) {
+        HashMap<String, String> body = new HashMap<>();
+        body.put("orderID", orderID);
+
+        // Gọi API
+        apiService.cancelOrder(body).enqueue(new Callback<OrderResponse>() {
+            @Override
+            public void onResponse(Call<OrderResponse> call, Response<OrderResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    OrderResponse res = response.body();
+
+                    if ("Success".equalsIgnoreCase(res.getStatus())) {
+                        Toast.makeText(getContext(), "Đã hủy đơn hàng thành công!", Toast.LENGTH_SHORT).show();
+
+                        updateStatusTimeline("cancelled", false);
+
+                        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (isAdded() && getContext() != null) {
+                                    showCancelSuccessDialog();
+                                }
+                            }
+                        }, 1000); // 1000ms = 1 giây
+
+                    } else {
+                        Toast.makeText(getContext(), res.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Không thể hủy đơn hàng lúc này", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<OrderResponse> call, Throwable t) {
+                Toast.makeText(getContext(), "Lỗi kết nối mạng", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
     private void showCancelSuccessDialog() {
         if (getContext() == null) return;
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.fragment_cancel_success, null);
         builder.setView(dialogView);
+
+        builder.setCancelable(false);
+
         AlertDialog dialog = builder.create();
         if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
@@ -199,85 +264,88 @@ public class FragmentOrderTracking extends Fragment {
         MaterialButton btnReturnHome = dialogView.findViewById(R.id.btnReturnHome);
         btnReturnHome.setOnClickListener(v -> {
             dialog.dismiss();
+
             Intent intent = new Intent(getContext(), MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
             if (getActivity() != null) getActivity().finish();
         });
-        dialog.show();
-    }
-
-    private void showOrderDoneDialog() {
-        if (getContext() == null || isDialogShown) return;
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.fragment_pickup_success, null);
-        builder.setView(dialogView);
-        AlertDialog dialog = builder.create();
-        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
-        MaterialButton btnConfirm = dialogView.findViewById(R.id.btnDialogConfirm);
-        btnConfirm.setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
-        isDialogShown = true;
-    }
-
-    // ================== API ==================
-    private void cancelOrderApi(String orderID) {
-        HashMap<String, String> body = new HashMap<>();
-        body.put("orderID", orderID);
-
-        apiService.cancelOrder(body).enqueue(new Callback<OrderResponse>() {
-            @Override
-            public void onResponse(Call<OrderResponse> call, Response<OrderResponse> response) {
-                if (response.isSuccessful() && response.body() != null && "Success".equalsIgnoreCase(response.body().getStatus())) {
-                    showCancelSuccessDialog();
-                    updateStatusTimeline("cancelled");
-                } else {
-                    Toast.makeText(getContext(), "Hủy thất bại", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<OrderResponse> call, Throwable t) {
-                Toast.makeText(getContext(), "Lỗi mạng", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     private void loadOrderDataFromApi(String orderID) {
         apiService.getOrderDetail(orderID).enqueue(new Callback<OrderResponse>() {
             @Override
             public void onResponse(Call<OrderResponse> call, Response<OrderResponse> response) {
-                if (response.isSuccessful() && response.body() != null && "Success".equalsIgnoreCase(response.body().getStatus())) {
-                    updateUI(response.body().getData());
+                if (response.isSuccessful() && response.body() != null) {
+                    if ("Success".equalsIgnoreCase(response.body().getStatus())) {
+                        updateUI(response.body().getData());
+                    }
                 }
             }
-
             @Override
             public void onFailure(Call<OrderResponse> call, Throwable t) {
-                Log.e("API", "Load order failed: " + t.getMessage());
+                Log.e("API", "Error: " + t.getMessage());
             }
         });
     }
 
-    // ================== CẬP NHẬT UI ==================
     private void updateUI(Order order) {
-        if (getContext() == null || order == null) return;
+        if (getContext() == null) return;
 
-        DecimalFormat formatter = new DecimalFormat("###,###,###");
-        String priceStr = formatter.format(order.getFinalTotal()) + " VND";
-        tvTotalPriceList.setText(priceStr);
-        if (tvTotalPayment != null) tvTotalPayment.setText(priceStr);
-        if (layoutPaymentInfo != null) layoutPaymentInfo.setVisibility(View.VISIBLE);
-
-        if (tvPaymentMethodName != null) {
-            String method = order.getPaymentMethod();
-            tvPaymentMethodName.setText("momo".equalsIgnoreCase(method) ? "Ví MoMo" : "Tiền mặt");
-        }
-
+        boolean isPickup = false;
         String address = order.getDeliverAddress();
         if (address == null || address.isEmpty() || "null".equalsIgnoreCase(address)) {
+            isPickup = true;
+        }
+        String timeDisplay = "---";
+
+        if (order.getCreateAt() != null && !order.getCreateAt().isEmpty()) {
+            try {
+                SimpleDateFormat serverFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+                serverFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+                SimpleDateFormat displayFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                displayFormat.setTimeZone(TimeZone.getDefault());
+
+                Date startTime = serverFormat.parse(order.getCreateAt());
+                String strStart = displayFormat.format(startTime);
+
+                String strEnd = "";
+
+                boolean isDone = "done".equalsIgnoreCase(order.getStatus()) || "completed".equalsIgnoreCase(order.getStatus());
+
+                if (isDone && order.getDoneIn() != null && !order.getDoneIn().isEmpty()) {
+                    try {
+                        Date doneTime = serverFormat.parse(order.getDoneIn());
+                        strEnd = displayFormat.format(doneTime);
+                    } catch (Exception e) {
+                        strEnd = "??:??";
+                    }
+                } else {
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(startTime);
+
+                    if (isPickup) {
+                        calendar.add(Calendar.MINUTE, 15);
+                    } else {
+                        calendar.add(Calendar.MINUTE, 30);
+                    }
+                    strEnd = displayFormat.format(calendar.getTime());
+                }
+
+                timeDisplay = strStart + " - " + strEnd;
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+                timeDisplay = "Đang cập nhật...";
+            }
+        }
+
+        tvTimeEstimate.setText(timeDisplay);
+
+        if (isPickup) {
             tvAddressName.setText("Nhận tại cửa hàng");
             tvDetailAddress.setVisibility(View.GONE);
         } else {
@@ -285,94 +353,91 @@ public class FragmentOrderTracking extends Fragment {
             tvDetailAddress.setText(address);
             tvDetailAddress.setVisibility(View.VISIBLE);
         }
+
+        DecimalFormat formatter = new DecimalFormat("###,###,###");
+        String priceStr = formatter.format(order.getFinalTotal()) + " VND";
+        tvTotalPriceList.setText(priceStr);
+
+        if (layoutPaymentInfo != null) layoutPaymentInfo.setVisibility(View.VISIBLE);
+        if (tvTotalPayment != null) tvTotalPayment.setText(priceStr);
+
+        if (tvPaymentMethodName != null) {
+            String method = order.getPaymentMethod();
+            tvPaymentMethodName.setText("momo".equalsIgnoreCase(method) ? "Ví MoMo" : "Tiền mặt");
+        }
         tvStoreName.setText("Hermosa Coffee");
 
-        // Danh sách món + chuyển CartItem → Product
         if (order.getProducts() != null) {
-            rvOrderItems.setAdapter(new OrderItemAdapter(order.getProducts()));
-
-            currentOrderProducts.clear();
-            for (CartItem item : order.getProducts()) {
-                Product p = new Product(
-                        item.getName(),
-                        String.valueOf(item.getPrice()),
-                        item.getImageUrl(), // ← giả sử CartItem có getImageUrl()
-                        0xFFA71317,
-                        item.getProductID()
-                );
-                p.setQuantity(item.getQuantity());
-                p.setSize(item.getSize());
-                String[] toppings = item.getTopping();
-                p.setTopping(toppings != null ? toppings : new String[0]);
-                currentOrderProducts.add(p);
-            }
+            OrderItemAdapter adapter = new OrderItemAdapter(order.getProducts());
+            rvOrderItems.setAdapter(adapter);
         }
 
-        updateStatusTimeline(order.getStatus());
+        updateStatusTimeline(order.getStatus(), isPickup);
 
-        if ("done".equalsIgnoreCase(order.getStatus()) || "completed".equalsIgnoreCase(order.getStatus())) {
+        if (("done".equalsIgnoreCase(order.getStatus()) || "completed".equalsIgnoreCase(order.getStatus()))
+                && isPickup) {
             showOrderDoneDialog();
+        }
+        if ("done".equalsIgnoreCase(order.getStatus()) || "completed".equalsIgnoreCase(order.getStatus())) {
             btnSubmitReview.setVisibility(View.VISIBLE);
         } else {
             btnSubmitReview.setVisibility(View.GONE);
         }
     }
 
-    private void updateStatusTimeline(String status) {
+    private void updateStatusTimeline(String status, boolean isPickup) {
         if (status == null) status = "pending";
-        resetTimelineColors();
 
         switch (status.toLowerCase()) {
             case "pending":
                 layoutHeaderPending.setVisibility(View.VISIBLE);
                 layoutHeaderConfirmed.setVisibility(View.GONE);
-                highlightTimeline(1);
+
+                tvStatusTag.setText("Đang xử lý");
+                tvStatusTag.setBackgroundColor(Color.parseColor("#FF9800"));
+                tvStatusMsg.setText("Chúng tôi đã nhận đơn hàng của bạn");
+                tvStatusMsg.setTextColor(Color.parseColor("#FF9800"));
+
                 btnCancelOrder.setVisibility(View.VISIBLE);
                 tvCancelNote.setVisibility(View.VISIBLE);
+                btnSubmitReview.setVisibility(View.GONE);
                 break;
+
             case "confirmed":
             case "cooking":
-                layoutHeaderPending.setVisibility(View.GONE);
-                layoutHeaderConfirmed.setVisibility(View.VISIBLE);
-                tvStatusTag.setText("Chuẩn bị");
-                tvStatusTag.setBackgroundColor(Color.parseColor("#E65100"));
-                tvStatusMsg.setText("Nhà hàng đang chuẩn bị món ăn...");
-                tvStatusMsg.setTextColor(Color.parseColor("#E65100"));
-                highlightTimeline(2);
-                btnCancelOrder.setVisibility(View.GONE);
-                tvCancelNote.setVisibility(View.GONE);
-                break;
             case "shipping":
-                layoutHeaderPending.setVisibility(View.GONE);
-                layoutHeaderConfirmed.setVisibility(View.VISIBLE);
-                tvStatusTag.setText("Đang giao");
-                tvStatusTag.setBackgroundColor(Color.parseColor("#1976D2"));
-                tvStatusMsg.setText("Tài xế đang giao hàng...");
-                tvStatusMsg.setTextColor(Color.parseColor("#1976D2"));
-                highlightTimeline(3);
-                btnCancelOrder.setVisibility(View.GONE);
-                tvCancelNote.setVisibility(View.GONE);
-                break;
             case "done":
             case "completed":
                 layoutHeaderPending.setVisibility(View.GONE);
                 layoutHeaderConfirmed.setVisibility(View.VISIBLE);
+
                 tvStatusTag.setText("Hoàn tất");
                 tvStatusTag.setBackgroundColor(Color.parseColor("#388E3C"));
-                tvStatusMsg.setText("Đơn hàng đã hoàn thành!");
+
+                if (isPickup) {
+                    tvStatusMsg.setText("Đơn hàng đã sẵn sàng. Vui lòng ra quầy nhận đồ nhé!");
+                    showOrderDoneDialog(); // Hiện popup nhận nước
+                } else {
+                    tvStatusMsg.setText("Đã giao hàng thành công!");
+                }
                 tvStatusMsg.setTextColor(Color.parseColor("#388E3C"));
-                highlightTimeline(4);
+
                 btnCancelOrder.setVisibility(View.GONE);
                 tvCancelNote.setVisibility(View.GONE);
+                btnSubmitReview.setVisibility(View.VISIBLE);
                 break;
+
             case "cancelled":
                 layoutHeaderPending.setVisibility(View.VISIBLE);
                 layoutHeaderConfirmed.setVisibility(View.GONE);
-                tvStatusTitle.setText("Đã Hủy");
+
+                tvStatusTitle.setText("Đơn hàng đã hủy");
                 tvStatusTitle.setTextColor(Color.RED);
-                tvStatusDesc.setText("Đơn hàng này đã bị hủy.");
+                tvStatusDesc.setText("Bạn đã hủy đơn hàng này");
+
                 btnCancelOrder.setVisibility(View.GONE);
                 tvCancelNote.setVisibility(View.GONE);
+                btnSubmitReview.setVisibility(View.GONE);
                 break;
         }
     }
@@ -380,27 +445,39 @@ public class FragmentOrderTracking extends Fragment {
     private void highlightTimeline(int step) {
         int activeColor = Color.parseColor("#4CAF50");
         if (step >= 1) ivStep1.setColorFilter(activeColor, PorterDuff.Mode.SRC_IN);
-        if (step >= 2) { line1.setBackgroundColor(activeColor); ivStep2.setColorFilter(activeColor, PorterDuff.Mode.SRC_IN); }
-        if (step >= 3) { line2.setBackgroundColor(activeColor); ivStep3.setColorFilter(activeColor, PorterDuff.Mode.SRC_IN); }
-        if (step >= 4) { line3.setBackgroundColor(activeColor); ivStep4.setColorFilter(activeColor, PorterDuff.Mode.SRC_IN); }
+        if (step >= 2) {
+            line1.setBackgroundColor(activeColor);
+            ivStep2.setColorFilter(activeColor, PorterDuff.Mode.SRC_IN);
+        }
+        if (step >= 3) {
+            line2.setBackgroundColor(activeColor);
+            ivStep3.setColorFilter(activeColor, PorterDuff.Mode.SRC_IN);
+        }
+        if (step >= 4) {
+            line3.setBackgroundColor(activeColor);
+            ivStep4.setColorFilter(activeColor, PorterDuff.Mode.SRC_IN);
+        }
     }
 
     private void resetTimelineColors() {
         int grayColor = Color.parseColor("#E0E0E0");
-        ivStep1.clearColorFilter(); ivStep2.clearColorFilter(); ivStep3.clearColorFilter(); ivStep4.clearColorFilter();
-        line1.setBackgroundColor(grayColor); line2.setBackgroundColor(grayColor); line3.setBackgroundColor(grayColor);
+        ivStep1.clearColorFilter();
+        ivStep2.clearColorFilter();
+        ivStep3.clearColorFilter();
+        ivStep4.clearColorFilter();
+        line1.setBackgroundColor(grayColor);
+        line2.setBackgroundColor(grayColor);
+        line3.setBackgroundColor(grayColor);
     }
 
-    // Adapter hiển thị món trong tracking
     public static class OrderItemAdapter extends RecyclerView.Adapter<OrderItemAdapter.ViewHolder> {
         private final List<CartItem> itemList;
-
         public OrderItemAdapter(List<CartItem> itemList) { this.itemList = itemList; }
 
         @NonNull @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new ViewHolder(LayoutInflater.from(parent.getContext())
-                    .inflate(android.R.layout.simple_list_item_2, parent, false));
+            View view = LayoutInflater.from(parent.getContext()).inflate(android.R.layout.simple_list_item_2, parent, false);
+            return new ViewHolder(view);
         }
 
         @Override
@@ -412,11 +489,11 @@ public class FragmentOrderTracking extends Fragment {
             holder.tvPrice.setTextColor(Color.BLACK);
         }
 
-        @Override public int getItemCount() { return itemList.size(); }
+        @Override public int getItemCount() { return itemList == null ? 0 : itemList.size(); }
 
         static class ViewHolder extends RecyclerView.ViewHolder {
             TextView tvName, tvPrice;
-            ViewHolder(@NonNull View itemView) {
+            public ViewHolder(@NonNull View itemView) {
                 super(itemView);
                 tvName = itemView.findViewById(android.R.id.text1);
                 tvPrice = itemView.findViewById(android.R.id.text2);

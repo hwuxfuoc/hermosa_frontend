@@ -48,7 +48,7 @@ public class VoucherSelectionActivity extends AppCompatActivity implements Vouch
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_voucher_selection); // Sử dụng layout bạn cung cấp
+        setContentView(R.layout.fragment_voucher_selection);
 
         apiService = ApiClient.getClient().create(ApiService.class);
         userID = SessionManager.getUserID(this);
@@ -78,7 +78,6 @@ public class VoucherSelectionActivity extends AppCompatActivity implements Vouch
     }
 
     private void loadAvailableVouchers() {
-        // Gọi API lấy danh sách voucher khả dụng (API số 2 trong hướng dẫn trước)
         apiService.getAvailableVouchers(userID).enqueue(new Callback<VoucherResponse>() {
             @Override
             public void onResponse(Call<VoucherResponse> call, Response<VoucherResponse> response) {
@@ -103,7 +102,6 @@ public class VoucherSelectionActivity extends AppCompatActivity implements Vouch
     private void setupListeners() {
         btnBack.setOnClickListener(v -> finish());
 
-        // Xử lý nhập mã thủ công
         btnApplyInput.setOnClickListener(view -> {
             String code = etVoucherCode.getText().toString().trim();
             if (code.isEmpty()) return;
@@ -121,7 +119,6 @@ public class VoucherSelectionActivity extends AppCompatActivity implements Vouch
             }
         });
 
-        // Nút xác nhận trả kết quả về màn hình ConfirmOrder
         btnConfirm.setOnClickListener(v -> {
             if (selectedVoucher != null) {
                 Log.d(TAG, "Bấm nút XÁC NHẬN. Đang gửi voucher về ConfirmOrderActivity: " + selectedVoucher.getVoucherCode());

@@ -56,18 +56,17 @@ public class FragmentFavorite extends Fragment {
 
         btnBack.setOnClickListener(v -> requireActivity().onBackPressed());
 
-        loadFavoritesFromApi(); // Load lần đầu
+        loadFavoritesFromApi();
 
         return view;
     }
 
-    // PUBLIC METHOD: Gọi từ ngoài để reload
     public void reloadFavorites() {
         loadFavoritesFromApi();
     }
 
     private void loadFavoritesFromApi() {
-        favoriteList.clear(); // XÓA DỮ LIỆU CŨ → TRÁNH NHÂN ĐÔI
+        favoriteList.clear();
 
         Map<String, ?> allEntries = prefs.getAll();
         List<String> favoriteIds = new ArrayList<>();
@@ -103,7 +102,6 @@ public class FragmentFavorite extends Fragment {
                                 }
                             }
 
-                            // DỌN DẸP: Xóa ID không còn tồn tại
                             SharedPreferences.Editor editor = prefs.edit();
                             for (String id : favoriteIds) {
                                 boolean exists = newList.stream().anyMatch(p -> p.getId().equals(id));

@@ -32,7 +32,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     public ProductAdapter(Context context, List<Product> productList) {
         this.context = context;
-        this.productList = new ArrayList<>(productList != null ? productList : new ArrayList<>()); // Tạo bản sao, tránh tham chiếu sai
+        this.productList = new ArrayList<>(productList != null ? productList : new ArrayList<>());
         Log.d("HOME", "Adapter khởi tạo, kích thước ban đầu: " + this.productList.size());
     }
 
@@ -65,10 +65,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
         holder.textName.setText(product.getName());
         holder.textPrice.setText(formatPrice(product.getPrice()));
-        holder.viewTopBar.setBackgroundColor(product.getColor());
-        holder.buttonPlus.setBackgroundTintList(ColorStateList.valueOf(product.getColor()));
 
-        // Sửa Glide để đảm bảo URL hợp lệ
         String imageUrl = product.getImageUrl();
         if (imageUrl != null && !imageUrl.isEmpty()) {
             Glide.with(context)
@@ -140,7 +137,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         TextView textName, textPrice;
         ImageView imageProduct;
         Button buttonPlus;
-        View viewTopBar;
 
         public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -148,7 +144,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             textPrice = itemView.findViewById(R.id.text_price);
             imageProduct = itemView.findViewById(R.id.image_product);
             buttonPlus = itemView.findViewById(R.id.button_plus);
-            viewTopBar = itemView.findViewById(R.id.view_top_bar);
         }
     }
 }

@@ -5,10 +5,10 @@ import com.google.gson.annotations.SerializedName;
 public class AuthResponse {
     private String status;
     private String message;
-    private int statuscode;     // có thể có trong 1 số API
+    private int statuscode;
     private String token;
-    @SerializedName("data")// nếu backend có JWT token
-    private User data;          // đối tượng user chính
+    @SerializedName("data")
+    private User data;
 
     public String getStatus() { return status; }
     public String getMessage() { return message; }
@@ -16,7 +16,6 @@ public class AuthResponse {
     public String getToken() { return token; }
     public User getData() { return data; }
 
-    // lớp con User ánh xạ với "foundUser" hoặc "newUser" trong backend
     public static class User {
         @SerializedName("_id")
         private String _id;

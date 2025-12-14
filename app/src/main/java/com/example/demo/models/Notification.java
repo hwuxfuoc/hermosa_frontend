@@ -12,9 +12,8 @@ public class Notification {
     private String message;
 
     @SerializedName("createdAt")
-    private String createdAt; // Hoặc Date
+    private String createdAt;
 
-    // Getters
     public String getTitle() { return title; }
     public String getMessage() { return message; }
     public String getCreatedAt() { return createdAt; }

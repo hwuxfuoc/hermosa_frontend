@@ -21,7 +21,6 @@ public class SessionManager {
 
         editor.putString(KEY_USER_ID, userID != null ? userID : "unknown");
 
-        // ĐẢM BẢO TÊN KHÔNG BAO GIỜ NULL HOẶC RỖNG
         String safeName = "Khách";
         if (username != null && !username.trim().isEmpty()) {
             safeName = username.trim();
@@ -30,11 +29,9 @@ public class SessionManager {
 
         editor.putString(KEY_PHONE, phone != null ? phone : "");
         editor.putString(KEY_ADDRESS, address != null ? address : "");
-        editor.putBoolean("IS_LOGGED_IN", true); // thêm cái này cho chắc
+        editor.putBoolean("IS_LOGGED_IN", true);
         editor.apply();
     }
-
-    // --- Các hàm Get ---
 
     public static String getUserID(Context context) {
         return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
@@ -48,7 +45,6 @@ public class SessionManager {
         String name = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
                 .getString(KEY_USERNAME, null);
 
-        // NẾU NULL → TRẢ VỀ "Khách" ĐỂ KHÔNG BAO GIỜ BỊ TRỐNG
         return name != null && !name.trim().isEmpty() ? name.trim() : "Khách";
     }
 

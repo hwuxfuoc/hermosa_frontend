@@ -1,26 +1,44 @@
 {
   "project_info": {
-    "project_number": "946081988458",
-    "project_id": "hermosaapp-eb75d",
-    "storage_bucket": "hermosaapp-eb75d.firebasestorage.app"
+    "project_number": "663145778490",
+    "project_id": "hermosacoffee-f0a0a",
+    "storage_bucket": "hermosacoffee-f0a0a.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:946081988458:android:a634c301a0c2a8a021ef13",
+        "mobilesdk_app_id": "1:663145778490:android:d03ca572abaf8d4b761403",
         "android_client_info": {
           "package_name": "com.example.demo"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "663145778490-1hjce7k2eneb38ro7kdblu3k8789sene.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.demo",
+            "certificate_hash": "35eac077d48ef92b0e00db36be2a90d09fb05170"
+          }
+        },
+        {
+          "client_id": "663145778490-t94hp84nflhvn6ljn8dai62am1hk53cn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyBDvQfIRhnrSjU_fwx1W4KltBUGjAh6muI"
+          "current_key": "AIzaSyDbACLdSk--Hp7PAdQIjbSz73BpKuFGXGM"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "663145778490-t94hp84nflhvn6ljn8dai62am1hk53cn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

@@ -42,11 +42,9 @@ public class FragmentNotification extends Fragment {
     private NotificationAdapter adapter;
     private ApiService apiService;
 
-    // Bộ thu sóng để nhận tín hiệu có thông báo mới từ Service
     private final BroadcastReceiver updateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            // Khi nhận được tin báo có noti mới -> Gọi API tải lại danh sách ngay
             loadNotifications();
         }
     };
@@ -64,14 +62,12 @@ public class FragmentNotification extends Fragment {
         rvNotifications = view.findViewById(R.id.rvNotifications);
         tvEmpty = view.findViewById(R.id.tvEmpty);
 
-        // Setup RecyclerView
         rvNotifications.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new NotificationAdapter(new ArrayList<>());
         rvNotifications.setAdapter(adapter);
 
         apiService = ApiClient.getClient().create(ApiService.class);
 
-        // Tải dữ liệu lần đầu
         loadNotifications();
     }
 
@@ -106,7 +102,6 @@ public class FragmentNotification extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // Đăng ký nhận tin khi màn hình này hiện lên
         if (getContext() != null) {
             IntentFilter filter = new IntentFilter(MyFirebaseMessagingService.EVENT_NOTIFICATION_RECEIVED);
 
@@ -118,14 +113,12 @@ public class FragmentNotification extends Fragment {
             }
         }
 
-        // Reload lại để chắc chắn dữ liệu mới nhất (ví dụ user vừa chuyển tab)
         loadNotifications();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        // Hủy đăng ký khi rời màn hình để tránh lỗi rò rỉ bộ nhớ (Memory Leak)
         if (getContext() != null) {
             try {
                 getContext().unregisterReceiver(updateReceiver);

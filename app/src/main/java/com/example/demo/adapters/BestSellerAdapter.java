@@ -55,7 +55,7 @@ public class BestSellerAdapter extends RecyclerView.Adapter<BestSellerAdapter.Vi
                 .placeholder(R.drawable.placeholder_food)
                 .error(R.drawable.ic_launcher_foreground)
                 .into(holder.imgProduct);
-        // holder.tvSold.setText("Đã bán 18K+"); // Nếu có ID text_sold trong XML, thêm vào
+
         int colorHex=product.getColor();
         if(colorHex!=0){
             holder.bg_item_color.setBackgroundColor(colorHex);
@@ -73,7 +73,6 @@ public class BestSellerAdapter extends RecyclerView.Adapter<BestSellerAdapter.Vi
             context.startActivity(i);
         });
 
-        // Bấm btn + → mở BottomSheet
         holder.btnPlus.setOnClickListener(v -> {
             AddToCartBottomSheet sheet = AddToCartBottomSheet.newInstance(product);
             sheet.show(((AppCompatActivity) context).getSupportFragmentManager(), "AddToCart");
@@ -87,7 +86,7 @@ public class BestSellerAdapter extends RecyclerView.Adapter<BestSellerAdapter.Vi
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imgProduct;
-        TextView tvName, tvPrice; // tvSold nếu có
+        TextView tvName, tvPrice;
         Button btnPlus;
         LinearLayout bg_item_color;
 

@@ -34,8 +34,8 @@
 
             <ImageView
                 android:id="@+id/imgProduct"
-                android:layout_width="70dp"
-                android:layout_height="70dp"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
                 android:background="@android:color/transparent"
                 android:scaleType="centerCrop"
                 android:src="@drawable/cake_strawberry_cheese" />
@@ -64,7 +64,7 @@
                         android:layout_height="wrap_content"
                         android:text="Strawberry Cheese"
                         android:textColor="#000000"
-                        android:textSize="10sp"
+                        android:textSize="13sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -73,7 +73,7 @@
                         android:layout_height="wrap_content"
                         android:text="85.000 VND/pc"
                         android:textColor="#FF0000"
-                        android:textSize="9sp" />
+                        android:textSize="12sp" />
 
                 </LinearLayout>
 
@@ -84,16 +84,14 @@
                     android:gravity="end"
                     android:orientation="vertical">
 
-                    <ImageButton
+                    <ImageView
                         android:id="@+id/btnDelete"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
                         android:layout_gravity="end"
                         android:background="@android:color/transparent"
-                        android:minWidth="32dp"
-                        android:minHeight="32dp"
-                        android:padding="4dp"
-                        android:src="@drawable/trashicon" />
+                        android:padding="0dp"
+                        android:src="@drawable/ic_trash" />
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -102,11 +100,10 @@
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
 
-                        <ImageButton
+                        <ImageView
                             android:id="@+id/btnMinus"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:background="@android:color/transparent"
+                            android:layout_width="35dp"
+                            android:layout_height="35dp"
                             android:src="@drawable/button_minus" />
 
                         <TextView
@@ -119,11 +116,10 @@
                             android:textSize="16sp"
                             android:textStyle="bold" />
 
-                        <ImageButton
+                        <ImageView
                             android:id="@+id/btnPlus"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:background="@android:color/transparent"
+                            android:layout_width="35dp"
+                            android:layout_height="35dp"
                             android:src="@drawable/button_plus" />
                     </LinearLayout>
                 </LinearLayout>

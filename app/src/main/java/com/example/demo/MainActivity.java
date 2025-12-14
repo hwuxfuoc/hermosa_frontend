@@ -30,6 +30,8 @@ import com.example.demo.fragment.FragmentProfile;
 import com.example.demo.models.CommonResponse;
 import com.example.demo.service.MyFirebaseMessagingService;
 import com.example.demo.utils.SessionManager;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -46,7 +48,6 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private static final String TAG = "MainActivity_FCM";
 
-    // 1. KHAI BÁO BỘ THU SÓNG (RECEIVER) ĐỂ NHẬN THÔNG BÁO KHI APP ĐANG MỞ
     private final BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -55,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
                 String body = intent.getStringExtra("body");
                 String notiID = intent.getStringExtra("notiID");
 
-                // Hiện Popup ngay lập tức
                 showInAppNotificationDialog(title, body);
             }
         }
@@ -69,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
 
-        // Load Home mặc định
         replaceFragment(new FragmentHome(), "FragmentHome");
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
@@ -86,10 +85,7 @@ public class MainActivity extends AppCompatActivity {
             } else if (itemId == R.id.menu_order) {
                 selectedFragment = new FragmentOrderTracking();
                 tag = "FragmentOrderTracking";
-            } else if (itemId == R.id.menu_notification) {
-                selectedFragment = new FragmentNotification();
-                tag = "FragmentNotification";
-            } else if (itemId == R.id.menu_profile) {
+            }  else if (itemId == R.id.menu_profile) {
                 selectedFragment = new FragmentProfile();
                 tag = "FragmentProfile";
             }
@@ -117,21 +113,18 @@ public class MainActivity extends AppCompatActivity {
 
         handleIntent(getIntent());
 
-        // Xin quyền & Lấy Token & Xử lý Intent
         checkNotificationPermission();
         getAndSendFCMToken();
         handleNotificationIntent(getIntent());
     }
 
 
-    // 2. ĐĂNG KÝ LẮNG NGHE KHI MÀN HÌNH HIỆN LÊN (onResume)
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     @Override
     protected void onResume() {
         super.onResume();
         IntentFilter filter = new IntentFilter(MyFirebaseMessagingService.EVENT_NOTIFICATION_RECEIVED);
 
-        // Android 13 (API 33) yêu cầu cờ bảo mật khi đăng ký Receiver
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(notificationReceiver, filter, RECEIVER_NOT_EXPORTED);
         } else {
@@ -139,14 +132,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // 3. HỦY ĐĂNG KÝ KHI MÀN HÌNH TẮT (onPause) ĐỂ TRÁNH LỖI
     @Override
     protected void onPause() {
         super.onPause();
         unregisterReceiver(notificationReceiver);
     }
 
-    // 4. HÀM HIỂN THỊ POPUP (DIALOG)
     private void showInAppNotificationDialog(String title, String body) {
         new AlertDialog.Builder(this)
                 .setTitle(title)
@@ -185,7 +176,6 @@ public class MainActivity extends AppCompatActivity {
                     .addToBackStack(null)
                     .commit();
 
-            // Xóa extra để tránh mở lại khi xoay màn hình
             intent.removeExtra("OPEN_ORDER_TRACKING");
             intent.removeExtra("ORDER_ID");
         }
@@ -250,7 +240,6 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
 
-    // BỔ SUNG: Hàm reload giỏ hàng từ BottomSheet
     public void reloadCartFragment() {
         FragmentCart fragment = (FragmentCart) getSupportFragmentManager()
                 .findFragmentByTag("FragmentCart");

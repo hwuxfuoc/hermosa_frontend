@@ -29,7 +29,7 @@ public class ActivityForgotPassword extends AppCompatActivity {
     private Button btnSendReset;
     private TextView tvResendHint;
     private ImageButton btnBack;
-    private LinearLayout layoutSuccess; // Thông báo thành công
+    private LinearLayout layoutSuccess;
 
     private ApiService apiService;
 
@@ -49,7 +49,7 @@ public class ActivityForgotPassword extends AppCompatActivity {
         btnSendReset = findViewById(R.id.btnSendReset);
         tvResendHint = findViewById(R.id.tvResendHint);
         btnBack = findViewById(R.id.btnBack);
-        layoutSuccess = findViewById(R.id.layoutSuccess); // Đảm bảo có trong XML
+        layoutSuccess = findViewById(R.id.layoutSuccess);
     }
 
     private void setupClickListeners() {
@@ -66,7 +66,6 @@ public class ActivityForgotPassword extends AppCompatActivity {
             return;
         }
 
-        // Disable nút để tránh spam
         btnSendReset.setEnabled(false);
         btnSendReset.setText("Đang gửi...");
         tvResendHint.setEnabled(false);

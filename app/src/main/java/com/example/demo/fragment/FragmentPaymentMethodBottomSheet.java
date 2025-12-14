@@ -17,7 +17,7 @@ public class FragmentPaymentMethodBottomSheet extends BottomSheetDialogFragment 
     }
 
     private PaymentMethodListener listener;
-    private TextView selectedOption = null; // Lưu option đang được chọn
+    private TextView selectedOption = null;
 
     public void setPaymentMethodListener(PaymentMethodListener listener) {
         this.listener = listener;
@@ -32,18 +32,15 @@ public class FragmentPaymentMethodBottomSheet extends BottomSheetDialogFragment 
         TextView optionCash = view.findViewById(R.id.optionCash);
         TextView optionVNPay = view.findViewById(R.id.optionVNPay);
 
-        // Hàm xử lý chung khi chọn 1 option
         View.OnClickListener selectOption = v -> {
             TextView clicked = (TextView) v;
 
-            // Bỏ chọn cái cũ
             if (selectedOption != null) {
                 selectedOption.setBackgroundResource(R.drawable.payment_option_default);
                 selectedOption.setTextColor(0xFF666666);
                 selectedOption.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
             }
 
-            // Chọn cái mới
             clicked.setBackgroundResource(R.drawable.payment_option_selected);
             clicked.setTextColor(0xFFA71317);
             clicked.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_tick_red, 0);
@@ -55,7 +52,6 @@ public class FragmentPaymentMethodBottomSheet extends BottomSheetDialogFragment 
             else if (clicked.getId() == R.id.optionCash) method = "cash";
             else if (clicked.getId() == R.id.optionVNPay) method = "vnpay";
 
-            // Gọi callback để Activity biết
             if (listener != null) {
                 listener.onPaymentMethodSelected(method);
             }

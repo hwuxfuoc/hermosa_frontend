@@ -15,13 +15,10 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.core.content.ContextCompat;
 
-import com.example.demo.ActivityForgotPassword;
 import com.example.demo.ActivityLogin;
-import com.example.demo.AddAddressActivity;
 import com.example.demo.R;
 import com.example.demo.SelectAddressActivity;
 import com.example.demo.VoucherWalletActivity;
-import com.example.demo.models.AddressDetail;
 import com.example.demo.utils.SessionManager;
 import com.google.android.material.button.MaterialButton;
 
@@ -36,7 +33,6 @@ public class FragmentProfile extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        // Ánh xạ
         tvProfileName = view.findViewById(R.id.tvProfileName);
         tvUserName = view.findViewById(R.id.tvUserName);
         tvUserPoints = view.findViewById(R.id.tvUserPoints);
@@ -49,10 +45,8 @@ public class FragmentProfile extends Fragment {
         layoutDeleteAccount = view.findViewById(R.id.layout_delete_account);
         layoutForgotPassword = view.findViewById(R.id.layout_forgot_password);
 
-        // Cập nhật thông tin user
         updateUserInfo();
 
-        // === HIỆU ỨNG BẤM + RIPPLE ĐẸP NHƯ BUTTON (FIX ripple_rounded_corners) ===
         setClickable(layoutVoucher);
         setClickable(layoutAddress);
         setClickable(layoutFavorite);
@@ -61,7 +55,6 @@ public class FragmentProfile extends Fragment {
         setClickable(layoutDeleteAccount);
         setClickable(layoutForgotPassword);
 
-        // === XỬ LÝ SỰ KIỆN ===
         layoutFavorite.setOnClickListener(v -> {
             requireActivity().getSupportFragmentManager()
                     .beginTransaction()
@@ -71,12 +64,6 @@ public class FragmentProfile extends Fragment {
         });
 
         layoutLogout.setOnClickListener(v -> showLogoutDialog());
-        /*layoutLogout.setOnClickListener(v -> {
-            SessionManager.clearSession(requireContext());
-            Toast.makeText(requireContext(), "Đã đăng xuất thành công!", Toast.LENGTH_SHORT).show();
-            requireActivity().finish();
-            startActivity(new Intent(requireContext(), com.example.demo.ActivityLogin.class));
-        });*/
 
         layoutDeleteAccount.setOnClickListener(v -> {
             Toast.makeText(requireContext(), "Tính năng xóa tài khoản đang phát triển!", Toast.LENGTH_LONG).show();
@@ -111,18 +98,15 @@ public class FragmentProfile extends Fragment {
                 .setCancelable(false)
                 .create();
 
-        // Nút trong dialog
         MaterialButton btnConfirmLogout = dialogView.findViewById(R.id.btnConfirmLogout);
         MaterialButton btnCancelLogout = dialogView.findViewById(R.id.btnCancelLogout);
 
         btnConfirmLogout.setOnClickListener(v -> {
-            // Thực hiện đăng xuất
             SessionManager.clearSession(requireContext());
             Toast.makeText(requireContext(), "Đã đăng xuất thành công!", Toast.LENGTH_SHORT).show();
 
             dialog.dismiss();
 
-            // Quay về màn hình đăng nhập
             Intent intent = new Intent(requireContext(), ActivityLogin.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
@@ -139,10 +123,9 @@ public class FragmentProfile extends Fragment {
 
         tvProfileName.setText(name != null && !name.isEmpty() ? name : "User");
         tvUserName.setText(name != null && !name.isEmpty() ? name : "User");
-        tvUserPoints.setText("2345 points • Thành viên Kim Cương"); // FIX: Không có getUserPoints → dùng cứng
+        tvUserPoints.setText("2345 points • Thành viên Kim Cương");
     }
 
-    // === HIỆU ỨNG BẤM SIÊU ĐẸP – DÙNG RIPPLE CHUẨN ANDROID ===
     private void setClickable(LinearLayout layout) {
         layout.setClickable(true);
         layout.setFocusable(true);

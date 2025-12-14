@@ -3,11 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="350dp"
     android:layout_height="wrap_content"
-    app:cardBackgroundColor="@android:color/white"
+    app:cardBackgroundColor="#FFF"
     app:cardCornerRadius="3dp"
     app:cardElevation="4dp"
-    app:strokeColor="#B71C1C"
-    app:strokeWidth="1dp">
+    app:strokeColor="#FAB9CE"
+    app:strokeWidth="2dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,16 +26,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Thông Báo"
-                android:textColor="#B71C1C"
+                android:textColor="#FC809F"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="8dp"
-                android:src="@drawable/ic_email_outline"
-                app:tint="#333333" />
         </LinearLayout>
 
         <View
@@ -51,7 +45,7 @@
             android:layout_marginTop="5dp"
             android:gravity="center"
             android:text="Đơn hàng của bạn đã hủy thành công"
-            android:textColor="#000000"
+            android:textColor="#FC809F"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -66,7 +60,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Mã đơn: ORD12345"
-                android:textColor="#333333"
+                android:textColor="#FC809F"
                 android:textSize="14sp" />
 
             <TextView
@@ -75,7 +69,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="Thời gian hủy: 14:32 - 26/10/2025"
-                android:textColor="#333333"
+                android:textColor="#FC809F"
                 android:textSize="14sp" />
         </LinearLayout>
 
@@ -87,7 +81,7 @@
             android:text="Quay lại mua hàng"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:backgroundTint="#B71C1C"
+            app:backgroundTint="#FC809F"
             app:cornerRadius="8dp" />
 
     </LinearLayout>

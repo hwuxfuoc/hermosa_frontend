@@ -7,7 +7,6 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        // BẮT BUỘC PHẢI GỌI DÒNG NÀY TRƯỚC KHI DÙNG FACEBOOK SDK
         com.facebook.FacebookSdk.fullyInitialize();
         com.facebook.appevents.AppEventsLogger.activateApp(this);
     }
