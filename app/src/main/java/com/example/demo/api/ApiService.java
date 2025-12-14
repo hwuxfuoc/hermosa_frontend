@@ -15,6 +15,7 @@ import com.example.demo.models.CreateVnpayResponse;
 import com.example.demo.models.MapboxSuggestionResponse;
 import com.example.demo.models.MenuResponse;
 import com.example.demo.models.NotificationListResponse;
+import com.example.demo.models.OrderDetailResponse;
 import com.example.demo.models.OrderHistoryResponse;
 import com.example.demo.models.OrderListResponse;
 import com.example.demo.models.OrderResponse;
@@ -218,6 +219,10 @@ public interface ApiService {
     Call<ReviewResponse> getProductReviews(@Query("productID") String productID);
     @GET("order/order-history")
     Call<OrderHistoryResponse> getOrderHistory(@Query("userID") String userID);
-    
+    // Trong file ApiService.java
+    @GET("order/view")
+    Call<OrderDetailResponse> getOrderDetail2(@Query("orderID") String orderID);
+    @GET("order/view")
+    Call<OrderDetailResponse> getOrderDetail3(@Query("orderID") String orderID);
 }
 
