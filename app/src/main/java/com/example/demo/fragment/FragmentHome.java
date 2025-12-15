@@ -568,6 +568,7 @@ public class FragmentHome extends Fragment {
         });
     }
 
+
     private void loadRecommendations() {
         String userID = SessionManager.getUserID(requireContext());
         if (userID == null || userID.isEmpty()) return;
@@ -623,31 +624,34 @@ public class FragmentHome extends Fragment {
         });
     }
 
+
     // --- API: LOAD TOP SELLING ---
     private void loadTopSelling() {
         apiService.getTopSelling().enqueue(new Callback<TopSellingResponse>() {
             @Override
             public void onResponse(Call<TopSellingResponse> call, Response<TopSellingResponse> response) {
-                if (response.isSuccessful() && response.body() != null && "Success".equals(response.body().getStatus())) {
-                    List<Product> topProducts = response.body().getData();
-                    if (topProducts == null) topProducts = new ArrayList<>();
+                if (response.isSuccessful() && response.body() != null) {
+                    if ("Success".equals(response.body().getStatus())) {
+                        List<Product> topProducts = response.body().getData();
 
-                    bestSellerList.clear();
-                    for (Product p : topProducts) {
-                        // Xử lý bù ảnh tương tự
-                        if (isImageInvalid(p.getImageUrl())) {
-                            String imgFromAll = findImageInAllProducts(p.getId());
-                            if (imgFromAll != null) p.setImageUrl(imgFromAll);
-                        }
-                        bestSellerList.add(p);
+                        // Kiểm tra null để tránh crash
+                        if (topProducts == null) topProducts = new ArrayList<>();
+
+                        // Cập nhật dữ liệu
+                        bestSellerList.clear();
+                        bestSellerList.addAll(topProducts);
+
+                        // Báo cho Adapter vẽ lại
+                        bestSellerAdapter.notifyDataSetChanged();
+
+                        Log.d("BestSeller", "Đã load " + topProducts.size() + " món. Ảnh món đầu: " + (topProducts.isEmpty() ? "None" : topProducts.get(0).getImageUrl()));
                     }
-                    bestSellerAdapter.notifyDataSetChanged();
                 }
             }
 
             @Override
             public void onFailure(Call<TopSellingResponse> call, Throwable t) {
-                Log.e("BestSeller", "Lỗi: " + t.getMessage());
+                Log.e("BestSeller", "Lỗi API: " + t.getMessage());
             }
         });
     }

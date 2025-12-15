@@ -14,6 +14,7 @@ public class MenuResponse {
     public String getStatus() { return status; }
     public List<MenuItem> getData() { return data; }
 
+
     public static class MenuItem {
         @SerializedName("_id")
         private String id;
@@ -45,6 +46,10 @@ public class MenuResponse {
         // THÊM DÒNG NÀY – BẮT BUỘC!
         @SerializedName("backgroundHexacode")
         private String backgroundHexacode;
+        @SerializedName(value = "reviews", alternate = "sumofReviews")
+        private List<Review> reviews;
+
+        public List<Review> getReviews() { return reviews; }
 
         // TẤT CẢ GETTER
         public String getId() { return id; }

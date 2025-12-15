@@ -19,6 +19,11 @@ public class Review implements Serializable {
 
     @SerializedName("date") // Optional: Ngày gửi
     private String date;
+    @SerializedName("userID")
+    private String userID;
+
+    public String getUserID() { return userID; }
+    public void setUserID(String userID) { this.userID = userID; }
 
     public Review(String productID, float rating, String comment) {
         this.productID = productID;

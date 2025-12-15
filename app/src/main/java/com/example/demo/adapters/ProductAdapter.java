@@ -112,11 +112,16 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     }
 
     private String formatPrice(String price) {
+        if (price == null || price.isEmpty()) return "0 VND/pc";
         try {
+            // Xóa hết ký tự không phải số
             long p = Long.parseLong(price.replaceAll("[^0-9]", ""));
-            return String.format("₫%,d", p);
+
+            // SỬA Ở ĐÂY: Đưa %,d (số) lên trước, chữ VND/pc ra sau
+            return String.format("%,d VND/pc", p);
+
         } catch (Exception e) {
-            return "₫" + price;
+            return price + " VND/pc";
         }
     }
 

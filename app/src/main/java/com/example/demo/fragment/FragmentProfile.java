@@ -149,7 +149,6 @@ public class FragmentProfile extends Fragment {
         // Cập nhật thông tin user
         updateUserInfo();
 
-        // === HIỆU ỨNG BẤM + RIPPLE ĐẸP NHƯ BUTTON (FIX ripple_rounded_corners) ===
         setClickable(layoutVoucher);
         setClickable(layoutAddress);
         setClickable(layoutFavorite);

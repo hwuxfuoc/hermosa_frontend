@@ -304,32 +304,13 @@
                             android:textSize="12sp"
                             android:textColor="#4CAF50" />
 
-                        <TextView
-                            android:id="@+id/tvFeeLabel"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/tvDiscount"
-                            android:layout_marginTop="4dp"
-                            android:text="Phí áp dụng"
-                            android:textSize="12sp"
-                            android:textColor="#000" />
 
-                        <TextView
-                            android:id="@+id/tvFee"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/tvDiscount"
-                            android:layout_alignParentEnd="true"
-                            android:layout_marginTop="4dp"
-                            android:text="10.000 VND"
-                            android:textSize="12sp"
-                            android:textColor="#000" />
 
                         <TextView
                             android:id="@+id/tvTipLable"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_below="@+id/tvFee"
+                            android:layout_below="@id/tvDiscount"
                             android:layout_marginTop="4dp"
                             android:text="Tip cho tài xế"
                             android:textSize="12sp"
@@ -340,7 +321,7 @@
                             android:id="@+id/tvTip"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_below="@+id/tvFee"
+                            android:layout_below="@id/tvDiscount"
                             android:layout_marginTop="4dp"
                             android:layout_alignParentEnd="true"
                             android:text="0 VND"

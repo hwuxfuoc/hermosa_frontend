@@ -1,175 +1,4 @@
-/*
-package com.example.demo.fragment;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.TextView;
-import android.widget.Toast;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.demo.R;
-import com.example.demo.adapters.OrderDetailProductAdapter;
-import com.example.demo.api.ApiClient;
-import com.example.demo.api.ApiService;
-import com.example.demo.models.CommonResponse;
-import com.example.demo.models.OrderDetailResponse;
-import java.text.DecimalFormat;
-
-import java.text.NumberFormat;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-public class FragmentOrderDetail extends Fragment {
-
-    private String orderID;
-    private ApiService apiService;
-    private String currentUserID;
-
-    // Views
-    private TextView tvOrderID, tvStatus, tvDate, tvFinalTotal,tvDetailAddress,tvShippingFee;
-    private RecyclerView rcvProducts;
-    private ImageButton btnBack;
-    private Button btnReorder;
-    private OrderDetailResponse.OrderInfo currentOrderInfo;
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_order_detail, container, false);
-
-        // Nhận OrderID từ Fragment trước
-        if (getArguments() != null) {
-            orderID = getArguments().getString("ORDER_ID");
-        }
-
-        initViews(view);
-        callApiGetDetail();
-        return view;
-    }
-
-    private void initViews(View view) {
-        apiService = ApiClient.getClient().create(ApiService.class);
-        SharedPreferences prefs = getActivity().getSharedPreferences("MY_APP_PREFS", Context.MODE_PRIVATE);
-        currentUserID = prefs.getString("USER_ID", "");
-
-        tvOrderID = view.findViewById(R.id.tvDetailOrderID);
-        tvStatus = view.findViewById(R.id.tvDetailStatus);
-        tvDate = view.findViewById(R.id.tvDetailDate);
-        tvFinalTotal = view.findViewById(R.id.tvFinalTotal);
-        tvDetailAddress=view.findViewById(R.id.tvDetailAddress);
-        tvShippingFee=view.findViewById(R.id.tvShippingFee);
-
-        rcvProducts = view.findViewById(R.id.rcvDetailProducts);
-        rcvProducts.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        btnBack = view.findViewById(R.id.btnBackDetail);
-        btnReorder = view.findViewById(R.id.btnDetailReorder);
-
-
-        btnBack.setOnClickListener(v -> {
-            if (getActivity() != null) getActivity().onBackPressed();
-        });
-
-        btnReorder.setOnClickListener(v -> {
-            if(currentOrderInfo != null) reorderProcess();
-        });
-    }
-
-    private void callApiGetDetail() {
-        // Lưu ý: Đảm bảo tên hàm trong ApiService là getOrderDetail (hoặc getOrderDetail2 tùy bạn đặt)
-        apiService.getOrderDetail3(orderID).enqueue(new Callback<OrderDetailResponse>() {
-            @Override
-            public void onResponse(Call<OrderDetailResponse> call, Response<OrderDetailResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    OrderDetailResponse res = response.body();
-                    if ("Success".equalsIgnoreCase(res.getStatus())) {
-                        currentOrderInfo = res.getData();
-                        updateUI(currentOrderInfo);
-                    }
-                }
-            }
-            @Override
-            public void onFailure(Call<OrderDetailResponse> call, Throwable t) {
-                Toast.makeText(getContext(), "Lỗi tải chi tiết", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-    private void updateUI(OrderDetailResponse.OrderInfo info) {
-        tvOrderID.setText("#" + info.getOrderID());
-        tvStatus.setText(info.getStatus());
-
-        // Xử lý ngày: cắt bỏ chữ T nếu có
-        String date = info.getDate();
-        if(date != null && date.contains("T")) {
-            date = date.replace("T", " ").substring(0, 16);
-        }
-        tvDate.setText(date);
-
-        // --- SỬA ĐỔI FORMAT TIỀN TỆ ---
-        DecimalFormat formatter = new DecimalFormat("#,###");
-
-        // 1. Tổng tiền
-        tvFinalTotal.setText(formatter.format(info.getTotalPrice()) + " đ");
-
-        // 2. Địa chỉ
-        String address = info.getAddress();
-        tvDetailAddress.setText(address != null ? address : "Chưa có địa chỉ");
-
-        // 3. Phí ship
-        int fee = info.getDeliveryFee();
-        tvShippingFee.setText(formatter.format(fee) + " đ");
-        // -----------------------------
-
-        if (info.getProducts() != null) {
-            OrderDetailProductAdapter adapter = new OrderDetailProductAdapter(info.getProducts());
-            rcvProducts.setAdapter(adapter);
-        }
-    }
-
-    */
-/*private void updateUI(OrderDetailResponse.OrderInfo info) {
-
-        tvOrderID.setText("#" + info.getOrderID());
-        tvStatus.setText(info.getStatus());
-        tvDate.setText(info.getDate());
-
-        NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-        tvFinalTotal.setText(formatter.format(info.getTotalPrice()));
-        String address = info.getAddress();
-        tvDetailAddress.setText(address != null ? address : "Chưa có địa chỉ");
-        int fee = info.getDeliveryFee();
-
-        // Format tiền tệ rồi mới hiển thị
-        tvShippingFee.setText(formatter.format(fee));
-
-        if (info.getProducts() != null) {
-            OrderDetailProductAdapter adapter = new OrderDetailProductAdapter(info.getProducts());
-            rcvProducts.setAdapter(adapter);
-        }
-    }*//*
-
-
-    private void reorderProcess() {
-        // Logic gọi API add to cart giống bên History
-        Toast.makeText(getContext(), "Đang thêm vào giỏ...", Toast.LENGTH_SHORT).show();
-        // ... Code loop callApiAddToCart ...
-    }
-}*/
 package com.example.demo.fragment;
 
 import android.content.Context;
@@ -252,7 +81,7 @@ public class FragmentOrderDetail extends Fragment {
         rcvProducts.setLayoutManager(new LinearLayoutManager(getContext()));
 
         btnBack = view.findViewById(R.id.btnBackDetail);
-        btnReorder = view.findViewById(R.id.btnDetailReorder);
+        /*btnReorder = view.findViewById(R.id.btnDetailReorder);*/
 
         btnBack.setOnClickListener(v -> { if (getActivity() != null) getActivity().onBackPressed(); });
         // btnReorder.setOnClickListener(...) // Logic mua lại
@@ -314,7 +143,7 @@ public class FragmentOrderDetail extends Fragment {
         }
     }*/
     private void updateUI(OrderDetailResponse.OrderInfo info) {
-        tvOrderID.setText("#" + info.getOrderID());
+        tvOrderID.setText(info.getOrderID());
         tvStatus.setText(info.getStatus());
 
         // Xử lý ngày

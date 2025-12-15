@@ -264,15 +264,7 @@
         android:padding="12dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnDetailReorder"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:text="Mua lại đơn hàng này"
-            android:textColor="@android:color/white"
-            android:background="@drawable/bg_button_solid_red"
-            android:textAllCaps="false"
-            android:textStyle="bold"/>
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
