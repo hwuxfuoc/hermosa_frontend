@@ -1,5 +1,7 @@
 package com.example.demo.models;
 
+import java.util.List;
+
 public class RecommendationResponse {
     private String status;
     private String message;

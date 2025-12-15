@@ -40,6 +40,7 @@ import com.example.demo.models.TopSellingResponse;
 import com.example.demo.utils.SessionManager;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -191,11 +192,11 @@ public class FragmentHome extends Fragment {
             return;
         }
 
-        // Also Like
+        // Load Also Like
         apiService.getAlsoLike(userID).enqueue(new Callback<RecommendationResponse>() {
             @Override
             public void onResponse(Call<RecommendationResponse> call, Response<RecommendationResponse> response) {
-                Log.d("Recommend", "alsoLike RAW RESPONSE: " + response.body());
+                alsoLikeList.clear();
 
                 if (response.isSuccessful() && response.body() != null
                         && "Success".equals(response.body().getStatus())
@@ -203,37 +204,37 @@ public class FragmentHome extends Fragment {
                         && response.body().getData().getData() != null
                         && !response.body().getData().getData().isEmpty()) {
 
-                    alsoLikeList.clear();
-                    alsoLikeList.addAll(response.body().getData().getData());
+                    List<Product> recommended = response.body().getData().getData();
+                    alsoLikeList.addAll(recommended);
 
-                    Log.d("Recommend", "alsoLike loaded: " + alsoLikeList.size() + " items");
+                    Log.d("Recommend", "AlsoLike loaded: " + alsoLikeList.size() + " items");
                     for (Product p : alsoLikeList) {
-                        Log.d("Recommend", "alsoLike item: name=" + p.getName() +
-                                ", price=" + p.getPrice() +
-                                ", imageUrl=" + p.getImageUrl() +
-                                ", productID=" + p.getProductID());
+                        Log.d("Recommend", "AlsoLike - ID: " + p.getProductID() +
+                                ", Name: " + p.getName() +
+                                ", Price: " + p.getPrice() +
+                                ", Image: " + p.getImageUrl());
                     }
 
                     alsoLikeAdapter.notifyDataSetChanged();
                     alsoLikeContainer.setVisibility(View.VISIBLE);
                 } else {
                     alsoLikeContainer.setVisibility(View.GONE);
-                    Log.w("Recommend", "alsoLike: No data or failed status");
+                    Log.w("Recommend", "AlsoLike: No data or failed");
                 }
             }
 
             @Override
             public void onFailure(Call<RecommendationResponse> call, Throwable t) {
                 alsoLikeContainer.setVisibility(View.GONE);
-                Log.e("Recommend", "alsoLike API failed: " + t.getMessage());
+                Log.e("Recommend", "AlsoLike failed: " + t.getMessage());
             }
         });
 
-// Tương tự cho alsoView
+        // Load Also View
         apiService.getAlsoView(userID).enqueue(new Callback<RecommendationResponse>() {
             @Override
             public void onResponse(Call<RecommendationResponse> call, Response<RecommendationResponse> response) {
-                Log.d("Recommend", "alsoView RAW RESPONSE: " + response.body());
+                alsoViewList.clear();
 
                 if (response.isSuccessful() && response.body() != null
                         && "Success".equals(response.body().getStatus())
@@ -241,29 +242,29 @@ public class FragmentHome extends Fragment {
                         && response.body().getData().getData() != null
                         && !response.body().getData().getData().isEmpty()) {
 
-                    alsoViewList.clear();
-                    alsoViewList.addAll(response.body().getData().getData());
+                    List<Product> recommended = response.body().getData().getData();
+                    alsoViewList.addAll(recommended);
 
-                    Log.d("Recommend", "alsoView loaded: " + alsoViewList.size() + " items");
+                    Log.d("Recommend", "AlsoView loaded: " + alsoViewList.size() + " items");
                     for (Product p : alsoViewList) {
-                        Log.d("Recommend", "alsoView item: name=" + p.getName() +
-                                ", price=" + p.getPrice() +
-                                ", imageUrl=" + p.getImageUrl() +
-                                ", productID=" + p.getProductID());
+                        Log.d("Recommend", "AlsoView - ID: " + p.getProductID() +
+                                ", Name: " + p.getName() +
+                                ", Price: " + p.getPrice() +
+                                ", Image: " + p.getImageUrl());
                     }
 
                     alsoViewAdapter.notifyDataSetChanged();
                     alsoViewContainer.setVisibility(View.VISIBLE);
                 } else {
                     alsoViewContainer.setVisibility(View.GONE);
-                    Log.w("Recommend", "alsoView: No data or failed status");
+                    Log.w("Recommend", "AlsoView: No data or failed");
                 }
             }
 
             @Override
             public void onFailure(Call<RecommendationResponse> call, Throwable t) {
                 alsoViewContainer.setVisibility(View.GONE);
-                Log.e("Recommend", "alsoView API failed: " + t.getMessage());
+                Log.e("Recommend", "AlsoView failed: " + t.getMessage());
             }
         });
     }
