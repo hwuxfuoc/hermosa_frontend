@@ -8,6 +8,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,11 +19,16 @@ import com.example.demo.adapters.ProductReviewDisplayAdapter;
 import com.example.demo.api.ApiClient;
 import com.example.demo.api.ApiService;
 import com.example.demo.fragment.FragmentFavorite;
+import com.example.demo.models.CommonResponse;
+import com.example.demo.models.FavoriteListResponse;
+import com.example.demo.models.MenuResponse;
 import com.example.demo.models.Product;
 import com.example.demo.models.Review;
 import com.example.demo.models.ReviewResponse;
+import com.example.demo.utils.SessionManager;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -90,40 +96,82 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
 
         btnBack.setOnClickListener(v -> finish());
 
-        SharedPreferences prefs = getSharedPreferences("favorites", MODE_PRIVATE);
+        String userID = SessionManager.getUserID(this);
+        if (userID != null && !userID.isEmpty() && !"unknown".equals(userID)) {
+            apiService.getFavoriteList(userID).enqueue(new Callback<FavoriteListResponse>() {
+                @Override
+                public void onResponse(Call<FavoriteListResponse> call, Response<FavoriteListResponse> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        List<MenuResponse.MenuItem> favItems = response.body().getData();
+                        boolean isFav = favItems.stream()
+                                .anyMatch(item -> item.getId().equals(product.getProductID()));
 
-        String productId = product.getId();
-        if (productId == null || productId.isEmpty()) {
-            productId = product.getProductID();
+                        btnFav.setImageResource(isFav
+                                ? R.drawable.icon_favorite_fill
+                                : R.drawable.icon_favorite_empty);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<FavoriteListResponse> call, Throwable t) {
+                    // Không làm gì, giữ icon mặc định
+                }
+            });
+        } else {
+            btnFav.setImageResource(R.drawable.icon_favorite_empty);
         }
-        final String favoriteKey = productId;
-
-        btnFav.setImageResource(
-                prefs.getBoolean(favoriteKey, false)
-                        ? R.drawable.icon_favorite_fill
-                        : R.drawable.icon_favorite_empty
-        );
 
         btnFav.setOnClickListener(v -> {
-            SharedPreferences.Editor editor = prefs.edit();
-            boolean isFav = prefs.getBoolean(favoriteKey, false);
+            String productId = product.getProductID();
 
-            if (isFav) {
-                editor.remove(favoriteKey);
+            if (userID == null || userID.isEmpty() || "unknown".equals(userID)) {
+                Toast.makeText(this, "Vui lòng đăng nhập để sử dụng yêu thích", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            boolean isCurrentlyFav = btnFav.getDrawable().getConstantState()
+                    .equals(ContextCompat.getDrawable(this, R.drawable.icon_favorite_fill).getConstantState());
+
+            Call<CommonResponse> call;
+            if (isCurrentlyFav) {
+                // Đang là yêu thích → xóa
+                call = apiService.removeFavorite(userID, productId);
                 btnFav.setImageResource(R.drawable.icon_favorite_empty);
                 Toast.makeText(this, product.getName() + " đã bỏ yêu thích", Toast.LENGTH_SHORT).show();
             } else {
-                editor.putBoolean(favoriteKey, true);
+                // Chưa yêu thích → thêm
+                call = apiService.addFavorite(userID, productId);
                 btnFav.setImageResource(R.drawable.icon_favorite_fill);
                 Toast.makeText(this, product.getName() + " đã thêm vào yêu thích", Toast.LENGTH_SHORT).show();
             }
-            editor.apply();
 
-            // RELOAD TAB YÊU THÍCH NẾU ĐANG MỞ
-            Fragment frag = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-            if (frag instanceof FragmentFavorite) {
-                ((FragmentFavorite) frag).reloadFavorites();
-            }
+            call.enqueue(new Callback<CommonResponse>() {
+                @Override
+                public void onResponse(Call<CommonResponse> call, Response<CommonResponse> response) {
+                    if (!response.isSuccessful() || !"Success".equals(response.body().getStatus())) {
+                        // Nếu lỗi → hoàn lại trạng thái cũ
+                        btnFav.setImageResource(isCurrentlyFav
+                                ? R.drawable.icon_favorite_fill
+                                : R.drawable.icon_favorite_empty);
+                        Toast.makeText(BaseDescriptionActivity.this, "Lỗi đồng bộ yêu thích", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // Thành công → reload FragmentFavorite nếu đang mở
+                        Fragment frag = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                        if (frag instanceof FragmentFavorite) {
+                            ((FragmentFavorite) frag).reloadFavorites();
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<CommonResponse> call, Throwable t) {
+                    // Lỗi mạng → hoàn lại icon
+                    btnFav.setImageResource(isCurrentlyFav
+                            ? R.drawable.icon_favorite_fill
+                            : R.drawable.icon_favorite_empty);
+                    Toast.makeText(BaseDescriptionActivity.this, "Lỗi mạng", Toast.LENGTH_SHORT).show();
+                }
+            });
         });
 
         if (product != null && product.getProductID() != null

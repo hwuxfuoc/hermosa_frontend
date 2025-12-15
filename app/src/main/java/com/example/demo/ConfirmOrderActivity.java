@@ -113,10 +113,6 @@ public class ConfirmOrderActivity extends AppCompatActivity
         L(msg + "\n" + sw.toString());
     }
 
-
-    /*private Handler pollingHandler = new Handler(Looper.getMainLooper());
-    private Runnable pollingRunnable;*/
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -162,8 +158,6 @@ public class ConfirmOrderActivity extends AppCompatActivity
         }
         loadData();
         setupClickListeners();
-
-
 
         // Xử lý deep link ngay từ đầu (nếu mở từ MoMo)
         handleDeepLink(getIntent());
@@ -349,8 +343,6 @@ public class ConfirmOrderActivity extends AppCompatActivity
                 });
     }
 
-
-
     private void deletePendingOrder(String orderID) {
         if (orderID == null || orderID.isEmpty()) return;
 
@@ -451,7 +443,6 @@ public class ConfirmOrderActivity extends AppCompatActivity
             btnPlaceOrder.setText("Đặt hàng - " + String.format("%,d VND", total));
         }
     }
-
 
     private void initViews() {
         recyclerOrderItems = findViewById(R.id.recyclerOrderItems);
@@ -562,22 +553,92 @@ public class ConfirmOrderActivity extends AppCompatActivity
     }
 
     private void loadRecommended() {
-        apiService.getAllProducts().enqueue(new Callback<MenuResponse>() {
-            @Override
-            public void onResponse(Call<MenuResponse> call, Response<MenuResponse> r) {
-                if (r.isSuccessful() && r.body() != null) {
-                    List<Product> list = new ArrayList<>();
-                    for (MenuResponse.MenuItem item : r.body().getData()) {
-                        list.add(Product.fromMenuItem(item));
+        // Lấy danh sách productID từ giỏ hàng hiện tại
+        List<String> productIdsInCart = new ArrayList<>();
+        for (CartResponse.CartItem item : cartItemsLocal) {
+            productIdsInCart.add(item.getProductID()); // giả sử CartItem có getProductID()
+        }
+
+        if (productIdsInCart.isEmpty()) {
+            recyclerRecommended.setVisibility(View.GONE);
+            return;
+        }
+
+        // Ưu tiên gọi next-item-prediction cho từng sản phẩm trong giỏ
+        // (Có thể gọi nhiều lần song song hoặc chọn 1-2 sản phẩm chính để tránh quá tải)
+        List<Product> allSuggested = new ArrayList<>();
+
+        for (String productID : productIdsInCart) {
+            apiService.getNextItemPrediction(productID).enqueue(new Callback<RecommendationResponse>() {
+                @Override
+                public void onResponse(Call<RecommendationResponse> call, Response<RecommendationResponse> response) {
+                    if (response.isSuccessful() && response.body() != null
+                            && "Success".equals(response.body().getStatus())
+                            && response.body().getData() != null
+                            && response.body().getData().getData() != null) {
+
+                        List<Product> suggested = response.body().getData().getData();
+                        // Lọc bỏ sản phẩm đã có trong giỏ để tránh recommend trùng
+                        for (Product p : suggested) {
+                            boolean alreadyInCart = cartItemsLocal.stream()
+                                    .anyMatch(item -> item.getProductID().equals(p.getProductID()));
+                            if (!alreadyInCart && !allSuggested.contains(p)) {
+                                allSuggested.add(p);
+                            }
+                        }
+
+                        // Khi đủ (ví dụ 6-8 sản phẩm) hoặc hết loop → update UI
+                        if (allSuggested.size() >= 8 || productIdsInCart.size() == productIdsInCart.size()) {
+                            updateRecommendedAdapter(allSuggested);
+                        }
                     }
+                }
+
+                @Override
+                public void onFailure(Call<RecommendationResponse> call, Throwable t) {
+                    // Có thể fallback sang alsoLike/alsoView nếu cần
+                }
+            });
+        }
+
+        // Nếu muốn fallback khi next-item không có data
+        // → thì mới gọi alsoLike(userID) hoặc alsoView(userID) như cũ
+    }
+
+    private void updateRecommendedAdapter(List<Product> list) {
+        if (list.isEmpty()) {
+            recyclerRecommended.setVisibility(View.GONE);
+            return;
+        }
+        recommendedAdapter = new RecommendedAdapter(this, list, this);
+        recyclerRecommended.setAdapter(recommendedAdapter);
+        recyclerRecommended.setVisibility(View.VISIBLE);
+    }
+
+    private void tryAlsoView(String userID) {
+        apiService.getAlsoView(userID).enqueue(new Callback<RecommendationResponse>() {
+            @Override
+            public void onResponse(Call<RecommendationResponse> call, Response<RecommendationResponse> response) {
+                if (response.isSuccessful() && response.body() != null
+                        && response.body().getData() != null
+                        && response.body().getData().getData() != null
+                        && !response.body().getData().getData().isEmpty()) {
+
+                    List<Product> list = new ArrayList<>(response.body().getData().getData());
+
                     recommendedAdapter = new RecommendedAdapter(ConfirmOrderActivity.this, list, ConfirmOrderActivity.this);
                     recyclerRecommended.setAdapter(recommendedAdapter);
+                    recyclerRecommended.setVisibility(View.VISIBLE);
+                } else {
+                    // Không có gợi ý nào → ẩn phần recommend
+                    recyclerRecommended.setVisibility(View.GONE);
                 }
             }
 
             @Override
-            public void onFailure(Call<MenuResponse> call, Throwable t) {
-                L("Lỗi load sản phẩm gợi ý", t);
+            public void onFailure(Call<RecommendationResponse> call, Throwable t) {
+                Log.e("ConfirmOrder", "alsoView failed: " + t.getMessage());
+                recyclerRecommended.setVisibility(View.GONE);
             }
         });
     }
@@ -698,71 +759,8 @@ public class ConfirmOrderActivity extends AppCompatActivity
         btnMomo.setText(method.equals("vnpay") ? "VNPay" : "Momo");
     }
 
-
     private long currentShippingFee = 0;
 
-    /*private void getFeePreview() {
-        // 1. Kiểm tra: Nếu chưa có User hoặc chưa có Địa chỉ thì không tính
-        if (userID == null || currentAddressID == null) {
-            return;
-        }
-
-        // 2. Chuẩn bị dữ liệu gửi đi (Khớp với Backend)
-        Map<String, Object> body = new HashMap<>();
-        body.put("userID", userID);
-        body.put("addressID", currentAddressID);
-        body.put("tipsforDriver", currentTipAmount);
-
-        // Gửi thêm tổng tiền giỏ hàng hiện tại để BE cộng trừ nhân chia ra số cuối cùng
-        long currentCartTotal = cartItemsLocal.stream().mapToLong(CartResponse.CartItem::getSubtotal).sum();
-        body.put("currentTotalCart", currentCartTotal);
-
-        // Hiển thị trạng thái đang tính toán
-        tvShipping.setText("Đang tính...");
-
-        // 3. Gọi API
-        apiService.calculateShippingFee(body).enqueue(new Callback<CommonResponse>() {
-            @Override
-            public void onResponse(Call<CommonResponse> call, Response<CommonResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-
-
-                    // Lấy data dạng Map
-                    Object dataObj = response.body().getData();
-                    if (dataObj instanceof Map) {
-                        Map<String, Object> data = (Map<String, Object>) dataObj;
-
-                        // Gson thường chuyển số thành Double, cần ép kiểu về Long
-                        double feeDouble = (Double) data.get("deliveryFee");
-                        double totalDouble = (Double) data.get("finalTotal");
-
-                        long deliveryFee = (long) feeDouble;
-                        long finalTotal = (long) totalDouble;
-
-                        // 4. Cập nhật Giao diện (FE)
-                        currentShippingFee = deliveryFee; // Lưu lại để dùng sau
-
-                        tvShipping.setText(String.format("%,d VND", deliveryFee));
-                        tvTotalPayment.setText(String.format("%,d VND", finalTotal));
-
-                        // Cập nhật text trên nút Đặt hàng
-                        if (btnPlaceOrder != null) {
-                            btnPlaceOrder.setText("Đặt hàng - " + String.format("%,d VND", finalTotal));
-                        }
-                    }
-                } else {
-                    tvShipping.setText("Lỗi tính phí");
-                    Log.e(TAG, "Lỗi API: " + response.message());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<CommonResponse> call, Throwable t) {
-                tvShipping.setText("Lỗi mạng");
-                Log.e(TAG, "Lỗi kết nối: " + t.getMessage());
-            }
-        });
-    }*/
     private void getFeePreview() {
         // 1. Kiểm tra đầu vào
         if (userID == null || currentAddressID == null) {

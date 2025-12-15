@@ -20,8 +20,10 @@ import com.example.demo.R;
 import com.example.demo.adapters.ProductAdapter;
 import com.example.demo.api.ApiClient;
 import com.example.demo.api.ApiService;
+import com.example.demo.models.FavoriteListResponse;
 import com.example.demo.models.MenuResponse;
 import com.example.demo.models.Product;
+import com.example.demo.utils.SessionManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +34,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class FragmentFavorite extends Fragment {
+    private ApiService apiService;
 
     private RecyclerView recyclerProducts;
     private LinearLayout layoutEmpty;
@@ -54,6 +57,8 @@ public class FragmentFavorite extends Fragment {
         adapter = new ProductAdapter(requireContext(), favoriteList);
         recyclerProducts.setAdapter(adapter);
 
+        apiService = ApiClient.getClient().create(ApiService.class);
+
         btnBack.setOnClickListener(v -> requireActivity().onBackPressed());
 
         loadFavoritesFromApi();
@@ -66,72 +71,38 @@ public class FragmentFavorite extends Fragment {
     }
 
     private void loadFavoritesFromApi() {
-        favoriteList.clear();
+        String userID = SessionManager.getUserID(requireContext());
 
-        Map<String, ?> allEntries = prefs.getAll();
-        List<String> favoriteIds = new ArrayList<>();
-
-        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
-            if (entry.getValue() instanceof Boolean && (Boolean) entry.getValue()) {
-                favoriteIds.add(entry.getKey());
-            }
-        }
-
-        Log.d("FAV", "Yêu thích IDs: " + favoriteIds);
-
-        if (favoriteIds.isEmpty()) {
+        if (userID == null || userID.isEmpty() || "unknown".equals(userID)) {
             showEmptyState();
+            Toast.makeText(requireContext(), "Vui lòng đăng nhập để xem yêu thích", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        ApiClient.getClient().create(ApiService.class)
-                .getAllProducts()
-                .enqueue(new Callback<MenuResponse>() {
-                    @Override
-                    public void onResponse(Call<MenuResponse> call, Response<MenuResponse> response) {
-                        if (!isAdded()) return;
+        apiService.getFavoriteList(userID).enqueue(new Callback<FavoriteListResponse>() {
+            @Override
+            public void onResponse(Call<FavoriteListResponse> call, Response<FavoriteListResponse> response) {
+                if (response.isSuccessful() && response.body() != null
+                        && "Success".equals(response.body().getStatus())) {
 
-                        if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
-                            List<MenuResponse.MenuItem> allItems = response.body().getData();
-                            List<Product> newList = new ArrayList<>();
-
-                            for (MenuResponse.MenuItem item : allItems) {
-                                if (favoriteIds.contains(item.getId())) {
-                                    Product product = Product.fromMenuItem(item);
-                                    newList.add(product);
-                                }
-                            }
-
-                            SharedPreferences.Editor editor = prefs.edit();
-                            for (String id : favoriteIds) {
-                                boolean exists = newList.stream().anyMatch(p -> p.getId().equals(id));
-                                if (!exists) {
-                                    editor.remove(id);
-                                    Log.w("FAV", "Đã xóa món không tồn tại: " + id);
-                                }
-                            }
-                            editor.apply();
-
-                            favoriteList.clear();
-                            favoriteList.addAll(newList);
-                            adapter.updateList(favoriteList);
-                            updateUI();
-
-                            Log.d("FAV", "Load thành công: " + favoriteList.size() + " món");
-                        } else {
-                            Toast.makeText(requireContext(), "Lỗi server", Toast.LENGTH_SHORT).show();
-                            showEmptyState();
-                        }
+                    List<MenuResponse.MenuItem> items = response.body().getData();
+                    favoriteList.clear();
+                    for (MenuResponse.MenuItem item : items) {
+                        favoriteList.add(Product.fromMenuItem(item));
                     }
+                    adapter.updateList(favoriteList);
+                    updateUI();
+                } else {
+                    showEmptyState();
+                }
+            }
 
-                    @Override
-                    public void onFailure(Call<MenuResponse> call, Throwable t) {
-                        if (isAdded()) {
-                            Toast.makeText(requireContext(), "Lỗi mạng", Toast.LENGTH_SHORT).show();
-                        }
-                        showEmptyState();
-                    }
-                });
+            @Override
+            public void onFailure(Call<FavoriteListResponse> call, Throwable t) {
+                showEmptyState();
+                Toast.makeText(requireContext(), "Lỗi mạng", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void updateUI() {

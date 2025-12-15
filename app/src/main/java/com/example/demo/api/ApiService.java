@@ -12,11 +12,13 @@ import com.example.demo.models.CreateMomoRequest;
 import com.example.demo.models.CreateMomoResponse;
 import com.example.demo.models.CreateVnpayRequest;
 import com.example.demo.models.CreateVnpayResponse;
+import com.example.demo.models.FavoriteListResponse;
 import com.example.demo.models.MapboxSuggestionResponse;
 import com.example.demo.models.MenuResponse;
 import com.example.demo.models.NotificationListResponse;
 import com.example.demo.models.OrderListResponse;
 import com.example.demo.models.OrderResponse;
+import com.example.demo.models.RecommendationResponse;
 import com.example.demo.models.ReviewResponse;
 import com.example.demo.models.TopSellingResponse;
 import com.example.demo.models.VoucherResponse;
@@ -209,5 +211,30 @@ public interface ApiService {
     Call<OrderDetailResponse> getOrderDetail3(@Query("orderID") String orderID);
     @GET("rec/top-selling")
     Call<TopSellingResponse> getTopSelling();
+    @GET("recommend/alsoLike")
+    Call<RecommendationResponse> getAlsoLike(@Query("userID") String userID);
+
+    @GET("recommend/alsoView")
+    Call<RecommendationResponse> getAlsoView(@Query("userID") String userID);
+
+    @GET("recommend/next-item-prediction")
+    Call<RecommendationResponse> getNextItemPrediction(@Query("productID") String productID);
+
+
+    // Thêm vào Fav
+    @POST("menu/favorite-add")
+    Call<CommonResponse> addFavorite(
+            @Query("userID") String userID,
+            @Query("productID") String productID
+    );
+
+    @HTTP(method = "DELETE", path = "menu/favorite-delete", hasBody = false)
+    Call<CommonResponse> removeFavorite(
+            @Query("userID") String userID,
+            @Query("productID") String productID
+    );
+
+    @GET("menu/favorite-list")
+    Call<FavoriteListResponse> getFavoriteList(@Query("userID") String userID);
 
 }
