@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,7 +40,8 @@ public class FragmentCart extends Fragment implements CartAdapter.OnCartUpdateLi
 
     private RecyclerView recyclerView;
     private CartAdapter adapter;
-    private TextView tvTotal, tvEdit;
+    private TextView tvTotal;
+    private ImageView tvEdit;
     private CheckBox cbSelectAll;
     private Button btnCheckout;
     private View emptyCartView;
@@ -71,7 +73,7 @@ public class FragmentCart extends Fragment implements CartAdapter.OnCartUpdateLi
         tvEdit.setOnClickListener(v -> {
             if (adapter != null) {
                 boolean isEdit = !adapter.isEditMode();
-                tvEdit.setText(isEdit ? "Hoàn thành" : "Sửa");
+                /*tvEdit.setText(isEdit ? "Hoàn thành" : "Sửa");*/
                 adapter.setEditMode(isEdit);
             }
         });

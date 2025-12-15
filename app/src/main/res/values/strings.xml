@@ -1,8 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Demo</string>
-    <string name="mapbox_access_token">sk.eyJ1IjoicGh1dGh1YW4zMjMiLCJhIjoiY21pYTJqczI5MHBwZjJqczlwZmFpY3FqbyJ9.vCMhxuIIrLLiUy_3QoQMxQ</string>
+
+    <!-- Facebook SDK – đủ và đúng thứ tự -->
     <string name="facebook_app_id">1218203776996728</string>
     <string name="fb_login_protocol_scheme">fb1218203776996728</string>
     <string name="facebook_client_token">dd6ee0f91053b9e0b4469ca834d8e73a</string>
     <string name="facebook_application_name">Demo</string>
+
+    <string name="google_web_client_id">663145778490-1hjce7k2eneb38ro7kdblu3k8789sene.apps.googleusercontent.com</string>
+
+    <!-- Các string khác -->
+    <string name="mapbox_access_token">sk.eyJ1IjoicGh1dGh1YW4zMjMiLCJhIjoiY21pYTJqczI5MHBwZjJqczlwZmFpY3FqbyJ9.vCMhxuIIrLLiUy_3QoQMxQ</string>
 </resources>

@@ -247,7 +247,7 @@
                         android:textSize="12sp"
                         android:textColor="#888"
                         android:drawablePadding="4dp"
-                        app:drawableStartCompat="@drawable/ic_cart"/>
+                        app:drawableStartCompat="@drawable/icon_cart"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 

@@ -16,64 +16,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/line1"
         app:layout_constraintTop_toTopOf="parent" />
+
     <View
         android:id="@+id/line1"
         android:layout_width="0dp"
-        android:layout_height="3dp"
-        android:background="#4CAF50"
-        app:layout_constraintBottom_toBottomOf="@id/ivStep1"
-        app:layout_constraintEnd_toStartOf="@id/ivStep2"
-        app:layout_constraintHorizontal_weight="1"
-        app:layout_constraintStart_toEndOf="@id/ivStep1"
-        app:layout_constraintTop_toTopOf="@id/ivStep1" />
-
-    <ImageView
-        android:id="@+id/ivStep2"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
-        android:src="@drawable/ic_cooking_gray"
-        app:tint="#4CAF50"
-        app:layout_constraintEnd_toStartOf="@id/line2"
-        app:layout_constraintStart_toEndOf="@id/line1"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <View
-        android:id="@+id/line2"
-        android:layout_width="0dp"
-        android:layout_height="3dp"
-        android:background="#4CAF50"
-        app:layout_constraintBottom_toBottomOf="@id/ivStep1"
-        app:layout_constraintEnd_toStartOf="@id/ivStep3"
-        app:layout_constraintHorizontal_weight="1"
-        app:layout_constraintStart_toEndOf="@id/ivStep2"
-        app:layout_constraintTop_toTopOf="@id/ivStep1" />
-
-    <ImageView
-        android:id="@+id/ivStep3"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
-        android:src="@drawable/ic_bike_gray"
-        app:tint="#4CAF50"
-        app:layout_constraintEnd_toStartOf="@id/line3"
-        app:layout_constraintStart_toEndOf="@id/line2"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/groupStepShipping"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="visible"
-        app:constraint_referenced_ids="line2,ivStep3" />
-
-    <View
-        android:id="@+id/line3"
-        android:layout_width="0dp"
-        android:layout_height="3dp"
-        android:background="#4CAF50"
+        android:layout_height="10dp"
+        android:background="@drawable/progress_track_gray"
         app:layout_constraintBottom_toBottomOf="@id/ivStep1"
         app:layout_constraintEnd_toStartOf="@id/ivStep4"
         app:layout_constraintHorizontal_weight="1"
-        app:layout_constraintStart_toEndOf="@id/ivStep3"
+        app:layout_constraintStart_toEndOf="@id/ivStep1"
         app:layout_constraintTop_toTopOf="@id/ivStep1" />
 
     <ImageView
@@ -83,7 +35,7 @@
         android:src="@drawable/ic_location_outline"
         app:tint="#4CAF50"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/line3"
+        app:layout_constraintStart_toEndOf="@id/line1"
         app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

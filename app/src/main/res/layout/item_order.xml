@@ -9,7 +9,7 @@
     android:layout_marginBottom="12dp"
     android:layout_marginTop="4dp"
     app:cardCornerRadius="12dp"
-    app:cardElevation="3dp"
+    app:cardElevation="5dp"
     app:cardBackgroundColor="@android:color/white">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -117,18 +117,29 @@
             app:layout_constraintTop_toBottomOf="@+id/cardImg"
             app:layout_goneMarginTop="12dp"/>
 
+        <ImageView
+            android:id="@+id/imgPayment"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/ic_cart"
+            android:layout_marginTop="12dp"
+            android:layout_marginStart="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/divider2"/>
+
         <TextView
             android:id="@+id/tvPaymentMethodLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            tools:text="MoMo"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:text="MoMo"
             android:textColor="#666666"
             android:textSize="12sp"
-            android:drawablePadding="4dp"
-            app:drawableStartCompat="@drawable/ic_cart"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/divider2" />
+            app:layout_constraintTop_toBottomOf="@+id/divider2"
+            app:layout_constraintStart_toEndOf="@id/imgPayment" />
+
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

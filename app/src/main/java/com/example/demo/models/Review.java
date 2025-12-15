@@ -25,6 +25,8 @@ public class Review implements Serializable {
         this.rating = rating;
         this.comment = comment;
     }
+    public Review() {
+    }
 
     // Getters & Setters
     public String getProductID() { return productID; }

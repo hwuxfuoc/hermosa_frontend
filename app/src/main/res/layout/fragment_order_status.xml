@@ -20,7 +20,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_arrow_back"
-            app:tint="#000000"
+            app:tint="#FC809F"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="serif"
             android:text="Đơn hàng của bạn"
-            android:textColor="#000000"
+            android:textColor="#FC809F"
             android:textSize="20sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -57,8 +57,10 @@
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@android:color/white"
                 app:cardCornerRadius="16dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
                 app:cardElevation="0dp"
-                app:strokeColor="#E0E0E0"
+                app:strokeColor="#FC809F"
                 app:strokeWidth="1dp">
 
                 <LinearLayout
@@ -78,7 +80,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Đang xử lý"
-                            android:textColor="#B71C1C"
+                            android:textColor="#FC809F"
                             android:textSize="20sp"
                             android:textStyle="bold" />
 
@@ -149,61 +151,14 @@
                         <View
                             android:id="@+id/line1"
                             android:layout_width="0dp"
-                            android:layout_height="2dp"
-                            android:background="#E0E0E0"
+                            android:layout_height="10dp"
+                            android:background="@drawable/progress_track_gray"
                             app:layout_constraintBottom_toBottomOf="@id/ivStep1"
-                            app:layout_constraintEnd_toStartOf="@id/ivStep2"
+                            app:layout_constraintEnd_toStartOf="@id/ivStep4"
                             app:layout_constraintHorizontal_weight="1"
                             app:layout_constraintStart_toEndOf="@id/ivStep1"
                             app:layout_constraintTop_toTopOf="@id/ivStep1" />
 
-                        <ImageView
-                            android:id="@+id/ivStep2"
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
-                            android:scaleType="fitCenter"
-                            android:src="@drawable/ic_cooking_gray"
-                            app:layout_constraintEnd_toStartOf="@id/line2"
-                            app:layout_constraintStart_toEndOf="@id/line1"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                        <View
-                            android:id="@+id/line2"
-                            android:layout_width="0dp"
-                            android:layout_height="2dp"
-                            android:background="#E0E0E0"
-                            app:layout_constraintBottom_toBottomOf="@id/ivStep1"
-                            app:layout_constraintEnd_toStartOf="@id/ivStep3"
-                            app:layout_constraintHorizontal_weight="1"
-                            app:layout_constraintStart_toEndOf="@id/ivStep2"
-                            app:layout_constraintTop_toTopOf="@id/ivStep1" />
-
-                        <ImageView
-                            android:id="@+id/ivStep3"
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
-                            android:scaleType="fitCenter"
-                            android:src="@drawable/ic_bike_gray"
-                            app:layout_constraintEnd_toStartOf="@id/line3"
-                            app:layout_constraintStart_toEndOf="@id/line2"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                        <androidx.constraintlayout.widget.Group
-                            android:id="@+id/groupStepShipping"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:constraint_referenced_ids="line2,ivStep3" />
-
-                        <View
-                            android:id="@+id/line3"
-                            android:layout_width="0dp"
-                            android:layout_height="2dp"
-                            android:background="#E0E0E0"
-                            app:layout_constraintBottom_toBottomOf="@id/ivStep1"
-                            app:layout_constraintEnd_toStartOf="@id/ivStep4"
-                            app:layout_constraintHorizontal_weight="1"
-                            app:layout_constraintStart_toEndOf="@id/ivStep3"
-                            app:layout_constraintTop_toTopOf="@id/ivStep1" />
 
                         <ImageView
                             android:id="@+id/ivStep4"
@@ -212,7 +167,7 @@
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_location_outline"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@id/line3"
+                            app:layout_constraintStart_toEndOf="@id/line1"
                             app:layout_constraintTop_toTopOf="parent" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -224,10 +179,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
                 app:cardBackgroundColor="@android:color/white"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
-                app:strokeColor="#E0E0E0"
+                app:strokeColor="#FC809F"
                 app:strokeWidth="1dp">
 
                 <LinearLayout
@@ -250,7 +207,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Tổng cộng"
-                                android:textColor="#000"
+                                android:textColor="#FC809F"
                                 android:textStyle="bold"
                                 android:textSize="16sp"/>
                             <TextView
@@ -329,11 +286,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
                 android:visibility="visible"
                 app:cardBackgroundColor="@android:color/white"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
-                app:strokeColor="#E0E0E0"
+                app:strokeColor="#FC809F"
                 app:strokeWidth="1dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -433,10 +392,12 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="20dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
                 app:cardBackgroundColor="@android:color/white"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
-                app:strokeColor="#E0E0E0"
+                app:strokeColor="#FC809F"
                 app:strokeWidth="1dp">
 
                 <LinearLayout
@@ -469,10 +430,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginTop="5dp"
-                android:layout_marginEnd="8dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
                 android:text="Đánh giá ngay"
                 app:cornerRadius="8dp"
-                app:backgroundTint="#B71C1C"
+                app:backgroundTint="#FC809F"
                 android:textStyle="bold"/>
         </LinearLayout>
     </ScrollView>
@@ -486,7 +448,7 @@
         android:text="Hủy Đơn Hàng"
         android:textSize="16sp"
         android:textStyle="bold"
-        app:backgroundTint="#B71C1C"
+        app:backgroundTint="#FC809F"
         app:cornerRadius="8dp"
         app:layout_constraintBottom_toTopOf="@+id/bottomNavigation"
         app:layout_constraintEnd_toEndOf="parent"

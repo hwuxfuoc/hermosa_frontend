@@ -1,7 +1,5 @@
-/*
 package com.example.demo.description;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -9,152 +7,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
-import com.bumptech.glide.Glide;
-import com.example.demo.R;
-import com.example.demo.adapters.ProductReviewDisplayAdapter;
-import com.example.demo.api.ApiClient;
-import com.example.demo.api.ApiService;
-import com.example.demo.fragment.FragmentFavorite;
-import com.example.demo.models.Product;
-
-import java.util.ArrayList;
-
-public abstract class BaseDescriptionActivity extends AppCompatActivity {
-
-    protected Product product;
-    private ImageButton btnFav;
-    private SharedPreferences prefs;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(getLayoutResId());
-
-        apiService = ApiClient.getClient().create(ApiService.class);
-
-        // Lấy product từ Intent
-        product = (Product) getIntent().getSerializableExtra("product");
-
-        if (product == null) {
-            String productID = getIntent().getStringExtra("productID");
-            String name = getIntent().getStringExtra("name");
-            String price = getIntent().getStringExtra("price");
-            int imageResId = getIntent().getIntExtra("imageResId", 0);
-            String description = getIntent().getStringExtra("description");
-            String category = getIntent().getStringExtra("category");
-
-            product = new Product(name, price, imageResId, 0, description, category);
-            if (productID != null) {
-                product.setProductID(productID);
-            }
-        }
-
-        if (product.getProductID() == null || product.getProductID().equals("UNKNOWN")) {
-            product.setProductID("TEMP_" + System.currentTimeMillis());
-        }
-
-        // Ánh xạ các view chính
-        ImageView imgProduct = findViewById(getImageViewId());
-        TextView tvName = findViewById(getNameTextViewId());
-        TextView tvPrice = findViewById(getPriceTextViewId());
-        TextView tvDesc = findViewById(getDescriptionTextViewId());
-        ImageButton btnBack = findViewById(R.id.icon_return_arrow);
-        btnFav = findViewById(R.id.icon_favorite);
-
-        // Setup RecyclerView bình luận (chỉ ánh xạ 1 lần!)
-        rvProductReviews = findViewById(R.id.rvProductReviews);
-        if (rvProductReviews != null) {
-            rvProductReviews.setLayoutManager(new LinearLayoutManager(this));
-            rvProductReviews.setNestedScrollingEnabled(false);
-            rvProductReviews.setAdapter(new ProductReviewDisplayAdapter(new ArrayList<>())); // khởi tạo rỗng
-        }
-
-        // Gán dữ liệu sản phẩm
-        tvName.setText(product.getName());
-        tvPrice.setText(formatPrice(product.getPrice()) + " đ");
-        tvDesc.setText(product.getDescription() != null ? product.getDescription() : "Đang cập nhật...");
-
-        // Load ảnh
-        if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {
-            Glide.with(this).load(product.getImageUrl()).into(imgProduct);
-        } else if (product.getImageResId() != 0) {
-            imgProduct.setImageResource(product.getImageResId());
-        }
-
-        btnBack.setOnClickListener(v -> finish());
-
-        // === FAVORITE SIÊU ỔN ĐỊNH – KHÔNG LỖI FINAL ===
-        // === SỬA ĐOẠN FAVORITE ===
-        SharedPreferences prefs = getSharedPreferences("favorites", MODE_PRIVATE);
-
-        String productId = product.getId();
-        if (productId == null || productId.isEmpty()) {
-            productId = product.getProductID();
-        }
-        final String favoriteKey = productId; // ← CHUẨN, KHÔNG ĐỔI NỮA
-
-        btnFav.setImageResource(
-                prefs.getBoolean(favoriteKey, false)
-                        ? R.drawable.icon_favorite_fill
-                        : R.drawable.icon_favorite_empty
-        );
-
-        btnFav.setOnClickListener(v -> {
-            SharedPreferences.Editor editor = prefs.edit();
-            boolean isFav = prefs.getBoolean(favoriteKey, false);
-
-            if (isFav) {
-                editor.remove(favoriteKey);
-                btnFav.setImageResource(R.drawable.icon_favorite_empty);
-                Toast.makeText(this, product.getName() + " đã bỏ yêu thích", Toast.LENGTH_SHORT).show();
-            } else {
-                editor.putBoolean(favoriteKey, true);
-                btnFav.setImageResource(R.drawable.icon_favorite_fill);
-                Toast.makeText(this, product.getName() + " đã thêm vào yêu thích", Toast.LENGTH_SHORT).show();
-            }
-            editor.apply();
-
-            // RELOAD TAB YÊU THÍCH NẾU ĐANG MỞ
-            Fragment frag = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-            if (frag instanceof FragmentFavorite) {
-                ((FragmentFavorite) frag).reloadFavorites();
-            }
-        });
-
-        setupAddToCart();
-    }
-
-    private String formatPrice(String price) {
-        if (price == null || price.isEmpty()) return "0";
-        try {
-            long p = Long.parseLong(price.replaceAll("[^0-9]", ""));
-            return String.format("%,d", p);
-        } catch (Exception e) {
-            return price;
-        }
-    }
-
-    // Abstract methods
-    protected abstract int getLayoutResId();
-    protected abstract int getImageViewId();
-    protected abstract int getNameTextViewId();
-    protected abstract int getPriceTextViewId();
-    protected abstract int getDescriptionTextViewId();
-    protected abstract void setupAddToCart();
-}*/
-package com.example.demo.description;
-
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -165,11 +18,15 @@ import com.example.demo.adapters.ProductReviewDisplayAdapter;
 import com.example.demo.api.ApiClient;
 import com.example.demo.api.ApiService;
 import com.example.demo.fragment.FragmentFavorite;
+import com.example.demo.models.CommonResponse;
+import com.example.demo.models.FavoriteListResponse;
+import com.example.demo.models.MenuResponse;
 import com.example.demo.models.Product;
-import com.example.demo.models.Review;
 import com.example.demo.models.ReviewResponse;
+import com.example.demo.utils.SessionManager;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -190,7 +47,6 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
 
         apiService = ApiClient.getClient().create(ApiService.class);
 
-        // Lấy product từ Intent
         product = (Product) getIntent().getSerializableExtra("product");
 
         if (product == null) {
@@ -211,7 +67,6 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
             product.setProductID("TEMP_" + System.currentTimeMillis());
         }
 
-        // Ánh xạ các view chính
         ImageView imgProduct = findViewById(getImageViewId());
         TextView tvName = findViewById(getNameTextViewId());
         TextView tvPrice = findViewById(getPriceTextViewId());
@@ -219,7 +74,6 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
         ImageButton btnBack = findViewById(R.id.icon_return_arrow);
         btnFav = findViewById(R.id.icon_favorite);
 
-        // Setup RecyclerView bình luận (chỉ ánh xạ 1 lần!)
         rvProductReviews = findViewById(R.id.rvProductReviews);
         if (rvProductReviews != null) {
             rvProductReviews.setLayoutManager(new LinearLayoutManager(this));
@@ -227,7 +81,6 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
             rvProductReviews.setAdapter(new ProductReviewDisplayAdapter(new ArrayList<>())); // khởi tạo rỗng
         }
 
-        // Gán dữ liệu sản phẩm
         tvName.setText(product.getName());
         tvPrice.setText(formatPrice(product.getPrice()) + " đ");
         tvDesc.setText(product.getDescription() != null ? product.getDescription() : "Đang cập nhật...");
@@ -241,43 +94,92 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
 
         btnBack.setOnClickListener(v -> finish());
 
-        SharedPreferences prefs = getSharedPreferences("favorites", MODE_PRIVATE);
+        String userID = SessionManager.getUserID(this);
+        if (userID != null && !userID.isEmpty() && !"unknown".equals(userID)) {
+            apiService.getFavoriteList(userID).enqueue(new Callback<FavoriteListResponse>() {
+                @Override
+                public void onResponse(Call<FavoriteListResponse> call, Response<FavoriteListResponse> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        List<MenuResponse.MenuItem> favItems = response.body().getData();
+                        boolean isFav = favItems.stream()
+                                .anyMatch(item -> item.getId().equals(product.getProductID()));
 
-        String productId = product.getId();
-        if (productId == null || productId.isEmpty()) {
-            productId = product.getProductID();
+                        btnFav.setImageResource(isFav
+                                ? R.drawable.icon_favorite_fill
+                                : R.drawable.icon_favorite_empty);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<FavoriteListResponse> call, Throwable t) {
+                    // Không làm gì, giữ icon mặc định
+                }
+            });
+        } else {
+            btnFav.setImageResource(R.drawable.icon_favorite_empty);
         }
-        final String favoriteKey = productId;
-
-        btnFav.setImageResource(
-                prefs.getBoolean(favoriteKey, false)
-                        ? R.drawable.icon_favorite_fill
-                        : R.drawable.icon_favorite_empty
-        );
 
         btnFav.setOnClickListener(v -> {
-            SharedPreferences.Editor editor = prefs.edit();
-            boolean isFav = prefs.getBoolean(favoriteKey, false);
+            String productId = product.getProductID();
 
-            if (isFav) {
-                editor.remove(favoriteKey);
+            if (userID == null || userID.isEmpty() || "unknown".equals(userID)) {
+                Toast.makeText(this, "Vui lòng đăng nhập để sử dụng yêu thích", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            boolean isCurrentlyFav = btnFav.getDrawable().getConstantState()
+                    .equals(ContextCompat.getDrawable(this, R.drawable.icon_favorite_fill).getConstantState());
+
+            Call<CommonResponse> call;
+            if (isCurrentlyFav) {
+                // Đang là yêu thích → xóa
+                call = apiService.removeFavorite(userID, productId);
                 btnFav.setImageResource(R.drawable.icon_favorite_empty);
                 Toast.makeText(this, product.getName() + " đã bỏ yêu thích", Toast.LENGTH_SHORT).show();
             } else {
-                editor.putBoolean(favoriteKey, true);
+                // Chưa yêu thích → thêm
+                call = apiService.addFavorite(userID, productId);
                 btnFav.setImageResource(R.drawable.icon_favorite_fill);
                 Toast.makeText(this, product.getName() + " đã thêm vào yêu thích", Toast.LENGTH_SHORT).show();
             }
-            editor.apply();
 
-            Fragment frag = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-            if (frag instanceof FragmentFavorite) {
-                ((FragmentFavorite) frag).reloadFavorites();
-            }
+            call.enqueue(new Callback<CommonResponse>() {
+                @Override
+                public void onResponse(Call<CommonResponse> call, Response<CommonResponse> response) {
+                    if (!response.isSuccessful() || !"Success".equals(response.body().getStatus())) {
+                        // Nếu lỗi → hoàn lại trạng thái cũ
+                        btnFav.setImageResource(isCurrentlyFav
+                                ? R.drawable.icon_favorite_fill
+                                : R.drawable.icon_favorite_empty);
+                        Toast.makeText(BaseDescriptionActivity.this, "Lỗi đồng bộ yêu thích", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // Thành công → reload FragmentFavorite nếu đang mở
+                        Fragment frag = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                        if (frag instanceof FragmentFavorite) {
+                            ((FragmentFavorite) frag).reloadFavorites();
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<CommonResponse> call, Throwable t) {
+                    // Lỗi mạng → hoàn lại icon
+                    btnFav.setImageResource(isCurrentlyFav
+                            ? R.drawable.icon_favorite_fill
+                            : R.drawable.icon_favorite_empty);
+                    Toast.makeText(BaseDescriptionActivity.this, "Lỗi mạng", Toast.LENGTH_SHORT).show();
+                }
+            });
         });
+
+        if (product != null && product.getProductID() != null
+                && !product.getProductID().equals("UNKNOWN")) {
+            loadProductReviews(product.getProductID());
+        }
 
         setupAddToCart();
     }
+
     private void loadProductReviews(String productID) {
         if (rvProductReviews == null || apiService == null) return;
 
@@ -293,6 +195,7 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ReviewResponse> call, Throwable t) {
+                // Backend chưa có hoặc lỗi mạng → vẫn để trống, không crash
                 rvProductReviews.setAdapter(new ProductReviewDisplayAdapter(new ArrayList<>()));
             }
         });
@@ -308,7 +211,6 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
         }
     }
 
-    // Abstract methods
     protected abstract int getLayoutResId();
     protected abstract int getImageViewId();
     protected abstract int getNameTextViewId();

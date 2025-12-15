@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -86,22 +85,17 @@ public class AddToCartBottomSheet extends BottomSheetDialogFragment {
 
         View view = inflater.inflate(layoutId, container, false);
 
-        // === ÁNH XẠ UI ===
         TextView tvTitle = view.findViewById(R.id.text_title_edit);
         ImageView imgProduct = view.findViewById(R.id.image_product_cart);
         TextView tvName = view.findViewById(R.id.text_name_cart);
         TextView tvPrice = view.findViewById(R.id.text_price_cart);
         TextView tvQuantity = view.findViewById(R.id.text_quantity);
-        ImageButton btnMinus = view.findViewById(R.id.button_minus);
-        ImageButton btnPlus = view.findViewById(R.id.button_plus);
+        ImageView btnMinus = view.findViewById(R.id.button_minus);
+        ImageView btnPlus = view.findViewById(R.id.button_plus);
         RecyclerView rvOptions = view.findViewById(R.id.recycler_checkboxes);
         Button btnAddToCart = view.findViewById(R.id.button_add_to_cart);
 
-        // === HIỂN THỊ SẢN PHẨM ===
         tvTitle.setText("Thêm " + product.getName());
-        /*if (product.getImageResId() != 0) {
-            imgProduct.setImageResource(product.getImageResId());
-        }*/
         Glide.with(this)
                 .load(product.getImageUrl())
                 .placeholder(R.drawable.placeholder_food)
@@ -114,7 +108,7 @@ public class AddToCartBottomSheet extends BottomSheetDialogFragment {
         }
         tvName.setText(product.getName());
 
-        int priceValue = (int) product.getPriceLong();
+        int priceValue = (int) product.getPriceLong(); // ÉP KIỂU long → int
         tvPrice.setText(String.format("%,d đ", priceValue));
 
         tvQuantity.setText(String.valueOf(quantity));

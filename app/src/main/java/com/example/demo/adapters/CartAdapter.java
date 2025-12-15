@@ -259,7 +259,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
         CheckBox cbSelect;
         ImageView imgProduct;
         TextView tvName, tvPrice, tvQuantity;
-        ImageButton btnMinus, btnPlus, btnDelete;
+        ImageView btnMinus, btnPlus, btnDelete;
         CardView itemBackground;
 
         VH(@NonNull View v) {

@@ -4,7 +4,8 @@
     android:layout_width="320dp"
     android:layout_height="75dp"
     app:cardCornerRadius="20dp"
-    android:layout_marginEnd="0dp">
+    android:layout_marginStart="3dp"
+    android:layout_marginEnd="3dp">
 
     <LinearLayout
         android:id="@+id/bg_item_color"
@@ -125,7 +126,7 @@
                     android:textColor="#FFFFFF"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:backgroundTint="#A71317"
+                    android:backgroundTint="#FC809F"
                     android:minWidth="0dp"
                     android:minHeight="0dp"
                     android:layout_gravity="center"

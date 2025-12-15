@@ -126,7 +126,7 @@
             android:textColor="#666666"
             android:textSize="12sp"
             android:drawablePadding="4dp"
-            app:drawableStartCompat="@drawable/ic_cart"
+            app:drawableStartCompat="@drawable/icon_cart"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/divider2" />
         <TextView

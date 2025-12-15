@@ -12,7 +12,7 @@
         android:text="Thông báo của bạn"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="#B71C1C"
+        android:textColor="#FC809F"
         android:gravity="center"
         android:background="#FFFFFF"
         android:elevation="4dp"/>

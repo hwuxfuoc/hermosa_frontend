@@ -12,6 +12,7 @@ import com.example.demo.models.CreateMomoRequest;
 import com.example.demo.models.CreateMomoResponse;
 import com.example.demo.models.CreateVnpayRequest;
 import com.example.demo.models.CreateVnpayResponse;
+import com.example.demo.models.FavoriteListResponse;
 import com.example.demo.models.MapboxSuggestionResponse;
 import com.example.demo.models.MenuResponse;
 import com.example.demo.models.NotificationListResponse;
@@ -97,11 +98,11 @@ public interface ApiService {
     Call<CommonResponse> getOrdersByDate(@Query("startDate") String startDate, @Query("endDate") String endDate);
 
 
-    @POST("order/review-order-and-products")
+    /*@POST("order/review-order-and-products")
     Call<CommonResponse> reviewOrderAndProducts(
             @Query("orderID") String orderID,
             @Body Map<String, Object> body
-    );
+    );*/
 
     @PUT("order/change-order-review")
     Call<CommonResponse> changeOrderReview(
@@ -224,5 +225,30 @@ public interface ApiService {
     Call<OrderDetailResponse> getOrderDetail2(@Query("orderID") String orderID);
     @GET("order/view")
     Call<OrderDetailResponse> getOrderDetail3(@Query("orderID") String orderID);
+    @POST("menu/favorite-add")
+    Call<CommonResponse> addToFavorite(
+            @Query("userID") String userID,
+            @Query("productID") String productID
+    );
+    @POST("review/review-order-and-products") // Kiểm tra lại đường dẫn router bên Nodejs xem có prefix 'order' không
+    Call<CommonResponse> reviewOrderAndProducts(
+            @Query("orderID") String orderID,
+            @Body Map<String, Object> body
+    );
+    @POST("menu/favorite-add")
+    Call<CommonResponse> addFavorite(
+            @Query("userID") String userID,
+            @Query("productID") String productID
+    );
+
+    @HTTP(method = "DELETE", path = "menu/favorite-delete", hasBody = false)
+    Call<CommonResponse> removeFavorite(
+            @Query("userID") String userID,
+            @Query("productID") String productID
+    );
+
+    @GET("menu/favorite-list")
+    Call<FavoriteListResponse> getFavoriteList(@Query("userID") String userID);
+
 }
 

@@ -59,6 +59,7 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation("com.google.android.gms:play-services-auth:20.7.0")
     implementation("com.facebook.android:facebook-login:16.0.1")
+    implementation("me.relex:circleindicator:2.1.6")
 
     // 3. Import Firebase Messaging (Không cần version)
     implementation(libs.firebase.messaging)

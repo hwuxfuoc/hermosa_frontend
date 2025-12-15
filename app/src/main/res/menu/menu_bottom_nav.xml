@@ -6,18 +6,18 @@
         android:title="Home" />
     <item
         android:id="@+id/nav_cart"
-        android:icon="@drawable/ic_cart"
+        android:icon="@drawable/icon_cart"
         android:title="Giỏ hàng" />
     <item
         android:id="@+id/nav_order"
-        android:icon="@drawable/ic_order"
+        android:icon="@drawable/icon_order"
         android:title="Đơn hàng" />
     <item
         android:id="@+id/nav_noti"
-        android:icon="@drawable/ic_noti"
+        android:icon="@drawable/icon_notification"
         android:title="Thông báo" />
     <item
         android:id="@+id/nav_profile"
-        android:icon="@drawable/ic_user"
+        android:icon="@drawable/icon_profile"
         android:title="Profile" />
 </menu>

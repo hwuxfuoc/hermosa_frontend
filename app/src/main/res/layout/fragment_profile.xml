@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
+    android:background="#FFE9EF"
     tools:context=".fragment.FragmentProfile">
 
     <LinearLayout
@@ -15,18 +15,16 @@
         <!-- ===== HEADER ===== -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:background="#A71317"
+            android:layout_height="90dp"
+            android:background="#FC809F"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:padding="20dp">
 
             <ImageView
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:src="@drawable/icon_profile"
-                android:contentDescription="User Icon"
-                app:tint="#FFFFFF" />
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:src="@drawable/icon_user_profile"/>
 
             <TextView
                 android:id="@+id/tvProfileName"
@@ -48,8 +46,8 @@
             android:elevation="2dp"
             android:gravity="center_vertical"
             android:layout_marginTop="10dp"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
             android:padding="20dp">
 
             <TextView
@@ -59,7 +57,7 @@
                 android:text="Phu Thuan"
                 android:textStyle="bold"
                 android:textSize="18sp"
-                android:textColor="#000000" />
+                android:textColor="#FFF" />
 
             <TextView
                 android:id="@+id/tvUserPoints"
@@ -67,7 +65,7 @@
                 android:layout_height="wrap_content"
                 android:text="2345 points • Thành viên Kim Cương"
                 android:textSize="14sp"
-                android:textColor="#333333"
+                android:textColor="#FFF"
                 android:layout_marginTop="2dp" />
 
             <LinearLayout
@@ -113,7 +111,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="12dp"
-            android:background="#F8F8F8">
+            android:background="#FFE9EF">
 
             <!-- Ví voucher -->
             <LinearLayout
@@ -231,7 +229,7 @@
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:text="Personal Setting"
-                android:textColor="#A71317"
+                android:textColor="#FC809F"
                 android:textStyle="bold"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="6dp"
