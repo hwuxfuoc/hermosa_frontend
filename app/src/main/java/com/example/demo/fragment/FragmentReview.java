@@ -49,6 +49,7 @@ public class FragmentReview extends Fragment {
     private MaterialButton btnSkip;
     private RecyclerView rvProductReviews;
     private ReviewItemAdapter adapter;
+    private View line1;
 
 
     @Nullable
@@ -65,13 +66,14 @@ public class FragmentReview extends Fragment {
 
         if (getArguments() != null) {
             orderID = getArguments().getString("ORDER_ID");
-            productsToReview = (List<Product>) getArguments().getSerializable("PRODUCTS"); // List sản phẩm từ order
+            productsToReview = (List<Product>) getArguments().getSerializable("PRODUCTS");
         }
 
         initViews(view);
         setupRecyclerView();
         setupEvents();
         loadImagesFromApi();
+        line1.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#4CAF50")));
     }
     private void loadImagesFromApi() {
         // Kiểm tra danh sách rỗng thì thôi
@@ -116,7 +118,6 @@ public class FragmentReview extends Fragment {
 
                     @Override
                     public void onFailure(Call<MenuResponse.SingleProductResponse> call, Throwable t) {
-                        // Lỗi mạng thì kệ nó, giữ nguyên ảnh lỗi mặc định
                     }
                 });
             }
@@ -129,6 +130,7 @@ public class FragmentReview extends Fragment {
         btnSubmitReview = view.findViewById(R.id.btnSubmitReview);
         btnSkip = view.findViewById(R.id.btnSkip);
         rvProductReviews = view.findViewById(R.id.rvProductReviews);
+        line1 = view.findViewById(R.id.line1);
     }
 
     private void setupRecyclerView() {
@@ -239,15 +241,12 @@ public class FragmentReview extends Fragment {
             finalOrderReviewString = generalRating + " sao - " + generalFeedback;
         }
 
-        // Put String vào (thay vì put Map như cũ)
         body.put("orderReview", finalOrderReviewString);
-        // --------------------------------------------------
 
         if (!productReviews.isEmpty()) {
             body.put("productsReview", productReviews);
         }
 
-        // Log kiểm tra trước khi gửi
         Log.d("REVIEW_SUBMIT", "Body: " + new com.google.gson.Gson().toJson(body));
 
         // 4. Gọi API
@@ -255,12 +254,9 @@ public class FragmentReview extends Fragment {
             @Override
             public void onResponse(Call<CommonResponse> call, Response<CommonResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    // Thành công -> Hiện thông báo
                     showVoucherSuccessDialog();
                 } else {
-                    // Có thể backend trả về lỗi nhưng vẫn là format JSON hợp lệ
                     Toast.makeText(getContext(), "Gửi đánh giá: " + response.message(), Toast.LENGTH_SHORT).show();
-                    // Tùy logic, có thể vẫn cho hiện dialog thành công để user vui
                     showVoucherSuccessDialog();
                 }
             }

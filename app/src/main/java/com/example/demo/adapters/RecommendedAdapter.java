@@ -103,16 +103,13 @@ public class RecommendedAdapter extends RecyclerView.Adapter<RecommendedAdapter.
                                     loadFallbackImage(holder.img, p);
                                 }
 
-                                // LẤY MÀU NỀN TỪ BACKEND và set cho LinearLayout cha (background_cart_item)
                                 String hex = detail.getBackgroundHexacode();
                                 LinearLayout parentLayout = (LinearLayout) ((CardView) holder.itemView).getChildAt(0);
                                 if (hex != null && !hex.isEmpty()) {
                                     try {
-                                        // Kiểm tra định dạng hex hợp lệ (#RRGGBB hoặc RRGGBB)
                                         if (!hex.matches("^#?[0-9A-Fa-f]{6}$")) {
                                             throw new IllegalArgumentException("Định dạng hex không hợp lệ: " + hex);
                                         }
-                                        // Parse hex thành color int (thêm alpha FF nếu cần)
                                         String cleanHex = hex.trim().replace("#", "");
                                         int color = Integer.parseInt(cleanHex, 16) | 0xFF000000;
                                         parentLayout.setBackgroundColor(color);

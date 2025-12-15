@@ -20,7 +20,9 @@ import com.example.demo.models.OrderDetailResponse;
 import com.example.demo.models.OrderHistoryResponse;
 import com.example.demo.models.OrderListResponse;
 import com.example.demo.models.OrderResponse;
+import com.example.demo.models.RecommendResponse;
 import com.example.demo.models.ReviewResponse;
+import com.example.demo.models.TopSellingResponse;
 import com.example.demo.models.VoucherResponse;
 
 import retrofit2.Call;
@@ -249,6 +251,10 @@ public interface ApiService {
 
     @GET("menu/favorite-list")
     Call<FavoriteListResponse> getFavoriteList(@Query("userID") String userID);
+    @GET("rec/top-selling")
+    Call<TopSellingResponse> getTopSelling();
+    @GET("recommend/alsoLike")
+    Call<RecommendResponse> getRecommendations(@Query("userID") String userID);
 
 }
 

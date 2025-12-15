@@ -369,18 +369,6 @@ public class FragmentOrderTracking extends Fragment {
                 String rawName = item.getName();
                 String rawImg = item.getImageUrl(); // Kiểm tra getter này trong CartItem
                 android.util.Log.d("DEBUG_CONVERT", "🔻 Item [" + i + "] Gốc: " + rawName + " | Link ảnh gốc: " + rawImg);
-
-                // Convert từ CartItem sang Product
-                /*Product p = new Product(
-                        item.getName(),
-                        String.valueOf(item.getPrice()),
-                        0,
-                        0,
-                        "",
-                        ""
-                );
-                p.setProductID(item.getProductID());*/
-                // 1. Tạo Product bằng constructor (lúc này imageUrl đang là null)
                 Product p = new Product(
                         item.getName(),
                         String.valueOf(item.getPrice()),
@@ -390,39 +378,16 @@ public class FragmentOrderTracking extends Fragment {
                         ""
                 );
 
-// 2. Gán ID
                 p.setProductID(item.getProductID());
+                String linkAnhTuCart = item.getImageUrl();
+                p.setImageUrl(linkAnhTuCart);
 
-// 3. --- BƯỚC QUAN TRỌNG NHẤT ---
-// Bạn phải gọi hàm này để "bơm" link ảnh vào đối tượng Product
-                String linkAnhTuCart = item.getImageUrl(); // Lấy từ CartItem
-                p.setImageUrl(linkAnhTuCart);              // Gán vào Product
-
-// 4. Kiểm tra
                 Log.d("CHECK_PRODUCT", "Link ảnh trong Product giờ là: " + p.getImageUrl());
-
-                // --- XỬ LÝ ẢNH & LOG CHI TIẾT ---
-                /*if (rawImg != null && !rawImg.isEmpty()) {
-                    // Nếu link thiếu domain (link tương đối), nối thêm vào
-                    if (!rawImg.startsWith("http")) {
-                        String fixedUrl = "http://34.142.200.151" + rawImg; // Thay IP của bạn nếu khác
-                        p.setImageUrl(fixedUrl);
-                        android.util.Log.w("DEBUG_CONVERT", "   -> ⚠️ Link thiếu domain. Đã sửa thành: " + fixedUrl);
-                    } else {
-                        p.setImageUrl(rawImg);
-                        android.util.Log.d("DEBUG_CONVERT", "   -> 👌 Link đã chuẩn: " + rawImg);
-                    }
-                } else {
-                    android.util.Log.e("DEBUG_CONVERT", "   -> ❌ Lỗi: Link ảnh bị NULL hoặc Rỗng!");
-                    // Có thể set ảnh mặc định tạm thời nếu muốn
-                    // p.setImageUrl("https://via.placeholder.com/150");
-                }*/
-
-
                 productsForReview.add(p);
             }
         }
         tvTimeEstimate.setText(timeDisplay);
+        tvTimeEstimate.setVisibility(View.GONE);
 
         if (isPickup) {
             tvAddressName.setText("Nhận tại cửa hàng");
@@ -651,7 +616,7 @@ public class FragmentOrderTracking extends Fragment {
                 /*btnSubmitReview.setVisibility(View.VISIBLE);*/
                 btnCancelOrder.setVisibility(View.VISIBLE);
                 btnCancelOrder.setText("Đánh giá ngay");
-                btnCancelOrder.setBackgroundColor(Color.parseColor("#FF9800")); // Màu cam nổi bật
+                btnCancelOrder.setBackgroundColor(Color.parseColor("#4CAF50"));
 
                 // Set sự kiện click mới: Chuyển sang màn hình đánh giá
                 btnCancelOrder.setOnClickListener(v -> openReviewFragment());
