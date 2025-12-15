@@ -4,24 +4,8 @@
     android:id="@+id/splash_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/back_ground_splash"
+    android:background="@drawable/splash_screen"
     tools:context=".ActivitySplash">
-
-    <!-- Logo hoặc tên ứng dụng -->
-    <TextView
-        android:id="@+id/app_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="HERMOSA"
-        android:textSize="50sp"
-        android:textStyle="bold"
-        android:textColor="@color/black"
-        android:layout_centerInParent="true"
-        android:fontFamily="serif"
-        android:shadowColor="#80000000"
-        android:shadowDx="2"
-        android:shadowDy="2"
-        android:shadowRadius="4"/>
 
     <!-- Vòng loading -->
     <ProgressBar
@@ -29,8 +13,8 @@
         style="?android:attr/progressBarStyleLarge"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_below="@id/app_name"
         android:layout_centerHorizontal="true"
+        android:layout_centerInParent="true"
         android:layout_marginTop="30dp"
         android:indeterminate="true"
         android:visibility="visible" />
@@ -40,7 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Đang kiểm tra kết nối..."
-        android:textColor="@android:color/white"
+        android:textColor="#FFF"
         android:textSize="14sp"
         android:layout_below="@id/loading_progress"
         android:layout_centerHorizontal="true"
