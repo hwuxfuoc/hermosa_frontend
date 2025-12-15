@@ -1,3 +1,4 @@
+
 package com.example.demo.adapters;
 
 import android.content.Context;
@@ -102,7 +103,6 @@ public class RecommendedAdapter extends RecyclerView.Adapter<RecommendedAdapter.
                                     loadFallbackImage(holder.img, p);
                                 }
 
-                                // LẤY MÀU NỀN TỪ BACKEND và set cho LinearLayout cha (background_cart_item)
                                 String hex = detail.getBackgroundHexacode();
                                 LinearLayout parentLayout = (LinearLayout) ((CardView) holder.itemView).getChildAt(0);
                                 if (hex != null && !hex.isEmpty()) {

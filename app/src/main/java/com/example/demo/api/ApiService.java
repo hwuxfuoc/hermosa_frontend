@@ -18,6 +18,7 @@ import com.example.demo.models.MenuResponse;
 import com.example.demo.models.NotificationListResponse;
 import com.example.demo.models.OrderListResponse;
 import com.example.demo.models.OrderResponse;
+import com.example.demo.models.RecommendResponse;
 import com.example.demo.models.RecommendationResponse;
 import com.example.demo.models.ReviewResponse;
 import com.example.demo.models.TopSellingResponse;
@@ -212,8 +213,7 @@ public interface ApiService {
     @GET("rec/top-selling")
     Call<TopSellingResponse> getTopSelling();
     @GET("recommend/alsoLike")
-    Call<RecommendationResponse> getAlsoLike(@Query("userID") String userID);
-
+    Call<RecommendResponse> getRecommendations(@Query("userID") String userID);
     @GET("recommend/alsoView")
     Call<RecommendationResponse> getAlsoView(@Query("userID") String userID);
 

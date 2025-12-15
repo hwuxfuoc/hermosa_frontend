@@ -57,8 +57,8 @@ public class FragmentOrderTracking extends Fragment {
     private ImageView btnBack;
     private LinearLayout layoutHeaderPending, layoutHeaderConfirmed;
     private TextView tvStatusTitle, tvStatusDesc, tvStatusTag, tvTimeEstimate, tvStatusMsg;
-    private ImageView ivStep1, ivStep4;
-    private View line1;
+    private ImageView ivStep1, ivStep2, ivStep3, ivStep4;
+    private View line1, line2, line3;
 
     private TextView tvTotalPriceList;
     private TextView tvTotalPayment;
@@ -75,6 +75,7 @@ public class FragmentOrderTracking extends Fragment {
     private ApiService apiService;
     private boolean isDialogShown = false;
     private final List<Product> currentOrderProducts = new ArrayList<>();
+    private ArrayList<Product> productsForReview = new ArrayList<>();
 
     @Nullable
     @Override
@@ -169,6 +170,7 @@ public class FragmentOrderTracking extends Fragment {
             }
         });
     }
+
     private void showConfirmCancelDialog() {
         if (getContext() == null) return;
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -187,6 +189,7 @@ public class FragmentOrderTracking extends Fragment {
         btnCancelAction.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
     }
+
     // 3. Dialog "Đơn hàng hoàn tất - Vui lòng nhận nước" (Khi status = done)
     private void showOrderDoneDialog() {
         if (getContext() == null || isDialogShown) return; // Nếu đã hiện rồi thì thôi
@@ -250,6 +253,7 @@ public class FragmentOrderTracking extends Fragment {
             }
         });
     }
+
     private void showCancelSuccessDialog() {
         if (getContext() == null) return;
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -278,7 +282,6 @@ public class FragmentOrderTracking extends Fragment {
 
         dialog.show();
     }
-
 
     private void loadOrderDataFromApi(String orderID) {
         apiService.getOrderDetail(orderID).enqueue(new Callback<OrderResponse>() {
@@ -349,7 +352,47 @@ public class FragmentOrderTracking extends Fragment {
                 timeDisplay = "Đang cập nhật...";
             }
         }
+        productsForReview.clear();
 
+        if (order.getProducts() == null) {
+            android.util.Log.e("DEBUG_CONVERT", "❌ order.getProducts() bị NULL!");
+        } else {
+            android.util.Log.d("DEBUG_CONVERT", "✅ Tìm thấy " + order.getProducts().size() + " sản phẩm trong đơn hàng.");
+
+            for (int i = 0; i < order.getProducts().size(); i++) {
+                CartItem item = order.getProducts().get(i);
+
+                // 2. Log dữ liệu gốc từ CartItem
+                String rawName = item.getName();
+                String rawImg = item.getImageUrl();
+                android.util.Log.d("DEBUG_CONVERT", "🔻 Item [" + i + "] Gốc: " + rawName + " | Link ảnh gốc: " + rawImg);
+
+
+                // 1. Tạo Product bằng constructor (lúc này imageUrl đang là null)
+                Product p = new Product(
+                        item.getName(),
+                        String.valueOf(item.getPrice()),
+                        0,
+                        0,
+                        "",
+                        ""
+                );
+
+                // 2. Gán ID
+                p.setProductID(item.getProductID());
+
+                // 3. --- BƯỚC QUAN TRỌNG NHẤT ---
+                String linkAnhTuCart = item.getImageUrl();
+                p.setImageUrl(linkAnhTuCart);
+
+                // 4. Kiểm tra
+                Log.d("CHECK_PRODUCT", "Link ảnh trong Product giờ là: " + p.getImageUrl());
+
+
+
+                productsForReview.add(p);
+            }
+        }
         tvTimeEstimate.setText(timeDisplay);
 
         if (isPickup) {
@@ -386,14 +429,59 @@ public class FragmentOrderTracking extends Fragment {
             showOrderDoneDialog();
         }
         if ("done".equalsIgnoreCase(order.getStatus()) || "completed".equalsIgnoreCase(order.getStatus())) {
-            btnSubmitReview.setVisibility(View.VISIBLE);
+            btnCancelOrder.setVisibility(View.VISIBLE);
         } else {
             btnSubmitReview.setVisibility(View.GONE);
         }
     }
 
+    // Hàm xử lý màu sắc cho Timeline 2 điểm
+    private void updateTimelineColor(String status) {
+        int greenColor = Color.parseColor("#4CAF50"); // Màu xanh (Hoàn thành/Đang chạy)
+        int grayColor = Color.parseColor("#E0E0E0");  // Màu xám (Chưa đến)
+        int redColor = Color.parseColor("#F44336");   // Màu đỏ (Hủy)
+
+        // Reset mặc định: Tất cả xám
+        ivStep1.setColorFilter(grayColor, PorterDuff.Mode.SRC_IN);
+        line1.setBackgroundColor(grayColor);
+        ivStep4.setColorFilter(grayColor, PorterDuff.Mode.SRC_IN);
+
+        if (status == null) status = "pending";
+
+        switch (status.toLowerCase()) {
+            case "pending":
+                // 1. Mới đặt: Chỉ sáng icon đầu tiên
+                ivStep1.setColorFilter(greenColor, PorterDuff.Mode.SRC_IN);
+                break;
+
+            case "confirmed":
+            case "cooking":
+                // 2. Đang chuẩn bị: Sáng icon đầu + Đường kẻ (đang chạy)
+                ivStep1.setColorFilter(greenColor, PorterDuff.Mode.SRC_IN);
+                line1.setBackgroundColor(greenColor);
+                break;
+
+            case "shipping":
+            case "done":
+            case "completed":
+                // 3. Đang giao / Hoàn tất: Sáng toàn bộ
+                ivStep1.setColorFilter(greenColor, PorterDuff.Mode.SRC_IN);
+                line1.setBackgroundColor(greenColor);
+                ivStep4.setColorFilter(greenColor, PorterDuff.Mode.SRC_IN);
+                break;
+
+            case "cancelled":
+                // 4. Hủy: Icon đầu màu đỏ, còn lại xám
+                ivStep1.setColorFilter(redColor, PorterDuff.Mode.SRC_IN);
+                break;
+        }
+    }
     private void updateStatusTimeline(String status, boolean isPickup) {
         if (status == null) status = "pending";
+
+        // --- GỌI HÀM CẬP NHẬT MÀU TIMELINE VỪA VIẾT ---
+        updateTimelineColor(status);
+        // -----------------------------------------------
 
         switch (status.toLowerCase()) {
             case "pending":
@@ -401,8 +489,8 @@ public class FragmentOrderTracking extends Fragment {
                 layoutHeaderConfirmed.setVisibility(View.GONE);
 
                 tvStatusTag.setText("Đang xử lý");
-                tvStatusTag.setBackgroundColor(Color.parseColor("#FF9800"));
-                tvStatusMsg.setText("Chúng tôi đã nhận đơn hàng của bạn");
+                tvStatusTag.setBackgroundColor(Color.parseColor("#FF9800")); // Cam
+                tvStatusMsg.setText("Đơn hàng đang chờ xác nhận");
                 tvStatusMsg.setTextColor(Color.parseColor("#FF9800"));
 
                 btnCancelOrder.setVisibility(View.VISIBLE);
@@ -412,26 +500,57 @@ public class FragmentOrderTracking extends Fragment {
 
             case "confirmed":
             case "cooking":
+                // Gom nhóm này lại vì logic giống nhau
+                layoutHeaderPending.setVisibility(View.GONE);
+                layoutHeaderConfirmed.setVisibility(View.VISIBLE);
+
+                tvStatusTag.setText("Đang chuẩn bị");
+                tvStatusTag.setBackgroundColor(Color.parseColor("#2196F3")); // Xanh dương
+                tvStatusMsg.setText("Nhà hàng đang chuẩn bị món ăn");
+                tvStatusMsg.setTextColor(Color.parseColor("#2196F3"));
+
+                btnCancelOrder.setVisibility(View.GONE); // Đang nấu thì không cho hủy
+                tvCancelNote.setVisibility(View.GONE);
+                btnSubmitReview.setVisibility(View.GONE);
+                break;
+
             case "shipping":
+                layoutHeaderPending.setVisibility(View.GONE);
+                layoutHeaderConfirmed.setVisibility(View.VISIBLE);
+
+                tvStatusTag.setText("Đang giao");
+                tvStatusTag.setBackgroundColor(Color.parseColor("#2196F3"));
+                tvStatusMsg.setText(isPickup ? "Vui lòng đến cửa hàng nhận món" : "Tài xế đang giao đến bạn");
+                tvStatusMsg.setTextColor(Color.parseColor("#2196F3"));
+
+                btnCancelOrder.setVisibility(View.GONE);
+                break;
+
             case "done":
             case "completed":
                 layoutHeaderPending.setVisibility(View.GONE);
                 layoutHeaderConfirmed.setVisibility(View.VISIBLE);
 
                 tvStatusTag.setText("Hoàn tất");
-                tvStatusTag.setBackgroundColor(Color.parseColor("#388E3C"));
+                tvStatusTag.setBackgroundColor(Color.parseColor("#388E3C")); // Xanh lá
 
                 if (isPickup) {
-                    tvStatusMsg.setText("Đơn hàng đã sẵn sàng. Vui lòng ra quầy nhận đồ nhé!");
-                    showOrderDoneDialog(); // Hiện popup nhận nước
+                    tvStatusMsg.setText("Bạn đã nhận hàng thành công!");
+                    showOrderDoneDialog();
                 } else {
-                    tvStatusMsg.setText("Đã giao hàng thành công!");
+                    tvStatusMsg.setText("Giao hàng thành công!");
                 }
                 tvStatusMsg.setTextColor(Color.parseColor("#388E3C"));
 
-                btnCancelOrder.setVisibility(View.GONE);
-                tvCancelNote.setVisibility(View.GONE);
-                btnSubmitReview.setVisibility(View.VISIBLE);
+                /*btnCancelOrder.setVisibility(View.GONE);*/
+                tvCancelNote.setVisibility(View.VISIBLE);
+                /*btnSubmitReview.setVisibility(View.VISIBLE);*/
+                btnCancelOrder.setVisibility(View.VISIBLE);
+                btnCancelOrder.setText("Đánh giá ngay");
+                btnCancelOrder.setBackgroundColor(Color.parseColor("#FF9800")); // Màu cam nổi bật
+
+                // Set sự kiện click mới: Chuyển sang màn hình đánh giá
+                btnCancelOrder.setOnClickListener(v -> openReviewFragment());
                 break;
 
             case "cancelled":
@@ -442,29 +561,52 @@ public class FragmentOrderTracking extends Fragment {
                 tvStatusTitle.setTextColor(Color.RED);
                 tvStatusDesc.setText("Bạn đã hủy đơn hàng này");
 
+                // Timeline màu đỏ đã được xử lý trong updateTimelineColor
+
                 btnCancelOrder.setVisibility(View.GONE);
                 tvCancelNote.setVisibility(View.GONE);
                 btnSubmitReview.setVisibility(View.GONE);
                 break;
         }
     }
+    // Hàm mở màn hình đánh giá
+    private void openReviewFragment() {
+        // Kiểm tra an toàn
+        if (productsForReview == null || productsForReview.isEmpty()) {
+            Toast.makeText(getContext(), "Không tìm thấy thông tin sản phẩm!", Toast.LENGTH_SHORT).show();
+            // Nếu list rỗng, thử gọi lại API hoặc log lỗi
+            return;
+        }
 
+        FragmentReview reviewFragment = new FragmentReview();
+        Bundle bundle = new Bundle();
 
-    // Helper: Tô màu Timeline
-    private void highlightTimeline(int step) {
-        int activeColor = Color.parseColor("#4CAF50");
-        if (step >= 1) ivStep1.setColorFilter(activeColor, PorterDuff.Mode.SRC_IN);
-        if (step >= 2) {
-            line1.setBackgroundColor(activeColor);
-            ivStep4.setColorFilter(activeColor, PorterDuff.Mode.SRC_IN);
+        // Truyền OrderID
+        bundle.putString("ORDER_ID", currentOrderID);
+
+        // Truyền danh sách sản phẩm đã chuẩn bị ở Bước 2
+        bundle.putSerializable("PRODUCTS", productsForReview);
+
+        reviewFragment.setArguments(bundle);
+
+        if (getActivity() != null) {
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, reviewFragment)
+                    .addToBackStack(null)
+                    .commit();
         }
     }
+
 
     private void resetTimelineColors() {
         int grayColor = Color.parseColor("#E0E0E0");
         ivStep1.clearColorFilter();
+        ivStep2.clearColorFilter();
+        ivStep3.clearColorFilter();
         ivStep4.clearColorFilter();
         line1.setBackgroundColor(grayColor);
+        line2.setBackgroundColor(grayColor);
+        line3.setBackgroundColor(grayColor);
     }
 
     public static class OrderItemAdapter extends RecyclerView.Adapter<OrderItemAdapter.ViewHolder> {
@@ -485,6 +627,7 @@ public class FragmentOrderTracking extends Fragment {
             holder.tvPrice.setText(fmt.format(item.getSubtotal()) + " đ");
             holder.tvPrice.setTextColor(Color.BLACK);
         }
+
 
         @Override public int getItemCount() { return itemList == null ? 0 : itemList.size(); }
 

@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center_horizontal"
-    android:background="@drawable/back_ground_splash"
+    android:background="@drawable/splash_register"
     android:padding="24dp">
 
     <TextView
@@ -14,6 +14,7 @@
         android:text="Email Đăng Ký"
         android:textSize="20sp"
         android:textStyle="bold"
+        android:textColor="#E5769D"
         android:layout_marginBottom="8dp"/>
 
     <EditText
@@ -29,7 +30,7 @@
         android:id="@+id/btnSendOTP"
         android:text="Nhận mã OTP"
         android:textColor="@android:color/white"
-        android:backgroundTint="#A71317"
+        android:backgroundTint="#E5769D"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"/>
@@ -38,15 +39,9 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:text="Bạn đã có tài khoản, đăng nhập tại đây nha!"
+        android:visibility="gone"
         android:layout_marginTop="16dp"
         android:textColor="#000000"/>
-
-    <TextView
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:text="Hoặc bạn có thể đăng ký với"
-        android:layout_marginTop="24dp"
-        android:textSize="14sp"/>
 
     <Button
         android:text="Đăng ký với Google"
@@ -54,6 +49,7 @@
         android:background="@drawable/btn_white_border"
         android:textColor="#DB4437"
         app:backgroundTint="@null"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
@@ -63,6 +59,7 @@
         android:background="@drawable/btn_white_border"
         android:textColor="#1877F2"
         app:backgroundTint="@null"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 

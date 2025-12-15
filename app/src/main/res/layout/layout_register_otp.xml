@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center_horizontal"
-    android:background="@drawable/back_ground_splash"
+    android:background="@drawable/splash_register"
     android:padding="24dp">
 
     <TextView
@@ -76,7 +76,7 @@
         android:layout_height="wrap_content"
         android:text="Xác nhận OTP"
         android:textColor="@android:color/white"
-        android:backgroundTint="#A71317"
+        android:backgroundTint="#E5769D"
         android:layout_marginTop="30dp"
         android:layout_marginHorizontal="40dp"/>
 </LinearLayout>

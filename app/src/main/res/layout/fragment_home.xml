@@ -113,9 +113,9 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginTop="6dp"/>
 
-            <!-- Recommend: Người khác cũng thích -->
-            <LinearLayout
-                android:id="@+id/recycler_alsolike_container"
+            <!-- Recommend -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/recommend_product_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
@@ -123,55 +123,32 @@
                 android:layout_marginEnd="10dp"
                 android:background="@drawable/background_white_rounded"
                 android:padding="8dp"
-                android:orientation="vertical">
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/bannerViewPager">
 
                 <TextView
-                    android:id="@+id/tv_alsolike"
+                    android:id="@+id/tvRecommendProduct"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Người khác cũng thích"
+                    android:text="Recommend"
                     android:textColor="#FC809F"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:layout_marginBottom="6dp" />
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recycler_alsolike"
+                    android:id="@+id/recycler_recommend"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@android:color/transparent" />
+                    android:layout_marginTop="6dp"
+                    android:background="@android:color/transparent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvRecommendProduct" />
 
-            </LinearLayout>
-
-            <!-- Recommend: Người khác cũng xem -->
-            <LinearLayout
-                android:id="@+id/recycler_alsoview_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="10dp"
-                android:background="@drawable/background_white_rounded"
-                android:padding="8dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tv_alsoview"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Người khác cũng xem"
-                    android:textColor="#FC809F"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="6dp" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recycler_alsoview"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@android:color/transparent" />
-
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <!-- Category Tabs -->
             <LinearLayout
@@ -182,7 +159,7 @@
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
                 android:orientation="horizontal"
-                app:layout_constraintTop_toBottomOf="@id/recycler_alsoview_container"
+                app:layout_constraintTop_toBottomOf="@id/recommend_product_container"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
 
