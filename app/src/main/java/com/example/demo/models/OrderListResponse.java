@@ -1,19 +1,24 @@
-package com.example.demo.models;
+package com.example.demo.models; // (Hoặc package của bạn)
 
-import com.google.gson.annotations.SerializedName;
+// Import List (quan trọng)
 import java.util.List;
 
+import com.example.demo.models.Order;
+
 public class OrderListResponse {
-    @SerializedName("status")
+
     private String status;
-
-    @SerializedName("message")
     private String message;
+    private List<Order> data;//lich su mua hang
 
-    @SerializedName("data")
-    private List<Order> data;
-
-    public String getStatus() { return status; }
-    public String getMessage() { return message; }
-    public List<Order> getData() { return data; }
+    // Getters
+    public String getStatus() {
+        return status;
+    }
+    public String getMessage() {
+        return message;
+    }
+    public List<Order> getData() {
+        return data;
+    }
 }

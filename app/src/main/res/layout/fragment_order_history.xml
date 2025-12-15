@@ -10,7 +10,7 @@
         android:id="@+id/headerBg"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:background="@android:color/white"
+
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
@@ -43,7 +43,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:clipToPadding="false"
-        android:padding="16dp"
+        android:padding="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/headerBg"
         tools:listitem="@layout/item_order" />

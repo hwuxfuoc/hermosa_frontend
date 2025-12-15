@@ -7,7 +7,9 @@ public class AddressRequest {
     private String phone;
     private String type;
 
+    // --- SỬA TẠI ĐÂY: Đổi tên thành "address" và kiểu String để khớp Backend ---
     private String address;
+    // --------------------------------------------------------------------------
     public AddressRequest(String userID, String name, String phone, String type, String address) {
         this.userID = userID;
         this.name = name;
@@ -16,6 +18,7 @@ public class AddressRequest {
         this.address = address;
     }
 
+    // Constructor dùng cho API Delete (Xóa) - Giữ nguyên
     public AddressRequest(String userID, String addressID){
         this.userID = userID;
         this.addressID = addressID;

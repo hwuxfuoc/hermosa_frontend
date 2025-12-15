@@ -18,8 +18,10 @@ import com.example.demo.models.NotificationListResponse;
 import com.example.demo.models.OrderListResponse;
 import com.example.demo.models.OrderResponse;
 import com.example.demo.models.ReviewResponse;
+import com.example.demo.models.TopSellingResponse;
 import com.example.demo.models.VoucherResponse;
 import com.example.demo.models.OrderHistoryResponse;
+import com.example.demo.models.OrderDetailResponse;
 
 import retrofit2.Call;
 import retrofit2.http.*;
@@ -101,7 +103,7 @@ public interface ApiService {
     @GET("order/list")
     Call<CommonResponse> getOrdersByDate(@Query("startDate") String startDate, @Query("endDate") String endDate);
 
-    @POST("order/review-order-and-products")
+    @POST("review/review-order-and-products")
     Call<CommonResponse> reviewOrderAndProducts(
             @Query("orderID") String orderID,
             @Body Map<String, Object> body
@@ -201,4 +203,11 @@ public interface ApiService {
     Call<ReviewResponse> getProductReviews(@Query("productID") String productID);
     @GET("order/order-history")
     Call<OrderHistoryResponse> getOrderHistory(@Query("userID") String userID);
+    @GET("order/view")
+    Call<OrderDetailResponse> getOrderDetail2(@Query("orderID") String orderID);
+    @GET("order/view")
+    Call<OrderDetailResponse> getOrderDetail3(@Query("orderID") String orderID);
+    @GET("rec/top-selling")
+    Call<TopSellingResponse> getTopSelling();
+
 }

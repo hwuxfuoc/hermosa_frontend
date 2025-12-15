@@ -31,14 +31,17 @@ public class SelectAddressActivity extends AppCompatActivity {
 
     private static final String TAG = "SELECT_ADDRESS";
 
+    // --- GIỮ NGUYÊN CODE CŨ ---
     private static final String DEFAULT_ADDRESS = "[Trường ĐH CNTT - ĐHQG TP.HCM] Hàn Thuyên, khu phố 6, P. Linh Chiểu, TP. Thủ Đức";
     private static final String DEFAULT_CUSTOMER = "Tên Khách Hàng | 0909123456";
+
 
     private MaterialCardView cardDeliveryOption;
     private View containerDelivery;
     private View sectionPickup;
     private MaterialButton btnConfirm;
     private View btnBack;
+
 
     private TextView btnAddHome;
     private TextView btnAddWorkAddress;
@@ -51,10 +54,12 @@ public class SelectAddressActivity extends AppCompatActivity {
     private String selectedCustomerStr = "";
     private String selectedAddressID = null;
 
+    //them
     private List<AddressResponse.AddressData> homeList = new ArrayList<>();
     private List<AddressResponse.AddressData> workList = new ArrayList<>();
     private List<AddressResponse.AddressData> otherList = new ArrayList<>();
 
+    // Giữ adapter để gọi notifyDataSetChanged
     private AddressAdapter adapterHome, adapterWork, adapterOther;
 
     @Override
@@ -109,7 +114,6 @@ public class SelectAddressActivity extends AppCompatActivity {
         if(containerDelivery!=null){
             containerDelivery.setOnClickListener(v-> selectMethod("delivery"));
         }
-
         btnConfirm.setOnClickListener(v -> {
             if (selectedMethod != null) {
                 Log.d(TAG, "XÁC NHẬN PHƯƠNG THỨC: " + selectedMethod);
@@ -135,6 +139,7 @@ public class SelectAddressActivity extends AppCompatActivity {
         if (btnAddOtherAddress != null) btnAddOtherAddress.setOnClickListener(v -> openAddAddress("Other"));
     }
 
+    // --- BỔ SUNG: HÀM GỌI API ---
     private void fetchAddressList() {
         String userID = SessionManager.getUserID(this);
         if (userID == null || userID.isEmpty()) return;
@@ -145,6 +150,7 @@ public class SelectAddressActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<AddressResponse> call, Response<AddressResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
+                    // Gọi hàm lọc và hiển thị
                     filterAndDisplayAddresses(response.body().getData());
                 }
             }
@@ -162,9 +168,9 @@ public class SelectAddressActivity extends AppCompatActivity {
         workList.clear();
         otherList.clear();
 
+        // 2. Chia dữ liệu vào 3 list
         for (AddressResponse.AddressData item : list) {
             item.isSelected = false;
-
             if (!selectedAddressStr.isEmpty() && item.getFullAddress().equals(selectedAddressStr)) {
                 item.isSelected = true;
             }
@@ -180,6 +186,7 @@ public class SelectAddressActivity extends AppCompatActivity {
             }
         }
 
+        // 3. Khởi tạo Adapter và lưu vào biến toàn cục
         adapterHome = new AddressAdapter(homeList, this::onAddressItemClicked);
         rvHomeAddress.setAdapter(adapterHome);
 
@@ -203,7 +210,6 @@ public class SelectAddressActivity extends AppCompatActivity {
         if (adapterWork != null) adapterWork.notifyDataSetChanged();
         if (adapterOther != null) adapterOther.notifyDataSetChanged();
     }
-
     private void deselectAll(List<AddressResponse.AddressData> list) {
         if (list == null) return;
         for (AddressResponse.AddressData data : list) {
@@ -237,6 +243,7 @@ public class SelectAddressActivity extends AppCompatActivity {
         }
         selectedMethod = method;
 
+        // Reset màu nền
         if(containerDelivery!=null) containerDelivery.setBackgroundResource(android.R.color.white);
         if(sectionPickup!=null) sectionPickup.setBackgroundResource(android.R.color.white);
 

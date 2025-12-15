@@ -7,6 +7,9 @@ public class AddressDetail {
     private String city;
     private String country;
 
+    // Constructor (nếu có)
+
+    // --- CÁC HÀM GETTER BẮT BUỘC ---
     public String getStreet() { return street; }
     public String getWard() { return ward; }
     public String getDistrict() { return district; }

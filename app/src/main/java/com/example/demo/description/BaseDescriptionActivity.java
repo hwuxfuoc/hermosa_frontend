@@ -126,6 +126,11 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
             }
         });
 
+        if (product != null && product.getProductID() != null
+                && !product.getProductID().equals("UNKNOWN")) {
+            loadProductReviews(product.getProductID());
+        }
+
         setupAddToCart();
     }
 

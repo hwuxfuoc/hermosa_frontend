@@ -115,7 +115,10 @@ public class AddAddressActivity extends AppCompatActivity {
         if (!gate.isEmpty()) streetDetail += ", Cổng " + gate;
         if (!note.isEmpty()) streetDetail += " (" + note + ")";
 
+        // --- KHẮC PHỤC LỖI TẠI ĐÂY ---
+        // Tạo một biến final để "chốt" giá trị của streetDetail
         final String finalStreetDetail = streetDetail;
+        // -----------------------------
 
         // 2. Tạo chuỗi gửi đi Backend
         StringBuilder sb = new StringBuilder();
@@ -145,7 +148,9 @@ public class AddAddressActivity extends AppCompatActivity {
 
                     Intent result = new Intent();
 
+
                     result.putExtra("newAddress", finalStreetDetail);
+                    // ----------------------------------------------------------------
 
                     result.putExtra("newCustomer", name + " | " + phone);
                     result.putExtra("type", addressType);
@@ -162,6 +167,7 @@ public class AddAddressActivity extends AppCompatActivity {
             }
         });
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

@@ -25,6 +25,7 @@ import com.example.demo.api.ApiService;
 import com.example.demo.fragment.FragmentCart;
 import com.example.demo.fragment.FragmentHome;
 import com.example.demo.fragment.FragmentNotification;
+import com.example.demo.fragment.FragmentOrderHistory;
 import com.example.demo.fragment.FragmentOrderTracking;
 import com.example.demo.fragment.FragmentProfile;
 import com.example.demo.models.CommonResponse;
@@ -83,8 +84,8 @@ public class MainActivity extends AppCompatActivity {
                 selectedFragment = new FragmentCart();
                 tag = "FragmentCart";
             } else if (itemId == R.id.menu_order) {
-                selectedFragment = new FragmentOrderTracking();
-                tag = "FragmentOrderTracking";
+                selectedFragment = new FragmentOrderHistory();
+                tag = "FragmentOrderHistory";
             }  else if (itemId == R.id.menu_profile) {
                 selectedFragment = new FragmentProfile();
                 tag = "FragmentProfile";

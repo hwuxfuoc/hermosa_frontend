@@ -1,17 +1,25 @@
 package com.example.demo.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.Glide;
 import com.example.demo.R;
 import com.example.demo.models.OrderHistoryResponse;
+
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
@@ -20,10 +28,23 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
 
     private Context context;
     private List<OrderHistoryResponse.HistoryItem> historyList;
+    private OnOrderActionListener listener;
 
-    public OrderHistoryAdapter(Context context, List<OrderHistoryResponse.HistoryItem> historyList) {
+    // Interface giao tiếp với Fragment
+    /*public interface OnOrderActionListener {
+        void onReorderClick(List<OrderHistoryResponse.ProductQuantity> products);
+        void onDetailClick(String orderID);
+    }*/
+    public interface OnOrderActionListener {
+        void onReorderClick(List<OrderHistoryResponse.ProductQuantity> products);
+        // Thêm tham số thứ 2 là List ảnh
+        void onDetailClick(String orderID, List<OrderHistoryResponse.ProductDetail> pictures);
+    }
+
+    public OrderHistoryAdapter(Context context, List<OrderHistoryResponse.HistoryItem> historyList, OnOrderActionListener listener) {
         this.context = context;
         this.historyList = historyList;
+        this.listener = listener;
     }
 
     public void setData(List<OrderHistoryResponse.HistoryItem> newList) {
@@ -45,33 +66,59 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
 
         OrderHistoryResponse.OrderInfo info = item.getOrderInfo();
 
-        holder.tvOrderID.setText("Mã: " + info.getOrderID());
-        holder.tvDate.setText(info.getDate());
+        // --- GÁN DỮ LIỆU ---
+        holder.tvOrderID.setText("OrderID: " + info.getOrderID()); // Thêm dấu # cho đẹp
 
-        NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-        holder.tvTotalPrice.setText(formatter.format(info.getTotalPrice()));
-
-        holder.tvStatus.setText(info.getStatus());
-        if ("Completed".equalsIgnoreCase(info.getStatus()) || "Success".equalsIgnoreCase(info.getStatus())) {
-            holder.tvStatus.setTextColor(Color.parseColor("#4CAF50"));
-        } else if ("Failed".equalsIgnoreCase(info.getStatus())) {
-            holder.tvStatus.setTextColor(Color.RED);
-        } else {
-            holder.tvStatus.setTextColor(Color.parseColor("#FF9800"));
+        // Ngày tháng
+        String rawDate = info.getDate();
+        if(rawDate != null && rawDate.length() > 10) {
+            rawDate = rawDate.replace("T", " ").substring(0, 16);
         }
+        holder.tvOrderDate.setText(rawDate);
 
+        // Trạng thái & Màu
+        String status = info.getStatus();
+        GradientDrawable bgShape = (GradientDrawable) holder.tvOrderStatus.getBackground();
+        // Cần mutate() để không bị đổi màu tất cả các item khác
+        bgShape = (GradientDrawable) bgShape.mutate();
+
+        if ("done".equalsIgnoreCase(status) || "completed".equalsIgnoreCase(status)) {
+            bgShape.setColor(Color.parseColor("#4CAF50")); // Xanh
+            holder.tvOrderStatus.setText("Hoàn thành");
+        } else if ("cancelled".equalsIgnoreCase(status)) {
+            bgShape.setColor(Color.parseColor("#F44336")); // Đỏ
+            holder.tvOrderStatus.setText("Đã hủy");
+        } else {
+            bgShape.setColor(Color.parseColor("#FF9800")); // Cam
+            holder.tvOrderStatus.setText("Đang xử lý");
+        }
+        holder.tvOrderStatus.setBackground(bgShape);
+
+        // Tiền tệ
+        NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+        holder.tvOrderTotal.setText(formatter.format(info.getTotalPrice()));
+
+        holder.tvPaymentMethodLabel.setText(info.getPaymentMethod() != null ? info.getPaymentMethod().toUpperCase() : "TIỀN MẶT");
+
+        // Xử lý ảnh và tên món
         List<OrderHistoryResponse.ProductDetail> pics = item.getPictures();
         List<OrderHistoryResponse.ProductQuantity> prods = item.getProducts();
 
+        holder.tvItemCount.setText((prods != null ? prods.size() : 0) + " món");
+
         if (pics != null && !pics.isEmpty()) {
-            Glide.with(context).load(pics.get(0).getImage()).into(holder.imgProductThumb);
+            // Load ảnh đầu tiên
+            Glide.with(context)
+                    .load(pics.get(0).getImage())
+                    .placeholder(R.drawable.ic_launcher_background) // Cần có ảnh này trong drawable
+                    .error(R.drawable.ic_launcher_background)
+                    .into(holder.imgProductThumb);
 
+            // Ghép tên các món
             StringBuilder summary = new StringBuilder();
-
             if (prods != null) {
                 for (OrderHistoryResponse.ProductQuantity pq : prods) {
-                    // Tìm tên món tương ứng trong mảng pictures
-                    String name = "Món lạ";
+                    String name = "Món ăn";
                     for (OrderHistoryResponse.ProductDetail pd : pics) {
                         if (pd.getProductID().equals(pq.getProductID())) {
                             name = pd.getName();
@@ -81,17 +128,36 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
                     summary.append(name).append(" (x").append(pq.getQuantity()).append("), ");
                 }
             }
-
             String resultText = summary.toString();
             if (resultText.endsWith(", ")) {
                 resultText = resultText.substring(0, resultText.length() - 2);
             }
             holder.tvProductSummary.setText(resultText);
-
         } else {
-            holder.imgProductThumb.setImageResource(R.drawable.ic_launcher_background); // Ảnh mặc định
-            holder.tvProductSummary.setText("Không có thông tin chi tiết");
+            holder.tvProductSummary.setText("Đang cập nhật...");
         }
+
+        // --- XỬ LÝ CLICK ---
+        holder.btnReorder.setOnClickListener(v -> {
+            if (listener != null) listener.onReorderClick(item.getProducts());
+        });
+
+        /*holder.btnDetail.setOnClickListener(v -> {
+            Log.d("OrderAdapter", "Click Detail. ID: " + info.getOrderID()); // Kiểm tra Logcat
+            if (listener != null) {
+                if (info.getOrderID() != null) {
+                    listener.onDetailClick(info.getOrderID());
+                } else {
+                    Toast.makeText(context, "Lỗi: ID đơn hàng rỗng", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });*/
+        holder.btnDetail.setOnClickListener(v -> {
+            if (listener != null) {
+                // Truyền cả OrderID và List Pictures
+                listener.onDetailClick(info.getOrderID(), item.getPictures());
+            }
+        });
     }
 
     @Override
@@ -100,17 +166,22 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
     }
 
     public static class OrderViewHolder extends RecyclerView.ViewHolder {
-        TextView tvOrderID, tvDate, tvStatus, tvTotalPrice, tvProductSummary;
+        TextView tvOrderID, tvOrderDate, tvOrderStatus, tvProductSummary, tvItemCount, tvPaymentMethodLabel, tvOrderTotal;
         ImageView imgProductThumb;
+        Button btnDetail, btnReorder;
 
         public OrderViewHolder(@NonNull View itemView) {
             super(itemView);
             tvOrderID = itemView.findViewById(R.id.tvOrderID);
-            tvDate = itemView.findViewById(R.id.tvDate);
-            tvStatus = itemView.findViewById(R.id.tvStatus);
-            tvTotalPrice = itemView.findViewById(R.id.tvTotalPrice);
+            tvOrderDate = itemView.findViewById(R.id.tvOrderDate);
+            tvOrderStatus = itemView.findViewById(R.id.tvOrderStatus);
             tvProductSummary = itemView.findViewById(R.id.tvProductSummary);
+            tvItemCount = itemView.findViewById(R.id.tvItemCount);
+            tvPaymentMethodLabel = itemView.findViewById(R.id.tvPaymentMethodLabel);
+            tvOrderTotal = itemView.findViewById(R.id.tvOrderTotal);
             imgProductThumb = itemView.findViewById(R.id.imgProductThumb);
+            btnDetail = itemView.findViewById(R.id.btnDetail);
+            btnReorder = itemView.findViewById(R.id.btnReorder);
         }
     }
 }

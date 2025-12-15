@@ -3,6 +3,7 @@ package com.example.demo.fragment;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,7 @@ import com.example.demo.api.ApiClient;
 import com.example.demo.api.ApiService;
 import com.example.demo.models.MenuResponse;
 import com.example.demo.models.Product;
+import com.example.demo.models.TopSellingResponse;
 import com.example.demo.utils.SessionManager;
 
 import java.util.ArrayList;
@@ -119,6 +121,7 @@ public class FragmentHome extends Fragment {
         if (allProducts.isEmpty()) {
             loadAllProducts();
         }
+        loadTopSelling();
 
         List<Integer> banners = new ArrayList<>();
         banners.add(R.drawable.banner1);
@@ -142,6 +145,32 @@ public class FragmentHome extends Fragment {
         handler.postDelayed(runnable, 3000);
 
         return view;
+    }
+
+    private void loadTopSelling() {
+        apiService.getTopSelling().enqueue(new Callback<TopSellingResponse>() {
+            @Override
+            public void onResponse(Call<TopSellingResponse> call, Response<TopSellingResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    if ("Success".equals(response.body().getStatus())) {
+                        List<Product> topProducts = response.body().getData();
+                        if (topProducts == null) topProducts = new ArrayList<>();
+
+                        bestSellerList.clear();
+                        bestSellerList.addAll(topProducts);
+                        bestSellerAdapter.notifyDataSetChanged(); // hoặc dùng updateList() nếu có
+
+                        Log.d("BestSeller", "Loaded " + topProducts.size() + " best sellers");
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<TopSellingResponse> call, Throwable t) {
+                Log.e("BestSeller", "Failed: " + t.getMessage());
+                Toast.makeText(requireContext(), "Không tải được Best Seller", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void setupRecyclerViews() {
@@ -176,11 +205,6 @@ public class FragmentHome extends Fragment {
                         Product p = Product.fromMenuItem(item);
                         allProducts.add(p);
                     }
-
-                    // Cập nhật Best Seller
-                    bestSellerList.clear();
-                    bestSellerList.addAll(allProducts.subList(0, Math.min(10, allProducts.size())));
-                    bestSellerAdapter.notifyDataSetChanged();
 
                     // Cập nhật Recommend
                     recommendList.clear();

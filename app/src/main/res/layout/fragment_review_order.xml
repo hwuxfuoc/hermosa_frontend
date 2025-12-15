@@ -19,7 +19,7 @@
             android:layout_height="24dp"
             android:layout_marginStart="16dp"
             android:src="@drawable/ic_arrow_back"
-            app:tint="#A71317"
+            app:tint="#FC809F"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Đơn Hàng Thành Công"
-            android:textColor="#000"
+            android:textColor="#FC809F"
             android:textSize="18sp"
             android:textStyle="bold"
             android:fontFamily="serif"
@@ -117,43 +117,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="[ GỬI ĐÁNH GIÁ ]"
-                android:textColor="#D32F2F"
+                android:textColor="#FC809F"
                 android:textStyle="bold"
                 android:gravity="end"
                 android:layout_marginTop="8dp"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:gravity="center"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_gift_box" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:text="Nhận voucher cảm ơn 10k cho đơn tiếp theo"
-                        android:textColor="#000"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <include
-                    layout="@layout/item_voucher"
-                    android:layout_width="380dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp" />
-            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -161,16 +128,16 @@
                 android:gravity="center"
                 android:orientation="vertical"
                 android:layout_marginTop="24dp">
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#000"/>
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#FC809F"/>
                 <TextView
                     android:text="Đánh giá đơn hàng"
                     android:textStyle="bold"
                     android:textSize="18sp"
-                    android:textColor="#000"
+                    android:textColor="#FC809F"
                     android:layout_marginVertical="12dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#000"/>
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#FC809F"/>
             </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
@@ -199,7 +166,7 @@
             android:layout_marginEnd="8dp"
             android:text="Đánh giá ngay"
             app:cornerRadius="8dp"
-            app:backgroundTint="#B71C1C"
+            app:backgroundTint="#FC809F"
             android:textStyle="bold"/>
 
         <com.google.android.material.button.MaterialButton

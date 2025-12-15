@@ -46,9 +46,16 @@ public class BestSellerAdapter extends RecyclerView.Adapter<BestSellerAdapter.Vi
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Product product = list.get(position);
 
-        holder.imgProduct.setImageResource(product.getImageResId());
+        //holder.imgProduct.setImageResource(product.getImageResId());
+        String imageUrl = product.getImageUrl();
+        Glide.with(context)
+                .load(imageUrl)
+                .placeholder(R.drawable.placeholder_food)
+                .error(R.drawable.ic_launcher_foreground)
+                .into(holder.imgProduct);
+
         holder.tvName.setText(product.getName());
-        /*holder.tvPrice.setText(product.getPrice());*/
+        holder.tvPrice.setText(formatPrice(product.getPrice()));
         String url=product.getImageUrl();
         Glide.with(context)
                 .load(url)
@@ -79,9 +86,24 @@ public class BestSellerAdapter extends RecyclerView.Adapter<BestSellerAdapter.Vi
         });
     }
 
+    private String formatPrice(String price) {
+        try {
+            long p = Long.parseLong(price.replaceAll("[^0-9]", ""));
+            return String.format("₫%,d", p);
+        } catch (Exception e) {
+            return "₫" + price;
+        }
+    }
+
     @Override
     public int getItemCount() {
         return list.size();
+    }
+
+    public void updateList(List<Product> newList) {
+        list.clear();
+        list.addAll(newList);
+        notifyDataSetChanged();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

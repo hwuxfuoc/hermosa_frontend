@@ -66,7 +66,19 @@ public class FragmentReview extends Fragment {
 
         if (getArguments() != null) {
             orderID = getArguments().getString("ORDER_ID");
-            productsToReview = (List<Product>) getArguments().getSerializable("PRODUCTS");
+            ArrayList<Product> temp = (ArrayList<Product>) getArguments().getSerializable("PRODUCTS");
+            if (temp != null) {
+                productsToReview = new ArrayList<>(temp);
+            }
+        }
+
+        // BẮT BUỘC KIỂM TRA
+        if (orderID == null || productsToReview == null || productsToReview.isEmpty()) {
+            Toast.makeText(getContext(), "Không có dữ liệu đơn hàng để đánh giá", Toast.LENGTH_LONG).show();
+            if (getActivity() != null) {
+                getActivity().finish(); // hoặc quay về
+            }
+            return;
         }
 
         initViews(view);
@@ -98,7 +110,6 @@ public class FragmentReview extends Fragment {
     }
 
     private void submitReview() {
-        float generalRating = rbGeneral.getRating();
         String generalFeedback = etGeneralFeedback.getText().toString().trim();
 
         List<Review> allReviews = adapter.getReviews();
@@ -107,47 +118,53 @@ public class FragmentReview extends Fragment {
         for (Review r : allReviews) {
             boolean hasRating = r.getRating() > 0;
             boolean hasComment = r.getComment() != null && !r.getComment().trim().isEmpty();
+
             if (hasRating || hasComment) {
                 Map<String, Object> map = new HashMap<>();
                 map.put("productID", r.getProductID());
                 map.put("rating", r.getRating());
-                map.put("comment", r.getComment());
+                map.put("comment", r.getComment() != null ? r.getComment() : "");
                 productReviews.add(map);
             }
         }
 
+        // ĐÚNG ĐỊNH DẠNG BODY THEO BACKEND
         Map<String, Object> body = new HashMap<>();
-        body.put("orderReview", Map.of(
-                "rating", generalRating,
-                "comment", generalFeedback
-        ));
 
+        // orderReview là STRING (chỉ comment chung), không phải object
+        body.put("orderReview", generalFeedback);
+
+        // Chỉ gửi productsReview nếu có ít nhất 1 sản phẩm được đánh giá
         if (!productReviews.isEmpty()) {
             body.put("productsReview", productReviews);
         }
 
-        Log.d("REVIEW", "Gửi đánh giá: " + new com.google.gson.Gson().toJson(body));
+        // Nếu người dùng không nhập gì cho đơn hàng và không đánh giá sản phẩm nào → có thể cho phép bỏ qua
+        if (generalFeedback.isEmpty() && productReviews.isEmpty()) {
+            Toast.makeText(getContext(), "Vui lòng đánh giá ít nhất một sản phẩm hoặc để lại nhận xét cho đơn hàng", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        Log.d("REVIEW", "Body gửi đi: " + new com.google.gson.Gson().toJson(body));
 
         apiService.reviewOrderAndProducts(orderID, body).enqueue(new Callback<CommonResponse>() {
             @Override
             public void onResponse(Call<CommonResponse> call, Response<CommonResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     if ("Success".equalsIgnoreCase(response.body().getStatus())) {
+                        Toast.makeText(getContext(), "Cảm ơn bạn đã đánh giá!", Toast.LENGTH_LONG).show();
                         showVoucherSuccessDialog();
                     } else {
-                        Toast.makeText(getContext(), "Đánh giá thành công (chỉ tổng quát)", Toast.LENGTH_LONG).show();
-                        showVoucherSuccessDialog();
+                        Toast.makeText(getContext(), "Đánh giá thất bại: " + response.body().getMessage(), Toast.LENGTH_LONG).show();
                     }
                 } else {
-                    Toast.makeText(getContext(), "Đã gửi đánh giá!", Toast.LENGTH_LONG).show();
-                    showVoucherSuccessDialog();
+                    Toast.makeText(getContext(), "Lỗi server: " + response.message(), Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<CommonResponse> call, Throwable t) {
-                Toast.makeText(getContext(), "Đã gửi đánh giá!", Toast.LENGTH_LONG).show();
-                showVoucherSuccessDialog();
+                Toast.makeText(getContext(), "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }

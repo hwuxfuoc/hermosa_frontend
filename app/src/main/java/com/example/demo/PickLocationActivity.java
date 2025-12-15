@@ -109,6 +109,7 @@ public class PickLocationActivity extends AppCompatActivity {
             gesturesPlugin.addOnMoveListener(new OnMoveListener() {
                 @Override
                 public void onMoveBegin(@NonNull MoveGestureDetector detector) {
+                    // Khi người dùng di chuyển map -> ẩn gợi ý và bàn phím
                     rvSuggestions.setVisibility(View.GONE);
                     hideKeyboard();
                 }
@@ -120,6 +121,7 @@ public class PickLocationActivity extends AppCompatActivity {
 
                 @Override
                 public void onMoveEnd(@NonNull MoveGestureDetector detector) {
+                    // Khi dừng di chuyển -> Lấy tọa độ tâm và reverse geocoding
                     if (mapboxMap != null) {
                         Point center = mapboxMap.getCameraState().getCenter();
                         if (center != null) {
@@ -140,8 +142,10 @@ public class PickLocationActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
+                // Chỉ gọi API khi người dùng đang tương tác nhập liệu
                 if (!isUserInteracting) return;
 
+                // Debounce: Đợi 500ms sau khi ngừng gõ mới gọi API
                 if (searchRunnable != null) handler.removeCallbacks(searchRunnable);
                 searchRunnable = () -> {
                     String query = s.toString().trim();
@@ -155,6 +159,7 @@ public class PickLocationActivity extends AppCompatActivity {
             }
         });
 
+        // Đánh dấu người dùng đang tương tác
         etSearchAddress.setOnFocusChangeListener((v, hasFocus) -> isUserInteracting = hasFocus);
         etSearchAddress.setOnClickListener(v -> isUserInteracting = true);
     }
@@ -192,6 +197,7 @@ public class PickLocationActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     List<MapboxSuggestionResponse.SuggestionItem> list = response.body().getData();
                     if (list != null && !list.isEmpty()) {
+                        // Chọn kết quả đầu tiên
                         MapboxSuggestionResponse.SuggestionItem topResult = list.get(0);
                         onSuggestionSelected(topResult);
                     } else {
@@ -208,21 +214,26 @@ public class PickLocationActivity extends AppCompatActivity {
         });
     }
 
+    // --- SỬA LẠI HÀM NÀY ĐỂ TRÁNH NULL ---
     private void onSuggestionSelected(MapboxSuggestionResponse.SuggestionItem item) {
         isUserInteracting = false;
         rvSuggestions.setVisibility(View.GONE);
         hideKeyboard();
 
+        // Ưu tiên tên tiếng Việt, nếu không có lấy tên gốc
         String displayName = item.place_name_vi != null ? item.place_name_vi : item.place_name;
 
+        // Cập nhật UI
         etSearchAddress.setText(displayName);
 
+        // Lưu dữ liệu vào biến toàn cục (kiểm tra null an toàn)
         finalAddressName = displayName != null ? displayName : "";
-        finalStreet = item.street != null ? item.street : finalAddressName;
+        finalStreet = item.street != null ? item.street : finalAddressName; // Nếu không có tên đường, lấy full name
         finalWard = item.ward != null ? item.ward : "";
         finalDistrict = item.district != null ? item.district : "";
         finalCity = item.city != null ? item.city : "";
 
+        // Di chuyển camera đến vị trí chọn
         if (mapboxMap != null) {
             CameraOptions options = new CameraOptions.Builder()
                     .center(Point.fromLngLat(item.lon, item.lat))
@@ -232,19 +243,23 @@ public class PickLocationActivity extends AppCompatActivity {
         }
     }
 
+    // --- SỬA LẠI HÀM NÀY ĐỂ TRÁNH NULL KHI GEOCODER LỖI ---
     private void getAddressFromCoordinates(double lat, double lng) {
         new Thread(() -> {
             Geocoder geocoder = new Geocoder(this, Locale.getDefault());
             try {
+                // Lấy tối đa 1 địa chỉ
                 List<Address> addresses = geocoder.getFromLocation(lat, lng, 1);
 
                 if (addresses != null && !addresses.isEmpty()) {
                     Address addr = addresses.get(0);
+                    // Lấy dòng địa chỉ đầy đủ (thường là chính xác nhất)
                     String fullAddr = addr.getAddressLine(0);
 
                     runOnUiThread(() -> {
                         isUserInteracting = false;
 
+                        // Cập nhật UI
                         if (fullAddr != null) {
                             etSearchAddress.setText(fullAddr);
                             finalAddressName = fullAddr;
@@ -253,15 +268,18 @@ public class PickLocationActivity extends AppCompatActivity {
                             finalAddressName = "";
                         }
 
+                        // Parse các thành phần địa chỉ
                         if (addr.getThoroughfare() != null) {
                             finalStreet = addr.getThoroughfare();
                             if (addr.getSubThoroughfare() != null) {
                                 finalStreet = addr.getSubThoroughfare() + " " + finalStreet;
                             }
                         } else {
+                            // Nếu không có tên đường riêng, dùng địa chỉ full
                             finalStreet = finalAddressName;
                         }
 
+                        // Kiểm tra null cho các trường khác
                         finalWard = addr.getSubLocality() != null ? addr.getSubLocality() : "";
                         finalDistrict = addr.getSubAdminArea() != null ? addr.getSubAdminArea() : "";
                         finalCity = addr.getAdminArea() != null ? addr.getAdminArea() : "";
@@ -275,8 +293,8 @@ public class PickLocationActivity extends AppCompatActivity {
 
     private void setupClickEvents() {
         if (btnBack != null) btnBack.setOnClickListener(v -> finish());
-
         if (btnSaveAddress != null) btnSaveAddress.setOnClickListener(v -> {
+
             String currentText = etSearchAddress.getText().toString().trim();
 
             if (finalAddressName == null || finalAddressName.isEmpty()) {

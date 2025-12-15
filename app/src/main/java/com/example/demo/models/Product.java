@@ -26,7 +26,7 @@ public class Product implements Serializable {
     @SerializedName("price")
     private String price;
 
-    @SerializedName("image")
+    @SerializedName("picture")
     private String imageUrl;
 
     @SerializedName("backgroundHexacode")

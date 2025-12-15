@@ -57,8 +57,8 @@ public class FragmentOrderTracking extends Fragment {
     private ImageView btnBack;
     private LinearLayout layoutHeaderPending, layoutHeaderConfirmed;
     private TextView tvStatusTitle, tvStatusDesc, tvStatusTag, tvTimeEstimate, tvStatusMsg;
-    private ImageView ivStep1, ivStep2, ivStep3, ivStep4;
-    private View line1, line2, line3;
+    private ImageView ivStep1, ivStep4;
+    private View line1;
 
     private TextView tvTotalPriceList;
     private TextView tvTotalPayment;
@@ -121,12 +121,8 @@ public class FragmentOrderTracking extends Fragment {
         tvStatusMsg = view.findViewById(R.id.tvStatusMsg);
 
         ivStep1 = view.findViewById(R.id.ivStep1);
-        //ivStep2 = view.findViewById(R.id.ivStep2);
-        //ivStep3 = view.findViewById(R.id.ivStep3);
         ivStep4 = view.findViewById(R.id.ivStep4);
         line1 = view.findViewById(R.id.line1);
-        //line2 = view.findViewById(R.id.line2);
-        //line3 = view.findViewById(R.id.line3);
 
         tvStoreName = view.findViewById(R.id.tvStoreName);
         tvAddressName = view.findViewById(R.id.tvAddressName);
@@ -156,6 +152,7 @@ public class FragmentOrderTracking extends Fragment {
             }
         });
 
+        // Nút Hủy -> Hiện Dialog xác nhận
         btnCancelOrder.setOnClickListener(v -> showConfirmCancelDialog());
         btnSubmitReview.setOnClickListener(v -> {
             FragmentReview reviewFragment = new FragmentReview();
@@ -185,11 +182,12 @@ public class FragmentOrderTracking extends Fragment {
 
         btnAgree.setOnClickListener(v -> {
             dialog.dismiss();
-            cancelOrderApi(currentOrderID);
+            cancelOrderApi(currentOrderID); // Gọi API hủy thật
         });
         btnCancelAction.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
     }
+    // 3. Dialog "Đơn hàng hoàn tất - Vui lòng nhận nước" (Khi status = done)
     private void showOrderDoneDialog() {
         if (getContext() == null || isDialogShown) return; // Nếu đã hiện rồi thì thôi
 
@@ -202,10 +200,11 @@ public class FragmentOrderTracking extends Fragment {
         MaterialButton btnConfirm = dialogView.findViewById(R.id.btnDialogConfirm);
         btnConfirm.setOnClickListener(v -> {
             dialog.dismiss();
+            // Có thể làm gì đó sau khi user bấm Đồng ý, ví dụ reload lại trang
         });
 
         dialog.show();
-        isDialogShown = true;
+        isDialogShown = true; // Đánh dấu đã hiện để không spam
     }
 
     private void cancelOrderApi(String orderID) {
@@ -222,11 +221,15 @@ public class FragmentOrderTracking extends Fragment {
                     if ("Success".equalsIgnoreCase(res.getStatus())) {
                         Toast.makeText(getContext(), "Đã hủy đơn hàng thành công!", Toast.LENGTH_SHORT).show();
 
+                        // BƯỚC 1: Cập nhật giao diện thành "Đã hủy" ngay lập tức
+                        // Để người dùng thấy trạng thái thay đổi (chữ đỏ, ẩn nút hủy...)
                         updateStatusTimeline("cancelled", false);
 
+                        // BƯỚC 2: Đợi 1 giây (1000ms) rồi mới hiện Dialog thông báo
                         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(new Runnable() {
                             @Override
                             public void run() {
+                                // Kiểm tra nếu Fragment còn đang hiển thị thì mới hiện Dialog
                                 if (isAdded() && getContext() != null) {
                                     showCancelSuccessDialog();
                                 }
@@ -265,7 +268,9 @@ public class FragmentOrderTracking extends Fragment {
         btnReturnHome.setOnClickListener(v -> {
             dialog.dismiss();
 
+            // Logic: Quay lại mua hàng tiếp (Về trang chủ)
             Intent intent = new Intent(getContext(), MainActivity.class);
+            // Xóa các màn hình cũ, chỉ giữ lại MainActivity mới
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
             if (getActivity() != null) getActivity().finish();
@@ -273,6 +278,7 @@ public class FragmentOrderTracking extends Fragment {
 
         dialog.show();
     }
+
 
     private void loadOrderDataFromApi(String orderID) {
         apiService.getOrderDetail(orderID).enqueue(new Callback<OrderResponse>() {
@@ -291,6 +297,7 @@ public class FragmentOrderTracking extends Fragment {
         });
     }
 
+
     private void updateUI(Order order) {
         if (getContext() == null) return;
 
@@ -304,7 +311,7 @@ public class FragmentOrderTracking extends Fragment {
         if (order.getCreateAt() != null && !order.getCreateAt().isEmpty()) {
             try {
                 SimpleDateFormat serverFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
-                serverFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+                serverFormat.setTimeZone(TimeZone.getTimeZone("UTC")); // Server dùng UTC
 
                 SimpleDateFormat displayFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
                 displayFormat.setTimeZone(TimeZone.getDefault());
@@ -442,19 +449,13 @@ public class FragmentOrderTracking extends Fragment {
         }
     }
 
+
+    // Helper: Tô màu Timeline
     private void highlightTimeline(int step) {
         int activeColor = Color.parseColor("#4CAF50");
         if (step >= 1) ivStep1.setColorFilter(activeColor, PorterDuff.Mode.SRC_IN);
         if (step >= 2) {
             line1.setBackgroundColor(activeColor);
-            ivStep2.setColorFilter(activeColor, PorterDuff.Mode.SRC_IN);
-        }
-        if (step >= 3) {
-            line2.setBackgroundColor(activeColor);
-            ivStep3.setColorFilter(activeColor, PorterDuff.Mode.SRC_IN);
-        }
-        if (step >= 4) {
-            line3.setBackgroundColor(activeColor);
             ivStep4.setColorFilter(activeColor, PorterDuff.Mode.SRC_IN);
         }
     }
@@ -462,12 +463,8 @@ public class FragmentOrderTracking extends Fragment {
     private void resetTimelineColors() {
         int grayColor = Color.parseColor("#E0E0E0");
         ivStep1.clearColorFilter();
-        ivStep2.clearColorFilter();
-        ivStep3.clearColorFilter();
         ivStep4.clearColorFilter();
         line1.setBackgroundColor(grayColor);
-        line2.setBackgroundColor(grayColor);
-        line3.setBackgroundColor(grayColor);
     }
 
     public static class OrderItemAdapter extends RecyclerView.Adapter<OrderItemAdapter.ViewHolder> {

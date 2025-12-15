@@ -126,7 +126,7 @@
                     android:textColor="#FFFFFF"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:backgroundTint="#A71317"
+                    android:backgroundTint="#FC809F"
                     android:minWidth="0dp"
                     android:minHeight="0dp"
                     android:layout_gravity="center"
