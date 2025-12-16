@@ -18,7 +18,7 @@ Do server đã online, bạn chỉ cần thực hiện các bước sau để ch
     ```bash
     git clone https://github.com/hwuxfuoc/hermosa_frontend.git
     cd hermosa_frontend/
-    git checkout ck
+    git checkout demo-fix
     git pull
     ```
     
