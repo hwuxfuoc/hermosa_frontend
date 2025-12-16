@@ -73,10 +73,12 @@ public class FragmentCart extends Fragment implements CartAdapter.OnCartUpdateLi
         tvEdit.setOnClickListener(v -> {
             if (adapter != null) {
                 boolean isEdit = !adapter.isEditMode();
+                /*tvEdit.setText(isEdit ? "Hoàn thành" : "Sửa");*/
                 adapter.setEditMode(isEdit);
             }
         });
 
+        // Xử lý sự kiện "Chọn tất cả"
         cbSelectAll.setOnClickListener(v -> {
             boolean isChecked = cbSelectAll.isChecked();
             selectAll(isChecked);
@@ -114,7 +116,7 @@ public class FragmentCart extends Fragment implements CartAdapter.OnCartUpdateLi
                             recyclerView.setAdapter(adapter);
 
                             hideEmptyState();
-                            onUpdateTotal();
+                            onUpdateTotal(); // Tính lại tổng tiền ban đầu
 
                         } else {
                             cartItems.clear();
@@ -140,6 +142,7 @@ public class FragmentCart extends Fragment implements CartAdapter.OnCartUpdateLi
         for (CartResponse.CartItem item : cartItems) {
             item.setSelected(select);
         }
+        // Cập nhật lại toàn bộ danh sách để checkbox thay đổi theo
         if (adapter != null) adapter.notifyDataSetChanged();
         onUpdateTotal();
     }
@@ -171,12 +174,14 @@ public class FragmentCart extends Fragment implements CartAdapter.OnCartUpdateLi
             }
         }
 
+        // 2. Validate: Phải chọn ít nhất 1 món mới cho đi tiếp
         if (selectedItems.isEmpty()) {
             Toast.makeText(requireContext(), "Bạn chưa chọn sản phẩm nào để thanh toán!", Toast.LENGTH_SHORT).show();
             Log.w("CART_DEBUG", "User bấm Mua hàng nhưng chưa tick chọn món nào.");
             return;
         }
 
+        // 3. Ghi Log chi tiết để Debug
         Log.d("CART_DEBUG", "========== BẮT ĐẦU CHECKOUT ==========");
         Log.d("CART_DEBUG", "UserID: " + userID);
         Log.d("CART_DEBUG", "Số lượng món đã chọn: " + selectedItems.size());
@@ -185,16 +190,22 @@ public class FragmentCart extends Fragment implements CartAdapter.OnCartUpdateLi
         for (CartResponse.CartItem item : selectedItems) {
             Log.d("CART_DEBUG", " + Món: " + item.getName() + " | SL: " + item.getQuantity() + " | Giá: " + item.getSubtotal());
         }
+        // 1. Lọc các món đã chọn và Validate
+        // ... (Phần lọc và kiểm tra selectedItems giữ nguyên) ...
 
+        // 2. Khóa nút
         btnCheckout.setEnabled(false);
         btnCheckout.setText("Đang tạo đơn...");
 
+        // 3. CHỈ GỬI CÁC TRƯỜNG CẦN THIẾT (để Backend tự lấy giỏ hàng)
         Map<String, Object> body = new HashMap<>();
         body.put("userID", userID);
 
+        // Note: Backend sẽ tự động đặt paymentStatus = "not_done" và status = "pending".
 
         Log.d("CART_DEBUG", "Đang gọi API tạo đơn chỉ với UserID...");
 
+        // 4. GỌI API TẠO ĐƠN (chỉ cần userID)
         ApiClient.getClient().create(ApiService.class).createOrder(body).enqueue(new Callback<OrderResponse>() {
             @Override
             public void onResponse(Call<OrderResponse> call, Response<OrderResponse> response) {
@@ -211,6 +222,8 @@ public class FragmentCart extends Fragment implements CartAdapter.OnCartUpdateLi
                     Log.d("CART_DEBUG", "Voucher tự động: " + autoVoucherCode + " - Giảm: " + autoDiscount);
 
 
+
+                    // 5. CHUYỂN MÀN HÌNH VÀ GỬI ORDER_ID
                     Intent intent = new Intent(requireActivity(), ConfirmOrderActivity.class);
                     intent.putExtra("ORDER_ID", orderID);
                     intent.putExtra("SELECTED_ITEMS", (Serializable) selectedItems);
@@ -241,10 +254,8 @@ public class FragmentCart extends Fragment implements CartAdapter.OnCartUpdateLi
                 .mapToLong(CartResponse.CartItem::getSubtotal)
                 .sum();
         tvTotal.setText(String.format("Tổng: %,dđ", total));
-
         boolean allSelected = !cartItems.isEmpty() &&
                 cartItems.stream().allMatch(CartResponse.CartItem::isSelected);
-
         cbSelectAll.setOnCheckedChangeListener(null);
         cbSelectAll.setChecked(allSelected);
         cbSelectAll.setOnClickListener(v -> selectAll(cbSelectAll.isChecked()));
@@ -254,7 +265,6 @@ public class FragmentCart extends Fragment implements CartAdapter.OnCartUpdateLi
     public void onCartUpdated() {
         loadCart();
     }
-
     @Override
     public void onResume() {
         super.onResume();

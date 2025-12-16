@@ -1,3 +1,4 @@
+
 package com.example.demo.fragment;
 
 import android.app.AlertDialog;
@@ -122,8 +123,12 @@ public class FragmentOrderTracking extends Fragment {
         tvStatusMsg = view.findViewById(R.id.tvStatusMsg);
 
         ivStep1 = view.findViewById(R.id.ivStep1);
+        /*ivStep2 = view.findViewById(R.id.ivStep2);
+        ivStep3 = view.findViewById(R.id.ivStep3);*/
         ivStep4 = view.findViewById(R.id.ivStep4);
         line1 = view.findViewById(R.id.line1);
+        /*line2 = view.findViewById(R.id.line2);
+        line3 = view.findViewById(R.id.line3);*/
 
         tvStoreName = view.findViewById(R.id.tvStoreName);
         tvAddressName = view.findViewById(R.id.tvAddressName);
@@ -170,7 +175,6 @@ public class FragmentOrderTracking extends Fragment {
             }
         });
     }
-
     private void showConfirmCancelDialog() {
         if (getContext() == null) return;
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -189,7 +193,6 @@ public class FragmentOrderTracking extends Fragment {
         btnCancelAction.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
     }
-
     // 3. Dialog "Đơn hàng hoàn tất - Vui lòng nhận nước" (Khi status = done)
     private void showOrderDoneDialog() {
         if (getContext() == null || isDialogShown) return; // Nếu đã hiện rồi thì thôi
@@ -253,7 +256,6 @@ public class FragmentOrderTracking extends Fragment {
             }
         });
     }
-
     private void showCancelSuccessDialog() {
         if (getContext() == null) return;
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -282,6 +284,7 @@ public class FragmentOrderTracking extends Fragment {
 
         dialog.show();
     }
+
 
     private void loadOrderDataFromApi(String orderID) {
         apiService.getOrderDetail(orderID).enqueue(new Callback<OrderResponse>() {
@@ -352,7 +355,7 @@ public class FragmentOrderTracking extends Fragment {
                 timeDisplay = "Đang cập nhật...";
             }
         }
-        productsForReview.clear();
+        productsForReview.clear(); // Xóa dữ liệu cũ nếu có
 
         if (order.getProducts() == null) {
             android.util.Log.e("DEBUG_CONVERT", "❌ order.getProducts() bị NULL!");
@@ -364,11 +367,8 @@ public class FragmentOrderTracking extends Fragment {
 
                 // 2. Log dữ liệu gốc từ CartItem
                 String rawName = item.getName();
-                String rawImg = item.getImageUrl();
+                String rawImg = item.getImageUrl(); // Kiểm tra getter này trong CartItem
                 android.util.Log.d("DEBUG_CONVERT", "🔻 Item [" + i + "] Gốc: " + rawName + " | Link ảnh gốc: " + rawImg);
-
-
-                // 1. Tạo Product bằng constructor (lúc này imageUrl đang là null)
                 Product p = new Product(
                         item.getName(),
                         String.valueOf(item.getPrice()),
@@ -378,22 +378,16 @@ public class FragmentOrderTracking extends Fragment {
                         ""
                 );
 
-                // 2. Gán ID
                 p.setProductID(item.getProductID());
-
-                // 3. --- BƯỚC QUAN TRỌNG NHẤT ---
                 String linkAnhTuCart = item.getImageUrl();
                 p.setImageUrl(linkAnhTuCart);
 
-                // 4. Kiểm tra
                 Log.d("CHECK_PRODUCT", "Link ảnh trong Product giờ là: " + p.getImageUrl());
-
-
-
                 productsForReview.add(p);
             }
         }
         tvTimeEstimate.setText(timeDisplay);
+        tvTimeEstimate.setVisibility(View.GONE);
 
         if (isPickup) {
             tvAddressName.setText("Nhận tại cửa hàng");
@@ -547,7 +541,7 @@ public class FragmentOrderTracking extends Fragment {
                 /*btnSubmitReview.setVisibility(View.VISIBLE);*/
                 btnCancelOrder.setVisibility(View.VISIBLE);
                 btnCancelOrder.setText("Đánh giá ngay");
-                btnCancelOrder.setBackgroundColor(Color.parseColor("#FF9800")); // Màu cam nổi bật
+                btnCancelOrder.setBackgroundColor(Color.parseColor("#4CAF50"));
 
                 // Set sự kiện click mới: Chuyển sang màn hình đánh giá
                 btnCancelOrder.setOnClickListener(v -> openReviewFragment());

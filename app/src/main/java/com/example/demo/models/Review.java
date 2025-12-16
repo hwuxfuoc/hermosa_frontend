@@ -1,6 +1,7 @@
 package com.example.demo.models;
 
 import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 
 public class Review implements Serializable {
@@ -8,23 +9,31 @@ public class Review implements Serializable {
     private String productID;
 
     @SerializedName("rating")
-    private float rating;
+    private float rating; // 0-5
 
     @SerializedName("comment")
     private String comment;
 
-    @SerializedName("userName")
+    @SerializedName("userName") // Optional: Tên user gửi review
     private String userName;
 
-    @SerializedName("date")
+    @SerializedName("date") // Optional: Ngày gửi
     private String date;
+    @SerializedName("userID")
+    private String userID;
+
+    public String getUserID() { return userID; }
+    public void setUserID(String userID) { this.userID = userID; }
 
     public Review(String productID, float rating, String comment) {
         this.productID = productID;
         this.rating = rating;
         this.comment = comment;
     }
+    public Review() {
+    }
 
+    // Getters & Setters
     public String getProductID() { return productID; }
     public void setProductID(String productID) { this.productID = productID; }
 

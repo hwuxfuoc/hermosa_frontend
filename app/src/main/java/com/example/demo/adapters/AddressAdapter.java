@@ -34,6 +34,7 @@ public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.AddressV
         holder.tvContactInfo.setText(item.name + " | " + item.phone);
         holder.tvAddressDetail.setText(item.getFullAddress());
 
+        // Trong AddressAdapter.java > onBindViewHolder
         if (item.isSelected) {
             holder.itemView.setBackgroundResource(R.drawable.bg_btn_selected);
         }
@@ -56,8 +57,7 @@ public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.AddressV
             super(itemView);
             tvContactInfo = itemView.findViewById(R.id.tvContactInfo);
             tvAddressDetail = itemView.findViewById(R.id.tvAddressDetail);
-            /*tvAddressTitle=itemView.findViewById(R.id.tvAddressTitle);
-            ivIconType=itemView.findViewById(R.id.ivIconType);*/
+
         }
     }
 

@@ -47,7 +47,6 @@ public class OrderDetailProductAdapter extends RecyclerView.Adapter<OrderDetailP
         holder.tvPrice.setText(formatter.format(item.getPrice()) + " đ");
 
         // 4. Ảnh (Dữ liệu JSON KHÔNG CÓ nên sẽ hiện ảnh lỗi/placeholder)
-        // Bạn có thể dùng ảnh tĩnh nếu chưa fix được Backend
         Glide.with(holder.itemView.getContext())
                 .load(item.getPicture())
                 .placeholder(R.drawable.ic_launcher_background)

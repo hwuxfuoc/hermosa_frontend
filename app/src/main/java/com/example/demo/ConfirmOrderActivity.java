@@ -113,6 +113,10 @@ public class ConfirmOrderActivity extends AppCompatActivity
         L(msg + "\n" + sw.toString());
     }
 
+
+    /*private Handler pollingHandler = new Handler(Looper.getMainLooper());
+    private Runnable pollingRunnable;*/
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -158,6 +162,8 @@ public class ConfirmOrderActivity extends AppCompatActivity
         }
         loadData();
         setupClickListeners();
+
+
 
         // Xử lý deep link ngay từ đầu (nếu mở từ MoMo)
         handleDeepLink(getIntent());
@@ -343,6 +349,8 @@ public class ConfirmOrderActivity extends AppCompatActivity
                 });
     }
 
+
+
     private void deletePendingOrder(String orderID) {
         if (orderID == null || orderID.isEmpty()) return;
 
@@ -443,6 +451,7 @@ public class ConfirmOrderActivity extends AppCompatActivity
             btnPlaceOrder.setText("Đặt hàng - " + String.format("%,d VND", total));
         }
     }
+
 
     private void initViews() {
         recyclerOrderItems = findViewById(R.id.recyclerOrderItems);
@@ -553,92 +562,22 @@ public class ConfirmOrderActivity extends AppCompatActivity
     }
 
     private void loadRecommended() {
-        // Lấy danh sách productID từ giỏ hàng hiện tại
-        List<String> productIdsInCart = new ArrayList<>();
-        for (CartResponse.CartItem item : cartItemsLocal) {
-            productIdsInCart.add(item.getProductID()); // giả sử CartItem có getProductID()
-        }
-
-        if (productIdsInCart.isEmpty()) {
-            recyclerRecommended.setVisibility(View.GONE);
-            return;
-        }
-
-        // Ưu tiên gọi next-item-prediction cho từng sản phẩm trong giỏ
-        // (Có thể gọi nhiều lần song song hoặc chọn 1-2 sản phẩm chính để tránh quá tải)
-        List<Product> allSuggested = new ArrayList<>();
-
-        for (String productID : productIdsInCart) {
-            apiService.getNextItemPrediction(productID).enqueue(new Callback<RecommendationResponse>() {
-                @Override
-                public void onResponse(Call<RecommendationResponse> call, Response<RecommendationResponse> response) {
-                    if (response.isSuccessful() && response.body() != null
-                            && "Success".equals(response.body().getStatus())
-                            && response.body().getData() != null
-                            && response.body().getData().getData() != null) {
-
-                        List<Product> suggested = response.body().getData().getData();
-                        // Lọc bỏ sản phẩm đã có trong giỏ để tránh recommend trùng
-                        for (Product p : suggested) {
-                            boolean alreadyInCart = cartItemsLocal.stream()
-                                    .anyMatch(item -> item.getProductID().equals(p.getProductID()));
-                            if (!alreadyInCart && !allSuggested.contains(p)) {
-                                allSuggested.add(p);
-                            }
-                        }
-
-                        // Khi đủ (ví dụ 6-8 sản phẩm) hoặc hết loop → update UI
-                        if (allSuggested.size() >= 8 || productIdsInCart.size() == productIdsInCart.size()) {
-                            updateRecommendedAdapter(allSuggested);
-                        }
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<RecommendationResponse> call, Throwable t) {
-                    // Có thể fallback sang alsoLike/alsoView nếu cần
-                }
-            });
-        }
-
-        // Nếu muốn fallback khi next-item không có data
-        // → thì mới gọi alsoLike(userID) hoặc alsoView(userID) như cũ
-    }
-
-    private void updateRecommendedAdapter(List<Product> list) {
-        if (list.isEmpty()) {
-            recyclerRecommended.setVisibility(View.GONE);
-            return;
-        }
-        recommendedAdapter = new RecommendedAdapter(this, list, this);
-        recyclerRecommended.setAdapter(recommendedAdapter);
-        recyclerRecommended.setVisibility(View.VISIBLE);
-    }
-
-    private void tryAlsoView(String userID) {
-        apiService.getAlsoView(userID).enqueue(new Callback<RecommendationResponse>() {
+        apiService.getAllProducts().enqueue(new Callback<MenuResponse>() {
             @Override
-            public void onResponse(Call<RecommendationResponse> call, Response<RecommendationResponse> response) {
-                if (response.isSuccessful() && response.body() != null
-                        && response.body().getData() != null
-                        && response.body().getData().getData() != null
-                        && !response.body().getData().getData().isEmpty()) {
-
-                    List<Product> list = new ArrayList<>(response.body().getData().getData());
-
+            public void onResponse(Call<MenuResponse> call, Response<MenuResponse> r) {
+                if (r.isSuccessful() && r.body() != null) {
+                    List<Product> list = new ArrayList<>();
+                    for (MenuResponse.MenuItem item : r.body().getData()) {
+                        list.add(Product.fromMenuItem(item));
+                    }
                     recommendedAdapter = new RecommendedAdapter(ConfirmOrderActivity.this, list, ConfirmOrderActivity.this);
                     recyclerRecommended.setAdapter(recommendedAdapter);
-                    recyclerRecommended.setVisibility(View.VISIBLE);
-                } else {
-                    // Không có gợi ý nào → ẩn phần recommend
-                    recyclerRecommended.setVisibility(View.GONE);
                 }
             }
 
             @Override
-            public void onFailure(Call<RecommendationResponse> call, Throwable t) {
-                Log.e("ConfirmOrder", "alsoView failed: " + t.getMessage());
-                recyclerRecommended.setVisibility(View.GONE);
+            public void onFailure(Call<MenuResponse> call, Throwable t) {
+                L("Lỗi load sản phẩm gợi ý", t);
             }
         });
     }
@@ -758,6 +697,7 @@ public class ConfirmOrderActivity extends AppCompatActivity
         btnMomo.setTextColor(method.equals("momo") || method.equals("vnpay") ? red : gray);
         btnMomo.setText(method.equals("vnpay") ? "VNPay" : "Momo");
     }
+
 
     private long currentShippingFee = 0;
 
@@ -1178,37 +1118,7 @@ public class ConfirmOrderActivity extends AppCompatActivity
     }
 
     private void requestVnpayPayment(String orderID, String userID) {
-        Log.d(TAG, "Requesting VNPay payment - orderID: " + orderID);
-        CreateVnpayRequest request = new CreateVnpayRequest(orderID, userID);
-        apiService.createPaymentVnpayString(request).enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                Log.d(TAG, "VNPay response code: " + response.code());
-                if (response.isSuccessful() && response.body() != null) {
-                    String payUrl = response.body().trim().replace("\"", "");
-                    Log.d(TAG, "Received VNPay payUrl: " + payUrl);
-                    if (payUrl.startsWith("http")) {
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(payUrl));
-                        intent.putExtra("orderID", orderID); // Lưu orderID để xử lý sau
-                        startActivity(intent);
-                        Log.d(TAG, "Opening VNPay payment page with intent: " + intent.toString());
-                        Toast.makeText(ConfirmOrderActivity.this, "Đang mở VNPay...", Toast.LENGTH_LONG).show();
-                    } else {
-                        Log.w(TAG, "Invalid VNPay URL: " + payUrl);
-                        Toast.makeText(ConfirmOrderActivity.this, "Link không hợp lệ", Toast.LENGTH_LONG).show();
-                    }
-                } else {
-                    Log.e(TAG, "VNPay error: " + response.message());
-                    Toast.makeText(ConfirmOrderActivity.this, "Lỗi server VNPay: " + response.message(), Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<String> call, Throwable t) {
-                Log.e(TAG, "VNPay network error: " + t.getMessage());
-                Toast.makeText(ConfirmOrderActivity.this, "Lỗi kết nối VNPay", Toast.LENGTH_LONG).show();
-            }
-        });
+        // TODO: Implement VNPay nếu cần
     }
 
     @Override

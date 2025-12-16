@@ -128,7 +128,7 @@ public class ActivityLogin extends AppCompatActivity {
         LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override public void onSuccess(LoginResult loginResult) {
                 String accessToken = loginResult.getAccessToken().getToken();
-                loginWithFacebook(accessToken);
+                //loginWithFacebook(accessToken);
             }
             @Override public void onCancel() {
                 Toast.makeText(ActivityLogin.this, "Hủy đăng nhập Facebook", Toast.LENGTH_SHORT).show();
@@ -149,7 +149,7 @@ public class ActivityLogin extends AppCompatActivity {
             task.addOnSuccessListener(account -> {
                 String idToken = account.getIdToken();
                 if (idToken != null) {
-                    loginWithGoogle(idToken);
+                    //loginWithGoogle(idToken);
                 } else {
                     Toast.makeText(this, "Không lấy được idToken", Toast.LENGTH_LONG).show();
                 }
@@ -159,31 +159,31 @@ public class ActivityLogin extends AppCompatActivity {
         }
     }
 
-    private void loginWithGoogle(String idToken) {
-        apiService.googleLogin(idToken).enqueue(new Callback<AuthResponse>() {
-            @Override
-            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
-                handleAuthResponse(response, "Google");
-            }
-            @Override
-            public void onFailure(Call<AuthResponse> call, Throwable t) {
-                Toast.makeText(ActivityLogin.this, "Lỗi mạng Google", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
+//    private void loginWithGoogle(String idToken) {
+//        apiService.googleLogin(idToken).enqueue(new Callback<AuthResponse>() {
+//            @Override
+//            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+//                handleAuthResponse(response, "Google");
+//            }
+//            @Override
+//            public void onFailure(Call<AuthResponse> call, Throwable t) {
+//                Toast.makeText(ActivityLogin.this, "Lỗi mạng Google", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//    }
 
-    private void loginWithFacebook(String accessToken) {
-        apiService.facebookLogin(accessToken).enqueue(new Callback<AuthResponse>() {
-            @Override
-            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
-                handleAuthResponse(response, "Facebook");
-            }
-            @Override
-            public void onFailure(Call<AuthResponse> call, Throwable t) {
-                Toast.makeText(ActivityLogin.this, "Lỗi mạng Facebook", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
+//    private void loginWithFacebook(String accessToken) {
+//        apiService.facebookLogin(accessToken).enqueue(new Callback<AuthResponse>() {
+//            @Override
+//            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+//                handleAuthResponse(response, "Facebook");
+//            }
+//            @Override
+//            public void onFailure(Call<AuthResponse> call, Throwable t) {
+//                Toast.makeText(ActivityLogin.this, "Lỗi mạng Facebook", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//    }
 
     private void handleAuthResponse(Response<AuthResponse> response, String provider) {
         if (response.isSuccessful() && response.body() != null && "Success".equals(response.body().getStatus())) {

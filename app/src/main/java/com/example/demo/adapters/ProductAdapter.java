@@ -32,7 +32,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     public ProductAdapter(Context context, List<Product> productList) {
         this.context = context;
-        this.productList = new ArrayList<>(productList != null ? productList : new ArrayList<>());
+        this.productList = new ArrayList<>(productList != null ? productList : new ArrayList<>()); // Tạo bản sao, tránh tham chiếu sai
         Log.d("HOME", "Adapter khởi tạo, kích thước ban đầu: " + this.productList.size());
     }
 
@@ -65,7 +65,9 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
         holder.textName.setText(product.getName());
         holder.textPrice.setText(formatPrice(product.getPrice()));
+        holder.buttonPlus.setBackgroundTintList(ColorStateList.valueOf(product.getColor()));
 
+        // Sửa Glide để đảm bảo URL hợp lệ
         String imageUrl = product.getImageUrl();
         if (imageUrl != null && !imageUrl.isEmpty()) {
             Glide.with(context)
@@ -109,11 +111,16 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     }
 
     private String formatPrice(String price) {
+        if (price == null || price.isEmpty()) return "0 VND/pc";
         try {
+            // Xóa hết ký tự không phải số
             long p = Long.parseLong(price.replaceAll("[^0-9]", ""));
-            return String.format("₫%,d", p);
+
+            // SỬA Ở ĐÂY: Đưa %,d (số) lên trước, chữ VND/pc ra sau
+            return String.format("%,d VND/pc", p);
+
         } catch (Exception e) {
-            return "₫" + price;
+            return price + " VND/pc";
         }
     }
 

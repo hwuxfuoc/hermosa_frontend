@@ -4,7 +4,7 @@ import java.util.List;
 
 public class AddUpdateResponse {
     private String message;
-    private UserData data;
+    private UserData data; // Data là Object User, KHÔNG PHẢI LIST
 
     public String getMessage() { return message; }
     public UserData getData() { return data; }

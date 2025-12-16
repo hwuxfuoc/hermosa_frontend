@@ -1,3 +1,127 @@
+/*
+package com.example.demo.fragment;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.demo.R;
+import com.example.demo.adapters.OrderHistoryAdapter;
+import com.example.demo.api.ApiClient; // Quan trọng
+import com.example.demo.api.ApiService;
+import com.example.demo.models.OrderHistoryResponse;
+
+import java.util.ArrayList;
+import java.util.List;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class FragmentOrderHistory extends Fragment {
+
+    private RecyclerView rcvOrderHistory;
+    private ProgressBar progressBar;
+    private LinearLayout layoutEmptyOrder;
+    private ImageButton btnBack;
+    private OrderHistoryAdapter adapter;
+    private ApiService apiService;
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_order_history, container, false);
+        initViews(view);
+
+        // Khởi tạo Adapter
+        setupRecyclerView();
+
+        // Gọi API
+        callApiGetOrderHistory();
+
+        return view;
+    }
+
+    private void initViews(View view) {
+        rcvOrderHistory = view.findViewById(R.id.recyclerOrderHistory);
+        progressBar = view.findViewById(R.id.progressBar);
+        layoutEmptyOrder = view.findViewById(R.id.layoutEmptyOrder);
+        btnBack = view.findViewById(R.id.btnBack);
+
+        // --- THÊM DÒNG NÀY ĐỂ KHẮC PHỤC LỖI NULL ---
+        // ApiClient.getClient() trả về Retrofit, cần .create() để ra ApiService
+        apiService = ApiClient.getClient().create(ApiService.class);
+        // --------------------------------------------
+
+        btnBack.setOnClickListener(v -> {
+            if (getActivity() != null) getActivity().onBackPressed();
+        });
+    }
+
+    private void setupRecyclerView() {
+        rcvOrderHistory.setLayoutManager(new LinearLayoutManager(getContext()));
+        // Khởi tạo adapter với list rỗng
+        adapter = new OrderHistoryAdapter(getContext(), new ArrayList<>());
+        rcvOrderHistory.setAdapter(adapter);
+    }
+
+    private void callApiGetOrderHistory() {
+        progressBar.setVisibility(View.VISIBLE);
+        layoutEmptyOrder.setVisibility(View.GONE);
+
+        // Lấy UserID (Thay bằng logic lấy ID thật của bạn)
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MY_APP_PREFS", Context.MODE_PRIVATE);
+        String userID = sharedPreferences.getString("USER_ID", "690d583c81db5d6a42009e02");
+
+        // GỌI API QUA RETROFIT CLIENT (Tránh lỗi Null)
+        apiService.getOrderHistory(userID).enqueue(new Callback<OrderHistoryResponse>() {
+            @Override
+            public void onResponse(Call<OrderHistoryResponse> call, Response<OrderHistoryResponse> response) {
+                progressBar.setVisibility(View.GONE);
+
+                if (response.isSuccessful() && response.body() != null) {
+                    OrderHistoryResponse res = response.body();
+
+                    if ("Success".equalsIgnoreCase(res.getStatus())) {
+                        List<OrderHistoryResponse.HistoryItem> listData = res.getData();
+
+                        if (listData == null || listData.isEmpty()) {
+                            layoutEmptyOrder.setVisibility(View.VISIBLE);
+                            rcvOrderHistory.setVisibility(View.GONE);
+                        } else {
+                            layoutEmptyOrder.setVisibility(View.GONE);
+                            rcvOrderHistory.setVisibility(View.VISIBLE);
+                            // Cập nhật dữ liệu vào Adapter
+                            adapter.setData(listData);
+                        }
+                    } else {
+                        layoutEmptyOrder.setVisibility(View.VISIBLE);
+                        Toast.makeText(getContext(), res.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Lỗi server phản hồi", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<OrderHistoryResponse> call, Throwable t) {
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(getContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+}*/
 package com.example.demo.fragment;
 
 import android.content.Context;
@@ -82,51 +206,10 @@ public class FragmentOrderHistory extends Fragment {
         });
     }
 
-    /*private void setupRecyclerView() {
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        rcvOrderHistory.setLayoutManager(layoutManager);
-
-        // Khởi tạo Adapter và truyền vào sự kiện "Mua lại"
-        adapter = new OrderHistoryAdapter(getContext(), new ArrayList<>(), new OrderHistoryAdapter.OnOrderActionListener() {
-            @Override
-            public void onReorderClick(List<OrderHistoryResponse.ProductQuantity> products) {
-                // Khi bấm nút Mua lại, hàm này sẽ được gọi
-                processReorder(products);
-            }
-            @Override
-            public void onDetailClick(String orderID) {
-                // Khi bấm nút "Xem chi tiết", hàm này chạy
-                openOrderDetail(orderID);
-            }
-        });
-
-
-        rcvOrderHistory.setAdapter(adapter);
-
-    }*/
     private void setupRecyclerView() {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         rcvOrderHistory.setLayoutManager(layoutManager);
 
-        // Khởi tạo Adapter
-        /*adapter = new OrderHistoryAdapter(getContext(), new ArrayList<>(), new OrderHistoryAdapter.OnOrderActionListener() {
-
-            @Override
-            public void onReorderClick(List<OrderHistoryResponse.ProductQuantity> products) {
-                // Hàm này bạn đã có
-                processReorder(products);
-            }
-
-            // --- BỔ SUNG HÀM THIẾU NÀY ---
-            @Override
-            public void onDetailClick(String orderID) {
-                // Khi bấm nút "Xem chi tiết", gọi hàm chuyển màn hình
-                openOrderDetail(orderID);
-            }
-            // -----------------------------
-        });
-
-        rcvOrderHistory.setAdapter(adapter);*/
         adapter = new OrderHistoryAdapter(getContext(), new ArrayList<>(), new OrderHistoryAdapter.OnOrderActionListener() {
             @Override
             public void onReorderClick(List<OrderHistoryResponse.ProductQuantity> products) {
@@ -177,10 +260,6 @@ public class FragmentOrderHistory extends Fragment {
 
         // 3. Thực hiện chuyển màn hình
         if (getActivity() != null) {
-            // LƯU Ý QUAN TRỌNG:
-            // R.id.frame_layout_main là ID của khung chứa trong activity_main.xml.
-            // Bạn hãy mở activity_main.xml xem ID đó tên là gì (ví dụ: fragment_container, content_frame...)
-            // và thay thế vào đây nếu tên khác.
             getActivity().getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, detailFragment)
                     .addToBackStack(null) // Để bấm Back quay lại được danh sách
@@ -188,26 +267,6 @@ public class FragmentOrderHistory extends Fragment {
         }
     }
 
-    /*private void openOrderDetail(String orderID) {
-        // Cách 1: Gọi API lấy chi tiết (nếu cần dữ liệu mới nhất từ server)
-        apiService.getOrderDetail2(orderID).enqueue(new Callback<OrderDetailResponse>() {
-            @Override
-            public void onResponse(Call<OrderDetailResponse> call, Response<OrderDetailResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    OrderDetailResponse.OrderInfo detail = response.body().getData();
-
-                    // TODO: Mở Fragment mới hoặc Dialog để hiển thị thông tin 'detail'
-                    // Ví dụ:
-                    // Toast.makeText(getContext(), "Chi tiết đơn: " + detail.getOrderID(), Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<OrderDetailResponse> call, Throwable t) {
-                Toast.makeText(getContext(), "Lỗi kết nối", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }*/
     // --- LOGIC XỬ LÝ MUA LẠI ---
     private void processReorder(List<OrderHistoryResponse.ProductQuantity> products) {
         if (products == null || products.isEmpty()) {

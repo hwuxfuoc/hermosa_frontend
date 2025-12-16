@@ -1,9 +1,11 @@
 package com.example.demo.description;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.demo.R;
+import com.example.demo.adapters.NextItemAdapter;
 import com.example.demo.adapters.ProductReviewDisplayAdapter;
 import com.example.demo.api.ApiClient;
 import com.example.demo.api.ApiService;
@@ -22,8 +25,8 @@ import com.example.demo.fragment.FragmentFavorite;
 import com.example.demo.models.CommonResponse;
 import com.example.demo.models.FavoriteListResponse;
 import com.example.demo.models.MenuResponse;
+import com.example.demo.models.PredictionResponse;
 import com.example.demo.models.Product;
-import com.example.demo.models.Review;
 import com.example.demo.models.ReviewResponse;
 import com.example.demo.utils.SessionManager;
 
@@ -38,9 +41,15 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
 
     protected Product product;
     private ImageButton btnFav;
-
     private ApiService apiService;
+
+    // View hiển thị thông tin
+    private TextView tvSold, tvFavoriteCount; // <--- KHAI BÁO MỚI
+
+    // RecyclerViews
     private RecyclerView rvProductReviews;
+    private RecyclerView rvNextItems;
+    private LinearLayout recommendationLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,53 +58,189 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
 
         apiService = ApiClient.getClient().create(ApiService.class);
 
+        // 1. NHẬN DỮ LIỆU SẢN PHẨM TỪ INTENT
         product = (Product) getIntent().getSerializableExtra("product");
-
         if (product == null) {
+            // ... (Giữ nguyên logic tạo product tạm)
             String productID = getIntent().getStringExtra("productID");
             String name = getIntent().getStringExtra("name");
             String price = getIntent().getStringExtra("price");
             int imageResId = getIntent().getIntExtra("imageResId", 0);
             String description = getIntent().getStringExtra("description");
             String category = getIntent().getStringExtra("category");
-
             product = new Product(name, price, imageResId, 0, description, category);
-            if (productID != null) {
-                product.setProductID(productID);
-            }
+            if (productID != null) product.setProductID(productID);
         }
 
         if (product.getProductID() == null || product.getProductID().equals("UNKNOWN")) {
             product.setProductID("TEMP_" + System.currentTimeMillis());
         }
 
+        // 2. ÁNH XẠ VIEW
+        initViews();
+
+        // 3. HIỂN THỊ THÔNG TIN CƠ BẢN
+        setupBasicInfo();
+
+        // 4. XỬ LÝ YÊU THÍCH (FAVORITE)
+        setupFavoriteLogic();
+
+        // 5. GỌI API CHI TIẾT (Lấy Review + Số liệu Bán/Thích)
+        if (product != null && product.getProductID() != null && !product.getProductID().equals("UNKNOWN")) {
+            loadProductDetailData(product.getProductID());
+        }
+
+        // 6. SETUP GỢI Ý MUA KÈM
+        setupNextItemPrediction();
+
+        // 7. SETUP ADD TO CART
+        setupAddToCart();
+    }
+
+    private void initViews() {
+        rvProductReviews = findViewById(R.id.rvProductReviews);
+        rvNextItems = findViewById(R.id.rvNextItems);
+        recommendationLayout = findViewById(R.id.recommendation_layout);
+
+        // --- ÁNH XẠ MỚI ---
+        tvSold = findViewById(R.id.tvSold);
+        tvFavoriteCount = findViewById(R.id.tvFavoriteCount);
+        // ------------------
+
+        ImageButton btnBack = findViewById(R.id.icon_return_arrow);
+        btnFav = findViewById(R.id.icon_favorite);
+
+        btnBack.setOnClickListener(v -> finish());
+    }
+
+    // Đổi tên hàm loadProductReviews thành loadProductDetailData cho đúng nghĩa
+    private void loadProductDetailData(String productID) {
+        if (rvProductReviews == null || apiService == null) return;
+
+        // Setup LayoutManager cho Review
+        rvProductReviews.setLayoutManager(new LinearLayoutManager(this));
+        rvProductReviews.setNestedScrollingEnabled(false);
+
+        apiService.getProductDetail(productID).enqueue(new Callback<MenuResponse.SingleProductResponse>() {
+            @Override
+            public void onResponse(Call<MenuResponse.SingleProductResponse> call, Response<MenuResponse.SingleProductResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    MenuResponse.MenuItem item = response.body().getData();
+
+                    if (item != null) {
+                        // 1. CẬP NHẬT SỐ LIỆU (BÁN/THÍCH) TỪ API
+                        updateStatsUI(item);
+
+                        // 2. HIỂN THỊ DANH SÁCH BÌNH LUẬN
+                        if (item.getReviews() != null && !item.getReviews().isEmpty()) {
+                            ProductReviewDisplayAdapter adapter = new ProductReviewDisplayAdapter(item.getReviews());
+                            rvProductReviews.setAdapter(adapter);
+                        } else {
+                            rvProductReviews.setAdapter(new ProductReviewDisplayAdapter(new ArrayList<>()));
+                        }
+                    }
+                } else {
+                    rvProductReviews.setAdapter(new ProductReviewDisplayAdapter(new ArrayList<>()));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MenuResponse.SingleProductResponse> call, Throwable t) {
+                if (rvProductReviews != null) {
+                    rvProductReviews.setAdapter(new ProductReviewDisplayAdapter(new ArrayList<>()));
+                }
+            }
+        });
+    }
+
+    // Hàm phụ trợ để cập nhật giao diện số liệu
+    private void updateStatsUI(MenuResponse.MenuItem item) {
+        // Cập nhật Lượt yêu thích
+        if (tvFavoriteCount != null) {
+            int favCount = item.getSumofFavorites();
+            tvFavoriteCount.setText("Lượt yêu thích: " + formatCount(favCount));
+        }
+
+        // Cập nhật Đã bán (Hoặc số lượng đánh giá nếu API chưa có totalSold)
+        // Lưu ý: Dựa vào log của bạn, hiện tại có sumofRatings.
+        if (tvSold != null) {
+            int ratingCount = item.getSumofRatings();
+            // Giả sử dùng số rating đại diện cho số người mua/đánh giá
+            tvSold.setText("Đánh giá: " + formatCount(ratingCount));
+        }
+    }
+
+    // Hàm format số lượng (ví dụ: 1200 -> 1.2K)
+    private String formatCount(int count) {
+        if (count < 1000) return String.valueOf(count);
+        return String.format("%.1fK+", count / 1000.0);
+    }
+
+    private void setupBasicInfo() {
         ImageView imgProduct = findViewById(getImageViewId());
         TextView tvName = findViewById(getNameTextViewId());
         TextView tvPrice = findViewById(getPriceTextViewId());
         TextView tvDesc = findViewById(getDescriptionTextViewId());
-        ImageButton btnBack = findViewById(R.id.icon_return_arrow);
-        btnFav = findViewById(R.id.icon_favorite);
-
-        rvProductReviews = findViewById(R.id.rvProductReviews);
-        if (rvProductReviews != null) {
-            rvProductReviews.setLayoutManager(new LinearLayoutManager(this));
-            rvProductReviews.setNestedScrollingEnabled(false);
-            rvProductReviews.setAdapter(new ProductReviewDisplayAdapter(new ArrayList<>())); // khởi tạo rỗng
-        }
 
         tvName.setText(product.getName());
-        tvPrice.setText(formatPrice(product.getPrice()) + " đ");
-        tvDesc.setText(product.getDescription() != null ? product.getDescription() : "Đang cập nhật...");
+        tvPrice.setText(formatPrice(product.getPrice())); // Đã có chữ VND/pc trong hàm formatPrice
+        tvDesc.setText(product.getDescription() != null ? product.getDescription() : "Đang cập nhật mô tả...");
 
-        // Load ảnh
         if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {
-            Glide.with(this).load(product.getImageUrl()).into(imgProduct);
+            Glide.with(this).load(product.getImageUrl()).placeholder(R.drawable.placeholder_food).into(imgProduct);
         } else if (product.getImageResId() != 0) {
             imgProduct.setImageResource(product.getImageResId());
+        } else {
+            imgProduct.setImageResource(R.drawable.placeholder_food);
         }
+    }
 
-        btnBack.setOnClickListener(v -> finish());
+    private void setupNextItemPrediction() {
+        if (rvNextItems != null) {
+            rvNextItems.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        }
+        if (product != null && product.getProductID() != null && !product.getProductID().startsWith("TEMP_")) {
+            loadNextItemPrediction(product.getProductID());
+        } else {
+            if (recommendationLayout != null) recommendationLayout.setVisibility(View.GONE);
+        }
+    }
 
+    private void loadNextItemPrediction(String currentProductID) {
+        apiService.getNextItemPrediction(currentProductID).enqueue(new Callback<PredictionResponse>() {
+            @Override
+            public void onResponse(Call<PredictionResponse> call, Response<PredictionResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    PredictionResponse.PredictionData wrapper = response.body().getData();
+                    if (wrapper != null && wrapper.getItems() != null && !wrapper.getItems().isEmpty()) {
+                        List<List<Object>> rawList = wrapper.getItems();
+                        List<Product> predictionList = new ArrayList<>();
+                        for (List<Object> itemArr : rawList) {
+                            if (!itemArr.isEmpty()) {
+                                String id = String.valueOf(itemArr.get(0));
+                                Product p = new Product("Đang tải...", "0", 0, 0);
+                                p.setProductID(id);
+                                predictionList.add(p);
+                            }
+                        }
+                        NextItemAdapter adapter = new NextItemAdapter(BaseDescriptionActivity.this, predictionList);
+                        rvNextItems.setAdapter(adapter);
+                        if (recommendationLayout != null) recommendationLayout.setVisibility(View.VISIBLE);
+                    } else {
+                        if (recommendationLayout != null) recommendationLayout.setVisibility(View.GONE);
+                    }
+                } else {
+                    if (recommendationLayout != null) recommendationLayout.setVisibility(View.GONE);
+                }
+            }
+            @Override
+            public void onFailure(Call<PredictionResponse> call, Throwable t) {
+                if (recommendationLayout != null) recommendationLayout.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    private void setupFavoriteLogic() {
         String userID = SessionManager.getUserID(this);
         if (userID != null && !userID.isEmpty() && !"unknown".equals(userID)) {
             apiService.getFavoriteList(userID).enqueue(new Callback<FavoriteListResponse>() {
@@ -105,111 +250,59 @@ public abstract class BaseDescriptionActivity extends AppCompatActivity {
                         List<MenuResponse.MenuItem> favItems = response.body().getData();
                         boolean isFav = favItems.stream()
                                 .anyMatch(item -> item.getId().equals(product.getProductID()));
-
-                        btnFav.setImageResource(isFav
-                                ? R.drawable.icon_favorite_fill
-                                : R.drawable.icon_favorite_empty);
+                        btnFav.setImageResource(isFav ? R.drawable.icon_favorite_fill : R.drawable.icon_favorite_empty);
                     }
                 }
-
                 @Override
-                public void onFailure(Call<FavoriteListResponse> call, Throwable t) {
-                    // Không làm gì, giữ icon mặc định
-                }
+                public void onFailure(Call<FavoriteListResponse> call, Throwable t) {}
             });
-        } else {
-            btnFav.setImageResource(R.drawable.icon_favorite_empty);
         }
-
         btnFav.setOnClickListener(v -> {
-            String productId = product.getProductID();
-
             if (userID == null || userID.isEmpty() || "unknown".equals(userID)) {
-                Toast.makeText(this, "Vui lòng đăng nhập để sử dụng yêu thích", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Vui lòng đăng nhập để sử dụng tính năng này", Toast.LENGTH_SHORT).show();
                 return;
             }
-
+            String productId = product.getProductID();
             boolean isCurrentlyFav = btnFav.getDrawable().getConstantState()
                     .equals(ContextCompat.getDrawable(this, R.drawable.icon_favorite_fill).getConstantState());
 
             Call<CommonResponse> call;
             if (isCurrentlyFav) {
-                // Đang là yêu thích → xóa
                 call = apiService.removeFavorite(userID, productId);
                 btnFav.setImageResource(R.drawable.icon_favorite_empty);
-                Toast.makeText(this, product.getName() + " đã bỏ yêu thích", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Đã bỏ yêu thích", Toast.LENGTH_SHORT).show();
             } else {
-                // Chưa yêu thích → thêm
                 call = apiService.addFavorite(userID, productId);
                 btnFav.setImageResource(R.drawable.icon_favorite_fill);
-                Toast.makeText(this, product.getName() + " đã thêm vào yêu thích", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Đã thêm vào yêu thích", Toast.LENGTH_SHORT).show();
             }
-
             call.enqueue(new Callback<CommonResponse>() {
                 @Override
                 public void onResponse(Call<CommonResponse> call, Response<CommonResponse> response) {
                     if (!response.isSuccessful() || !"Success".equals(response.body().getStatus())) {
-                        // Nếu lỗi → hoàn lại trạng thái cũ
-                        btnFav.setImageResource(isCurrentlyFav
-                                ? R.drawable.icon_favorite_fill
-                                : R.drawable.icon_favorite_empty);
-                        Toast.makeText(BaseDescriptionActivity.this, "Lỗi đồng bộ yêu thích", Toast.LENGTH_SHORT).show();
+                        btnFav.setImageResource(isCurrentlyFav ? R.drawable.icon_favorite_fill : R.drawable.icon_favorite_empty);
+                        Toast.makeText(BaseDescriptionActivity.this, "Lỗi: " + response.message(), Toast.LENGTH_SHORT).show();
                     } else {
-                        // Thành công → reload FragmentFavorite nếu đang mở
                         Fragment frag = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-                        if (frag instanceof FragmentFavorite) {
-                            ((FragmentFavorite) frag).reloadFavorites();
-                        }
+                        if (frag instanceof FragmentFavorite) ((FragmentFavorite) frag).reloadFavorites();
                     }
                 }
-
                 @Override
                 public void onFailure(Call<CommonResponse> call, Throwable t) {
-                    // Lỗi mạng → hoàn lại icon
-                    btnFav.setImageResource(isCurrentlyFav
-                            ? R.drawable.icon_favorite_fill
-                            : R.drawable.icon_favorite_empty);
+                    btnFav.setImageResource(isCurrentlyFav ? R.drawable.icon_favorite_fill : R.drawable.icon_favorite_empty);
                     Toast.makeText(BaseDescriptionActivity.this, "Lỗi mạng", Toast.LENGTH_SHORT).show();
                 }
             });
         });
-
-        if (product != null && product.getProductID() != null
-                && !product.getProductID().equals("UNKNOWN")) {
-            loadProductReviews(product.getProductID());
-        }
-
-        setupAddToCart();
-    }
-
-    private void loadProductReviews(String productID) {
-        if (rvProductReviews == null || apiService == null) return;
-
-        apiService.getProductReviews(productID).enqueue(new Callback<ReviewResponse>() {
-            @Override
-            public void onResponse(Call<ReviewResponse> call, Response<ReviewResponse> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().getReviews() != null) {
-                    rvProductReviews.setAdapter(new ProductReviewDisplayAdapter(response.body().getReviews()));
-                } else {
-                    rvProductReviews.setAdapter(new ProductReviewDisplayAdapter(new ArrayList<>()));
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ReviewResponse> call, Throwable t) {
-                // Backend chưa có hoặc lỗi mạng → vẫn để trống, không crash
-                rvProductReviews.setAdapter(new ProductReviewDisplayAdapter(new ArrayList<>()));
-            }
-        });
     }
 
     private String formatPrice(String price) {
-        if (price == null || price.isEmpty()) return "0";
+        if (price == null || price.isEmpty()) return "0 VND/pc";
         try {
             long p = Long.parseLong(price.replaceAll("[^0-9]", ""));
-            return String.format("%,d", p);
+            return String.format("%,d VND/pc", p);
         } catch (Exception e) {
-            return price;
+            return price + " VND/pc";
         }
     }
 

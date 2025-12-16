@@ -1,4 +1,3 @@
-
 package com.example.demo.adapters;
 
 import android.content.Context;
@@ -16,7 +15,6 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.demo.R;
 import com.example.demo.api.ApiClient;
 import com.example.demo.api.ApiService;
@@ -59,6 +57,7 @@ public class RecommendedAdapter extends RecyclerView.Adapter<RecommendedAdapter.
         Product p = list.get(position);
         holder.tvName.setText(p.getName() != null ? p.getName() : "Tên sản phẩm không có");
 
+        // Xử lý giá an toàn và format VND
         long price = 0;
         if (p.getPrice() != null) {
             String priceStr = p.getPrice().toString().trim().replaceAll("[^0-9]", "");
@@ -78,8 +77,7 @@ public class RecommendedAdapter extends RecyclerView.Adapter<RecommendedAdapter.
             }
         });
 
-        Log.d("RecommendedAdapter", "Vị trí: " + position + ", ProductID: " + (p.getProductID() != null ? p.getProductID() : "null"));
-
+        // GỌI API LẤY CHI TIẾT SẢN PHẨM (Màu, Ảnh, Lượt bán)
         if (p.getProductID() != null && !p.getProductID().isEmpty()) {
             ApiClient.getClient().create(ApiService.class)
                     .getProductDetail(p.getProductID())
@@ -88,42 +86,34 @@ public class RecommendedAdapter extends RecyclerView.Adapter<RecommendedAdapter.
                         public void onResponse(Call<MenuResponse.SingleProductResponse> call, Response<MenuResponse.SingleProductResponse> res) {
                             if (res.isSuccessful() && res.body() != null && res.body().getData() != null) {
                                 MenuResponse.MenuItem detail = res.body().getData();
-                                Log.d("RecommendedAdapter", "API thành công - Ảnh: " + detail.getPicture() + ", Màu hex: " + detail.getBackgroundHexacode());
 
-
+                                // --- 2. HIỂN THỊ ẢNH ---
                                 if (p.getImageUrl() != null && !p.getImageUrl().isEmpty()) {
                                     Glide.with(context)
                                             .load(p.getImageUrl())
                                             .placeholder(R.drawable.placeholder_food)
                                             .error(R.drawable.placeholder_food)
                                             .into(holder.img);
-                                    Log.d("RecommendedAdapter", "Load ảnh từ backend: " + p.getImageUrl());
                                 } else {
-                                    Log.w("RecommendedAdapter", "URL ảnh backend null/empty, dùng fallback");
                                     loadFallbackImage(holder.img, p);
                                 }
 
+                                // --- 3. HIỂN THỊ MÀU NỀN ---
                                 String hex = detail.getBackgroundHexacode();
                                 LinearLayout parentLayout = (LinearLayout) ((CardView) holder.itemView).getChildAt(0);
                                 if (hex != null && !hex.isEmpty()) {
                                     try {
-                                        if (!hex.matches("^#?[0-9A-Fa-f]{6}$")) {
-                                            throw new IllegalArgumentException("Định dạng hex không hợp lệ: " + hex);
-                                        }
                                         String cleanHex = hex.trim().replace("#", "");
                                         int color = Integer.parseInt(cleanHex, 16) | 0xFF000000;
                                         parentLayout.setBackgroundColor(color);
-                                        Log.d("RecommendedAdapter", "Set màu nền thành công: #" + cleanHex);
                                     } catch (Exception e) {
-                                        Log.e("RecommendedAdapter", "Lỗi parse hex: " + e.getMessage() + ", Hex: " + hex);
                                         setFallbackColor(parentLayout, p);
                                     }
                                 } else {
-                                    Log.w("RecommendedAdapter", "Hex null/empty, dùng fallback");
                                     setFallbackColor(parentLayout, p);
                                 }
                             } else {
-                                Log.e("RecommendedAdapter", "API response không hợp lệ, code: " + res.code() + ", dùng fallback");
+                                // API lỗi logic -> Ẩn lượt bán, dùng màu/ảnh fallback
                                 loadFallbackImage(holder.img, p);
                                 LinearLayout parentLayout = (LinearLayout) ((CardView) holder.itemView).getChildAt(0);
                                 setFallbackColor(parentLayout, p);
@@ -132,28 +122,32 @@ public class RecommendedAdapter extends RecyclerView.Adapter<RecommendedAdapter.
 
                         @Override
                         public void onFailure(Call<MenuResponse.SingleProductResponse> call, Throwable t) {
-                            Log.e("RecommendedAdapter", "API thất bại: " + t.getMessage() + ", dùng fallback");
+                            // Mạng lỗi -> Ẩn lượt bán
                             loadFallbackImage(holder.img, p);
                             LinearLayout parentLayout = (LinearLayout) ((CardView) holder.itemView).getChildAt(0);
                             setFallbackColor(parentLayout, p);
                         }
                     });
         } else {
-            Log.w("RecommendedAdapter", "ProductID không hợp lệ, dùng fallback");
+            /*if (holder.tvSold != null) holder.tvSold.setVisibility(View.GONE);*/
             loadFallbackImage(holder.img, p);
             LinearLayout parentLayout = (LinearLayout) ((CardView) holder.itemView).getChildAt(0);
             setFallbackColor(parentLayout, p);
         }
     }
 
+    // Hàm format số lượng: 1200 -> 1.2K
+    private String formatCount(int count) {
+        if (count < 1000) return String.valueOf(count);
+        return String.format("%.1fK+", count / 1000.0);
+    }
+
     private void loadFallbackImage(ImageView img, Product p) {
         Glide.with(context).load(p.getImageUrl()).into(img);
-        Log.d("RecommendedAdapter", "Load ảnh fallback: " + p.getImageUrl());
     }
 
     private void setFallbackColor(LinearLayout layout, Product p) {
         layout.setBackgroundColor(p.getColor());
-        Log.d("RecommendedAdapter", "Set màu fallback: " + Integer.toHexString(p.getColor()));
     }
 
     @Override

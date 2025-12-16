@@ -30,6 +30,7 @@ import com.example.demo.adapters.ProductAdapter;
 import com.example.demo.adapters.RecommendedAdapter;
 import com.example.demo.api.ApiClient;
 import com.example.demo.api.ApiService;
+import com.example.demo.models.FavoriteListResponse;
 import com.example.demo.models.MenuResponse;
 import com.example.demo.models.Product;
 import com.example.demo.models.RecommendResponse;
@@ -90,6 +91,7 @@ public class FragmentHome extends Fragment {
         if (allProducts.isEmpty()) {
             loadAllProducts();
         } else {
+            // Nếu đã có dữ liệu rồi (khi quay lại tab), hiển thị lại ngay
             loadTopSelling();
             loadRecommendations();
         }
@@ -149,6 +151,8 @@ public class FragmentHome extends Fragment {
                         tabCake.setBackgroundResource(R.drawable.button_cake);
                     });
 
+                    // SAU KHI CÓ ALL PRODUCTS => MỚI GỌI 2 API KIA
+                    // Để tận dụng dữ liệu ảnh từ allProducts nếu 2 API kia thiếu ảnh
                     loadTopSelling();
                     loadRecommendations();
 
@@ -164,6 +168,7 @@ public class FragmentHome extends Fragment {
         });
     }
 
+
     private void loadRecommendations() {
         String userID = SessionManager.getUserID(requireContext());
         if (userID == null || userID.isEmpty()) return;
@@ -173,22 +178,29 @@ public class FragmentHome extends Fragment {
             public void onResponse(Call<RecommendResponse> call, Response<RecommendResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
 
+                    // Lấy cục data bên trong
                     RecommendResponse.RecData recData = response.body().getData();
 
                     if (recData != null && recData.getData() != null) {
                         recommendList.clear();
 
+                        // Danh sách kết quả trả về dạng: [["C09", 6.7], ["C06", 6.5]]
                         List<List<Object>> rawList = recData.getData();
 
                         for (List<Object> item : rawList) {
                             if (!item.isEmpty()) {
+                                // Lấy phần tử đầu tiên là ID (ví dụ "C09")
                                 String productID = String.valueOf(item.get(0));
 
+                                // TÌM SẢN PHẨM TRONG DANH SÁCH GỐC (allProducts) KHỚP VỚI ID NÀY
                                 for (Product p : allProducts) {
+                                    // So sánh ID (Lưu ý: đảm bảo Product model của bạn có hàm getProductID hoặc getId)
+                                    // Ở đây mình giả định getter là getProductID() hoặc getId()
                                     if (p.getProductID() != null && p.getProductID().equalsIgnoreCase(productID)) {
                                         recommendList.add(p);
-                                        break;
+                                        break; // Tìm thấy rồi thì thoát vòng lặp tìm kiếm này
                                     }
+                                    // Dự phòng nếu model bạn dùng getId()
                                     else if (p.getId() != null && p.getId().equalsIgnoreCase(productID)) {
                                         recommendList.add(p);
                                         break;
@@ -212,39 +224,46 @@ public class FragmentHome extends Fragment {
         });
     }
 
+
     // --- API: LOAD TOP SELLING ---
     private void loadTopSelling() {
         apiService.getTopSelling().enqueue(new Callback<TopSellingResponse>() {
             @Override
             public void onResponse(Call<TopSellingResponse> call, Response<TopSellingResponse> response) {
-                if (response.isSuccessful() && response.body() != null && "Success".equals(response.body().getStatus())) {
-                    List<Product> topProducts = response.body().getData();
-                    if (topProducts == null) topProducts = new ArrayList<>();
+                if (response.isSuccessful() && response.body() != null) {
+                    if ("Success".equals(response.body().getStatus())) {
+                        List<Product> topProducts = response.body().getData();
 
-                    bestSellerList.clear();
-                    for (Product p : topProducts) {
-                        // Xử lý bù ảnh tương tự
-                        if (isImageInvalid(p.getImageUrl())) {
-                            String imgFromAll = findImageInAllProducts(p.getId());
-                            if (imgFromAll != null) p.setImageUrl(imgFromAll);
-                        }
-                        bestSellerList.add(p);
+                        // Kiểm tra null để tránh crash
+                        if (topProducts == null) topProducts = new ArrayList<>();
+
+                        // Cập nhật dữ liệu
+                        bestSellerList.clear();
+                        bestSellerList.addAll(topProducts);
+
+                        // Báo cho Adapter vẽ lại
+                        bestSellerAdapter.notifyDataSetChanged();
+
+                        Log.d("BestSeller", "Đã load " + topProducts.size() + " món. Ảnh món đầu: " + (topProducts.isEmpty() ? "None" : topProducts.get(0).getImageUrl()));
                     }
-                    bestSellerAdapter.notifyDataSetChanged();
                 }
             }
 
             @Override
             public void onFailure(Call<TopSellingResponse> call, Throwable t) {
-                Log.e("BestSeller", "Lỗi: " + t.getMessage());
+                Log.e("BestSeller", "Lỗi API: " + t.getMessage());
             }
         });
     }
 
+    // --- CÁC HÀM BỔ TRỢ ---
+
+    // Hàm kiểm tra link ảnh có lỗi không
     private boolean isImageInvalid(String url) {
         return url == null || url.isEmpty() || !url.startsWith("http");
     }
 
+    // Hàm tìm ảnh chuẩn trong danh sách gốc
     private String findImageInAllProducts(String productId) {
         if (allProducts == null || allProducts.isEmpty()) return null;
         for (Product p : allProducts) {
@@ -260,7 +279,32 @@ public class FragmentHome extends Fragment {
         currentProductList.clear();
 
         if (currentCategory.equals("favorite")) {
-            loadFavoriteProducts();
+            String userID = SessionManager.getUserID(requireContext());
+            if (userID == null || userID.isEmpty() || "unknown".equals(userID)) {
+                currentProductList.clear();
+                productAdapter.updateList(currentProductList);
+                Toast.makeText(requireContext(), "Vui lòng đăng nhập", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            apiService.getFavoriteList(userID).enqueue(new Callback<FavoriteListResponse>() {
+                @Override
+                public void onResponse(Call<FavoriteListResponse> call, Response<FavoriteListResponse> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        currentProductList.clear();
+                        for (MenuResponse.MenuItem item : response.body().getData()) {
+                            currentProductList.add(Product.fromMenuItem(item));
+                        }
+                        productAdapter.updateList(currentProductList);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<FavoriteListResponse> call, Throwable t) {
+                    currentProductList.clear();
+                    productAdapter.updateList(currentProductList);
+                }
+            });
         } else {
             for (Product p : allProducts) {
                 String normalizedCat = Product.normalizeCategory(p.getCategory());

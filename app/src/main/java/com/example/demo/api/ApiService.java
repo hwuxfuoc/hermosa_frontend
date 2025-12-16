@@ -16,18 +16,19 @@ import com.example.demo.models.FavoriteListResponse;
 import com.example.demo.models.MapboxSuggestionResponse;
 import com.example.demo.models.MenuResponse;
 import com.example.demo.models.NotificationListResponse;
+import com.example.demo.models.OrderDetailResponse;
+import com.example.demo.models.OrderHistoryResponse;
 import com.example.demo.models.OrderListResponse;
 import com.example.demo.models.OrderResponse;
+import com.example.demo.models.PredictionResponse;
 import com.example.demo.models.RecommendResponse;
-import com.example.demo.models.RecommendationResponse;
 import com.example.demo.models.ReviewResponse;
 import com.example.demo.models.TopSellingResponse;
 import com.example.demo.models.VoucherResponse;
-import com.example.demo.models.OrderHistoryResponse;
-import com.example.demo.models.OrderDetailResponse;
 
 import retrofit2.Call;
 import retrofit2.http.*;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -63,15 +64,6 @@ public interface ApiService {
 
     @HTTP(method = "DELETE", path = "user/delete", hasBody = true)
     Call<CommonResponse> deleteAccount(@Body Map<String, String> body);
-    @POST("user/social-login")
-    Call<AuthResponse> socialLogin(@Body Map<String, String> body);
-    @FormUrlEncoded
-    @POST("user/google")
-    Call<AuthResponse> googleLogin(@Field("credential") String idToken);
-
-    @FormUrlEncoded
-    @POST("user/facebook")
-    Call<AuthResponse> facebookLogin(@Field("accessToken") String accessToken);
 
     // ---- CART ----
 
@@ -99,24 +91,40 @@ public interface ApiService {
     Call<CommonResponse> changeOrderStatus(@Query("orderID") String orderID, @Query("status") String status);
 
     @HTTP(method = "DELETE", path = "order/cancel", hasBody = true)
-    //Call<CommonResponse> cancelOrder(@Body Map<String, Object> body);
+    Call<CommonResponse> cancelOrder(@Body Map<String, Object> body);
+
+
 
     @GET("order/view-all")
     Call<OrderListResponse> viewAllOrders();
     @GET("order/list")
     Call<CommonResponse> getOrdersByDate(@Query("startDate") String startDate, @Query("endDate") String endDate);
 
-    @POST("review/review-order-and-products")
+
+    /*@POST("order/review-order-and-products")
     Call<CommonResponse> reviewOrderAndProducts(
             @Query("orderID") String orderID,
             @Body Map<String, Object> body
-    );
+    );*/
 
     @PUT("order/change-order-review")
     Call<CommonResponse> changeOrderReview(
             @Query("orderID") String orderID,
             @Body Map<String, Object> body
     );
+    /* @POST("payment-momo/create-payment-momo")
+     Call<CreateMomoResponse> createPaymentMomo(@Body CreateMomoRequest body);
+     @GET("payment-momo/confirm")
+     Call<Map<String, Object>> confirmMomoPayment(@Query("orderID") String orderID);
+     @GET("payment-momo/confirm")
+     Call<ConfirmPaymentResponse> confirmPaymentStatus(@Query("orderID") String orderID);
+     @POST("payment-momo/momo-notify")
+     Call<Object> notifyMomoPayment(@Body Map<String, Object> body);
+     @POST("payment-vnpay/create-payment-vnpay")
+     Call<String> createPaymentVnpayString(@Body CreateVnpayRequest body);
+
+     @GET("payment-vnpay/check-payment-status")
+     Call<ConfirmPaymentResponse> confirmVnpayStatus(@Query("vnp_TxnRef") String orderID);*/
     @GET("menu/all-product")
     Call<MenuResponse> getAllProducts();
     @GET("menu/product")
@@ -163,6 +171,9 @@ public interface ApiService {
     // Body cần: voucherCode, orderID
     @PUT("voucher/confirm-use")
     Call<CommonResponse> confirmVoucherUse(@Body Map<String, String> body);
+    /*@POST("user/save-token") // Thay bằng endpoint thật của Backend bạn
+    Call<CommonResponse> saveFcmToken(@Body Map<String, String> body);*/
+
     @POST("notification/save-fcm-token")
     Call<CommonResponse>saveFcmToken(@Body Map<String,String>body);
     @POST("notification/send-to-users")
@@ -171,6 +182,14 @@ public interface ApiService {
     Call<CommonResponse>createNotification(@Body Map<String,Object>body);
     @GET("notification/list")
     Call<NotificationListResponse>getNotificationList(@Query("userID") String userID);
+    /*@POST("notification/send-all")
+    Call<>*/
+    /*@POST("momo/create-payment-momo")
+    Call<CreateMomoResponse> createPaymentMomo(@Body CreateMomoRequest body);
+
+    @GET("momo/confirm")
+    Call<ConfirmPaymentResponse> confirmPaymentStatus(@Query("orderID") String orderID);*/
+
     @POST("momo/momo-notify")
     Call<Object> notifyMomoPayment(@Body Map<String, Object> body);
 
@@ -188,40 +207,37 @@ public interface ApiService {
     @POST("momo/create")
     Call<CreateMomoResponse> createPaymentMomo(@Body CreateMomoRequest request);
 
-    // 2. Kiểm tra trạng thái (Polling)
-    // BE: router.get('/confirm', ...) lấy orderID từ query param
     @GET("momo/confirm")
     Call<ConfirmPaymentResponse> confirmPaymentStatus(@Query("orderID") String orderID);
     @POST("vnpay/create")
     Call<String> createPaymentVnpay(@Body Map<String, String> body);
-
+    @POST("user/social-login")
+    Call<AuthResponse> socialLogin(@Body Map<String, String> body);
     @GET("order/view")
     Call<OrderResponse> getOrderDetail(@Query("orderID") String orderID);
     @HTTP(method = "DELETE", path = "order/cancel", hasBody = true)
     Call<OrderResponse> cancelOrder(@Body HashMap<String, String> body);
     @GET("notification/list")
     Call<NotificationListResponse> getNotifications(@Query("userID") String userID);
-    // Thêm 1 dòng này vào ApiService.java
     @GET("product/reviews")
     Call<ReviewResponse> getProductReviews(@Query("productID") String productID);
     @GET("order/order-history")
     Call<OrderHistoryResponse> getOrderHistory(@Query("userID") String userID);
+    // Trong file ApiService.java
     @GET("order/view")
     Call<OrderDetailResponse> getOrderDetail2(@Query("orderID") String orderID);
     @GET("order/view")
     Call<OrderDetailResponse> getOrderDetail3(@Query("orderID") String orderID);
-    @GET("rec/top-selling")
-    Call<TopSellingResponse> getTopSelling();
-    @GET("recommend/alsoLike")
-    Call<RecommendResponse> getRecommendations(@Query("userID") String userID);
-    @GET("recommend/alsoView")
-    Call<RecommendationResponse> getAlsoView(@Query("userID") String userID);
-
-    @GET("recommend/next-item-prediction")
-    Call<RecommendationResponse> getNextItemPrediction(@Query("productID") String productID);
-
-
-    // Thêm vào Fav
+    @POST("menu/favorite-add")
+    Call<CommonResponse> addToFavorite(
+            @Query("userID") String userID,
+            @Query("productID") String productID
+    );
+    @POST("review/review-order-and-products") // Kiểm tra lại đường dẫn router bên Nodejs xem có prefix 'order' không
+    Call<CommonResponse> reviewOrderAndProducts(
+            @Query("orderID") String orderID,
+            @Body Map<String, Object> body
+    );
     @POST("menu/favorite-add")
     Call<CommonResponse> addFavorite(
             @Query("userID") String userID,
@@ -236,5 +252,15 @@ public interface ApiService {
 
     @GET("menu/favorite-list")
     Call<FavoriteListResponse> getFavoriteList(@Query("userID") String userID);
+    @GET("rec/top-selling")
+    Call<TopSellingResponse> getTopSelling();
+    @GET("recommend/alsoLike")
+    Call<RecommendResponse> getRecommendations(@Query("userID") String userID);
+
+    @GET("recommend/next-item-prediction")
+    Call<PredictionResponse> getNextItemPrediction(@Query("productID") String productID);
 
 }
+
+
+

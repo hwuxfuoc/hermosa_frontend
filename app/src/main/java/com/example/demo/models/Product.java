@@ -8,6 +8,20 @@ import java.util.List;
 import com.google.gson.Gson;
 import android.graphics.Color;
 
+/**
+ * CLASS CHÍNH: Product
+ * Đại diện cho 1 sản phẩm (bánh, đồ uống, lunch)
+ * ĐƯỢC DÙNG Ở NHIỀU NƠI:
+ *   - Hiển thị danh sách sản phẩm (Home, Menu)
+ *   - Thêm vào giỏ hàng
+ *   - Hiển thị trong giỏ hàng (với màu nền riêng)
+ *   - Chi tiết sản phẩm
+ *   - Yêu thích, đánh giá
+ *
+ * LÝ DO implements Serializable:
+ *   → Để truyền object Product qua Intent/Bundle giữa các Fragment/Activity
+ *   → Rất quan trọng khi mở ProductDetailFragment.from(product)
+ */
 public class Product implements Serializable {
 
     // ==================================================================
@@ -15,28 +29,31 @@ public class Product implements Serializable {
     // ==================================================================
 
     @SerializedName("_id")
-    private String id;
+    private String id; // MongoDB ObjectId → ví dụ: "672f1a2b9e1c2d3e4f567890"
 
     @SerializedName("productID")
-    private String productID;
+    private String productID; // Mã sản phẩm: C01, D05, L12 – BẮT BUỘC
 
     @SerializedName("name")
-    private String name;
+    private String name; // Tên hiển thị: "Strawberry Cheese"
 
     @SerializedName("price")
-    private String price;
+    private String price; // Backend trả String: "85000" (không có đơn vị)
+    // TẠI SAO LẠI DÙNG String?
+    // → Vì backend menu trả price là String (tránh lỗi parse)
+    // → Dễ format: 85.000 đ, 100.000 đ
 
     @SerializedName("picture")
-    private String imageUrl;
+    private String imageUrl; // URL Cloudinary: "https://res.cloudinary.com/.../cake01.jpg"
 
     @SerializedName("backgroundHexacode")
-    private String backgroundHexacode;
+    private String backgroundHexacode; // ví dụ: "#FF5733"
 
     @SerializedName("description")
     private String description;
 
     @SerializedName("category")
-    private String category;
+    private String category; // "cake", "drink", "lunch"
 
     @SerializedName("sumofFavorites")
     private int sumofFavorites;
@@ -48,14 +65,14 @@ public class Product implements Serializable {
     // 2. CÁC FIELD DÙNG TRONG APP (UI + Logic)
     // ==================================================================
 
-    private int imageResId;
-    private int color;
-    private boolean isFavorite = false;
-    private int quantity = 0;
-    private int subtotal = 0;
-    private String size = "medium";
-    private String[] topping = new String[0];
-    private boolean selected = false;
+    private int imageResId;  // Dùng khi không có internet → hiện ảnh local (drawable)
+    private int color;       // Màu nền card trong giỏ hàng: hồng cho cake, đỏ cho drink
+    private boolean isFavorite = false; // Người dùng có yêu thích không?
+    private int quantity = 0;    // Số lượng trong giỏ hàng
+    private int subtotal = 0;    // Thành tiền = giá × số lượng + topping + size
+    private String size = "medium"; // small, medium, large
+    private String[] topping = new String[0]; // ["Trân châu", "Pudding"]
+    private boolean selected = false; // Checkbox trong giỏ hàng
 
     // ==================================================================
     // 3. SERIAL VERSION UID (BẮT BUỘC KHI implements Serializable)
@@ -151,6 +168,7 @@ public class Product implements Serializable {
     public String getPrice() { return price; }
     public void setPrice(String price) { this.price = price; }
 
+    // HÀM SIÊU HAY: Chuyển "85000" → 85000 (long)
     public long getPriceLong() {
         try {
             return Long.parseLong(price.replaceAll("[^0-9]", ""));
@@ -158,6 +176,7 @@ public class Product implements Serializable {
             return 0;
         }
     }
+
 
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
@@ -218,10 +237,11 @@ public class Product implements Serializable {
             try {
                 String hex = hexCode.trim();
                 if (!hex.startsWith("#")) hex = "#" + hex;
-                if (hex.length() == 6) hex = "#FF" + hex;
-                if (hex.length() == 7) hex = "#FF" + hex.substring(1);
+                if (hex.length() == 6) hex = "#FF" + hex; // thêm alpha nếu thiếu
+                if (hex.length() == 7) hex = "#FF" + hex.substring(1); // 6 ký tự → 8
                 color = Color.parseColor(hex);
             } catch (Exception e) {
+                // fallback theo category
                 switch (normalizedCat) {
                     case "drink": color = 0xFFA71317; break;
                     case "food":  color = 0xFF388E3C; break;
@@ -229,6 +249,7 @@ public class Product implements Serializable {
                 }
             }
         } else {
+            // fallback nếu null
             switch (normalizedCat) {
                 case "drink": color = 0xFFA71317; break;
                 case "food":  color = 0xFF388E3C; break;
@@ -287,6 +308,7 @@ public class Product implements Serializable {
         return p;
     }
 
+    // Thêm vào class Product
     private List<Review> reviews = new ArrayList<>();
 
     public List<Review> getReviews() { return reviews; }

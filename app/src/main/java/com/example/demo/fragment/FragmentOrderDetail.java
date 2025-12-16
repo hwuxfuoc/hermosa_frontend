@@ -1,3 +1,4 @@
+
 package com.example.demo.fragment;
 
 import android.content.Context;
@@ -80,7 +81,7 @@ public class FragmentOrderDetail extends Fragment {
         rcvProducts.setLayoutManager(new LinearLayoutManager(getContext()));
 
         btnBack = view.findViewById(R.id.btnBackDetail);
-        btnReorder = view.findViewById(R.id.btnDetailReorder);
+        /*btnReorder = view.findViewById(R.id.btnDetailReorder);*/
 
         btnBack.setOnClickListener(v -> { if (getActivity() != null) getActivity().onBackPressed(); });
         // btnReorder.setOnClickListener(...) // Logic mua lại
@@ -107,7 +108,7 @@ public class FragmentOrderDetail extends Fragment {
     }
 
     private void updateUI(OrderDetailResponse.OrderInfo info) {
-        tvOrderID.setText("#" + info.getOrderID());
+        tvOrderID.setText(info.getOrderID());
         tvStatus.setText(info.getStatus());
 
         // Xử lý ngày

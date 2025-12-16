@@ -6,8 +6,8 @@ public class CancelOrderRequest {
 
     @SerializedName("orderID")
     private String orderID;
-    public CancelOrderRequest() {}
 
+    // Constructor để tạo nhanh: new CancelOrderRequest("ORD-123")
     public CancelOrderRequest(String orderID) {
         this.orderID = orderID;
     }

@@ -99,24 +99,31 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:gravity="bottom|center_vertical"
                 android:layout_marginTop="0dp">
 
                 <TextView
+                    android:id="@+id/tvSold"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Đã bán 18K+"
                     android:textSize="12sp"
-                    android:layout_gravity="bottom"
+                    android:visibility="gone"
                     android:textColor="#C0C0C0"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="5.0 ⭐"
+                    android:visibility="gone"
                     android:layout_marginStart="10dp"
-                    android:layout_gravity="bottom"
                     android:textSize="12sp"
                     android:textColor="#FFC107" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
 
                 <Button
                     android:id="@+id/button_plus"
@@ -129,10 +136,8 @@
                     android:backgroundTint="#FC809F"
                     android:minWidth="0dp"
                     android:minHeight="0dp"
-                    android:layout_gravity="center"
                     android:padding="0dp"
                     android:gravity="center"
-                    android:layout_marginStart="50dp"
                     android:stateListAnimator="@null"/>
             </LinearLayout>
         </LinearLayout>
