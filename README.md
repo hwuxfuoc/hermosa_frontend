@@ -1,4 +1,4 @@
-# hermosa_frontend
+# Hermosa Front-end
 
 ## 1. Prerequisites (Yêu cầu hệ thống)
 Để chạy được ứng dụng này, bạn cần:
